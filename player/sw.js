@@ -1,8 +1,8 @@
 // ─── Parmate Team HCP · Service Worker ───
-// v8 — app split into separate files: lang.js, faq-data.js, vendor/qrcode-generator.js, app.css and app-*.js.
+// v9 — Dutch translation engine (i18n.js + lang-nl.js). App split into separate files: lang.js, faq-data.js, vendor/qrcode-generator.js, app.css and app-*.js.
 // Bump APP_VERSION on every deploy that must invalidate caches.
 // When a ?v= tag changes in index.html, change it in APP_SHELL below too (same value).
-const APP_VERSION = 'parmate-team-hcp-v8';
+const APP_VERSION = 'parmate-team-hcp-v9';
 const APP_CACHE   = APP_VERSION;
 
 // Minimal app shell (served at the site root). Kept tiny and cached individually
@@ -10,11 +10,13 @@ const APP_CACHE   = APP_VERSION;
 const ASSET_V   = '20261013';   // must match the ?v= tags in index.html
 const APP_SHELL = [
   '/', '/index.html', '/manifest.json',
-  '/lang.js?v=' + ASSET_V,
+  '/lang.js?v=20261013e',
   '/faq-data.js?v=' + ASSET_V,
   '/vendor/qrcode-generator.js?v=' + ASSET_V,
+  '/lang-nl.js',
+  '/i18n.js?v=20261013d',
   '/app.css?v=20261013b',
-  '/app-main.js?v=20261013c',
+  '/app-main.js?v=20261013d',
   '/app-tm-flow.js?v=20261013c',
   '/app-tm-hcp.js?v=20261013c',
   '/app-tm-code.js?v=20261013c',
@@ -23,7 +25,7 @@ const APP_SHELL = [
   '/app-nav.js?v=20261013c',
   '/app-myteams.js?v=20261013c',
   '/app-profile.js?v=20261013c',
-  '/app-faq.js?v=20261013c',
+  '/app-faq.js?v=20261013d',
   '/app-menu.js?v=20261013c',
   '/app-chat.js?v=20261013c',
   '/app-sharecard.js?v=20261013c'

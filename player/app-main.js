@@ -18,6 +18,7 @@ function setLang(lang) {
   localStorage.setItem('parmate_lang', lang);
   applyLang();
   updateLangBtn();
+  if (window.pmI18n) pmI18n.setLang(lang);   // translate / restore all other app text (i18n.js)
 }
 
 function updateLangBtn() {

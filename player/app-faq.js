@@ -3,10 +3,11 @@
 
 
 // FAQ data (_FAQ_CATEGORIES, _FAQ_CAT_ORDER, _FAQ_ARTICLES) lives in faq-data.js
-var _faqLang = 'en';
-function _faqQ(a){ return (_faqLang==='nl' && a.question_nl) ? a.question_nl : a.question_en; }
-function _faqCatName(id){ var c=_FAQ_CATEGORIES[id]; return c ? (c[_faqLang]||c.en) : id; }
-function _faqBodyBlocks(a){ return (_faqLang==='nl' && a.body_nl && a.body_nl.length) ? a.body_nl : (a.body_en||[]); }
+var _faqLang = 'en';  // kept for compatibility; the FAQ now follows the app language via _faqL()
+function _faqL(){ try{ return (typeof _lang!=='undefined' && _lang==='nl') ? 'nl' : 'en'; }catch(e){ return 'en'; } }
+function _faqQ(a){ return (_faqL()==='nl' && a.question_nl) ? a.question_nl : a.question_en; }
+function _faqCatName(id){ var c=_FAQ_CATEGORIES[id]; return c ? (c[_faqL()]||c.en) : id; }
+function _faqBodyBlocks(a){ return (_faqL()==='nl' && a.body_nl && a.body_nl.length) ? a.body_nl : (a.body_en||[]); }
 function _faqEsc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function openTopic(id){ window._faqArticleId=id; if(document.getElementById('screen-faqtopic')) showScreen('faqtopic'); }
 

@@ -602,7 +602,7 @@ const LANG = {
     pp_title:                 'Buddy-profiel',
     pp_buddies:               'Buddies',
     pp_duo:                   'Duo-rondes',
-    pp_match:                 'Team match',
+    pp_match:                 'Team Match',
     pp_teams:                 'Teams',
     // ── Keys used by data-i18n HTML attributes ──────────────────
     btn_calculate:       'Teamhandicap berekenen',
