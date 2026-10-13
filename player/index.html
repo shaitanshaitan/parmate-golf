@@ -66,7 +66,7 @@
     })();
   });
 </script>
-<link rel="stylesheet" href="app.css?v=20261013f">
+<link rel="stylesheet" href="app.css?v=20261013g">
 
 <!-- styles moved to app.css (block 2) -->
 </head>
@@ -1368,7 +1368,8 @@
 <script src="lang.js?v=20261013e"></script>
 <script src="lang-nl.js"></script>
 <script src="i18n.js?v=20261013d"></script>
-<script src="app-main.js?v=20261013d"></script>
+<script src="app-main.js?v=20261013g"></script>
+<script src="app-solo.js?v=20261013g"></script>
 
 <!-- ── MATCH GATE OVERLAY ── -->
 <div class="match-overlay" id="matchGateOverlay" style="display:none;">
@@ -2011,6 +2012,7 @@
         <div class="type-toggle">
           <button class="type-btn active" id="btnTR" onclick="switchType('TR')">Team Round</button>
           <button class="type-btn" id="btnTM" onclick="switchType('TM')">Team Match</button>
+          <button class="type-btn" id="btnSO" onclick="switchType('SO')">Solo</button>
         </div>
 
         <div style="height: 16px;"></div>
@@ -3776,6 +3778,9 @@
         <button class="game-card team-match" type="button" aria-label="Team Match" onclick="cgTeamMatch()">
           <span class="game-label" data-i18n-html="cg_team_match"><span>Team</span><span>Match</span></span>
         </button>
+        <button class="game-card solo-round" type="button" aria-label="Solo Round" onclick="cgSolo()">
+          <span class="game-label"><span>Solo</span><span>Round</span></span>
+        </button>
         <button class="game-card join-match" type="button" aria-label="Join Match" onclick="openJoinMatch()">
           <span class="game-label" data-i18n-html="cg_join_match"><span>Join</span><span>Match</span></span>
         </button>
@@ -4862,6 +4867,77 @@
 
 
 <!-- ════ TEAM ROUND B · trtee (Screen_08_TR_Choose_Tee_final.html) ════ -->
+<!-- ════ SOLO ROUND · setup (player, tee, format, allowance) · app-solo.js ════ -->
+<section id="screen-solosetup" class="screen" data-screen="solosetup">
+      <div class="app-header">
+        <div class="logo">
+          <img class="crown" alt="" src="icons/home-crown.png">
+          <span class="wordmark">Parmate</span>
+        </div>
+        <div class="header-icons">
+          <button class="icon-btn" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 19.5c.6-3 3.2-4.8 6.5-4.8 1.5 0 2.8.4 3.9 1.1"></path><line x1="18" y1="13" x2="18" y2="20"></line><line x1="14.5" y1="16.5" x2="21.5" y2="16.5"></line></svg></button>
+          <button class="icon-btn" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2H4.5L6 16z"></path><path d="M10 20.5a2 2 0 0 0 4 0"></path></svg></button>
+          <button class="icon-btn" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="8" x2="19" y2="8"></line><line x1="5" y1="12" x2="19" y2="12"></line><line x1="5" y1="16" x2="19" y2="16"></line></svg></button>
+        </div>
+      </div>
+
+      <div class="sub-header">
+        <span class="title">Solo Round</span>
+        <div class="actions">
+          <button class="back-pill" type="button" onclick="soloBack()">BACK</button>
+        </div>
+      </div>
+
+      <div class="body-area">
+        <div class="so-course" id="so_course">Course</div>
+        <div class="so-course-meta" id="so_courseMeta"></div>
+
+        <div class="so-player">
+          <div class="player-avatar-wrap"><img id="so_avatar" src="icons/home-crown.png" alt=""></div>
+          <div class="so-player-name" id="so_name">You</div>
+        </div>
+
+        <div class="section-title">Handicap Index</div>
+        <div class="so-field"><input id="so_index" type="number" step="0.1" min="-10" max="54" inputmode="decimal" placeholder="e.g. 14.5"></div>
+
+        <div class="section-title">Tee</div>
+        <div class="tee-group" id="so_tees"></div>
+
+        <div class="section-title">Format</div>
+        <div class="so-formats">
+          <button class="format-pill so-fmt active" type="button" data-fmt="stroke">Stroke play</button>
+          <button class="format-pill so-fmt" type="button" data-fmt="stableford">Stableford</button>
+        </div>
+        <div class="so-fmt-desc" id="so_fmtDesc"></div>
+
+        <div class="section-title">Handicap allowance</div>
+        <div class="so-allow">
+          <div class="so-field so-pct"><input id="so_pct" type="number" min="0" max="100" step="5" inputmode="numeric" value="100"><span>%</span></div>
+          <div class="so-allow-hint">100% for a casual round. WHS recommends 95% for competitions.</div>
+        </div>
+
+        <div class="so-result">
+          <div class="so-res-cell"><span class="so-res-label">Course HCP</span><span class="so-res-value" id="so_ch">&ndash;</span></div>
+          <div class="so-res-cell main"><span class="so-res-label">Playing HCP</span><span class="so-res-value" id="so_ph">&ndash;</span></div>
+        </div>
+        <div class="so-tee-meta" id="so_teeMeta"></div>
+        <div class="so-nine" id="so_nine" style="display:none">9 holes: your Course Handicap uses half of your Handicap Index.</div>
+        <div class="so-warn" id="so_warn" style="display:none"></div>
+      </div>
+
+      <div class="dock">
+        <nav class="bottom-nav">
+          <button class="nav-tab active" type="button"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"></path><path d="M5 10v10h14V10"></path></svg><span class="label">Home</span></button>
+          <button class="nav-tab" type="button"><img class="nav-icon" alt="" src="icons/nav-teams.svg"><span class="label">Teams</span></button>
+          <div class="nav-spacer" aria-hidden="true"></div>
+          <button class="nav-tab" type="button"><img class="nav-icon" alt="" src="icons/nav-matches-cg.png"><span class="label">Matches</span></button>
+          <button class="nav-tab" type="button"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="11" x2="12" y2="17"></line><circle cx="12" cy="7.5" r="0.6" fill="currentColor"></circle></svg><span class="label">Info</span></button>
+        </nav>
+        <button class="play-btn" type="button" onclick="soloStart()"><span>START</span></button>
+      </div>
+
+      
+    </section>
 <section id="screen-trtee" class="screen" data-screen="trtee">
 
       
@@ -6221,7 +6297,7 @@
 
 <script src="app-nav.js?v=20261013c"></script>
 <script src="app-myteams.js?v=20261013c"></script>
-<script src="app-profile.js?v=20261013c"></script>
+<script src="app-profile.js?v=20261013g"></script>
 <script src="faq-data.js?v=20261013"></script>
 <script src="app-faq.js?v=20261013d"></script>
 <script src="app-menu.js?v=20261013c"></script>
@@ -6276,7 +6352,7 @@
     <button class="sc-share-close" onclick="scCloseShare()" data-i18n="share_close">Close</button>
   </div>
 </div>
-<script src="app-sharecard.js?v=20261013c"></script>
+<script src="app-sharecard.js?v=20261013g"></script>
 
 </body>
 </html>

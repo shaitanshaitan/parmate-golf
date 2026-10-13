@@ -862,6 +862,7 @@ function renderRoundDetail(ROOT){
   ROOT=ROOT||document.getElementById('screen-rounddetail'); if(!ROOT) return;
   var r=window._activeRound||{};
   if(r.isMatch){ renderMatchDetail(ROOT, r); return; }
+  if(typeof soloIsRound==='function' && soloIsRound(r)){ soloRenderDetail(ROOT, r); return; }   // Solo Round (app-solo.js)
   // restore round chrome (a match view may have changed these)
   var _sub=ROOT.querySelector('.sub-header .title'); if(_sub) _sub.textContent='Round Detail';
   var _th=ROOT.querySelector('.sc-table thead tr'); if(_th) _th.innerHTML='<th>Hole</th><th>Par</th><th>Score</th><th>SI</th>';
@@ -1689,22 +1690,29 @@ async function openGameCancel(id, status){
 
 function renderMatches(ROOT){
   var all=(typeof _savedRounds!=='undefined'?_savedRounds:[]);
-  var rounds=all.filter(function(r){return r && !r.isMatch;});
+  var isSolo=function(r){ return typeof soloIsRound==='function' && soloIsRound(r); };
+  var rounds=all.filter(function(r){return r && !r.isMatch && !isSolo(r);});
+  var solos=all.filter(function(r){return r && isSolo(r);});
   var matches=all.filter(function(r){return r && r.isMatch;});
   ROOT._ghType = ROOT._ghType || 'TR';
   ROOT._ghFilter = ROOT._ghFilter || 'All';
   var bTR=ROOT.querySelector('#btnTR'), bTM=ROOT.querySelector('#btnTM');
   if(bTR){ bTR.onclick=function(){ ROOT._ghType='TR'; renderMatches(ROOT); }; bTR.classList.toggle('active',ROOT._ghType==='TR'); }
   if(bTM){ bTM.onclick=function(){ ROOT._ghType='TM'; renderMatches(ROOT); }; bTM.classList.toggle('active',ROOT._ghType==='TM'); }
+  var bSO=ROOT.querySelector('#btnSO');
+  if(bSO){ bSO.onclick=function(){ ROOT._ghType='SO'; renderMatches(ROOT); }; bSO.classList.toggle('active',ROOT._ghType==='SO'); }
   ROOT.querySelectorAll('.filter-pill').forEach(function(pill){
     var lbl=(pill.textContent||'').trim();
     pill.classList.toggle('active', lbl===ROOT._ghFilter);
     pill.onclick=function(){ ROOT._ghFilter=lbl; renderMatches(ROOT); };
   });
   var trWrap=ROOT.querySelector('#trCards'), tmWrap=ROOT.querySelector('#tmCards');
-  var showTR = ROOT._ghType==='TR';
+  var showTR = ROOT._ghType==='TR', showSO = ROOT._ghType==='SO';
+  var soWrap=ROOT.querySelector('#soCards');
+  if(!soWrap && trWrap){ soWrap=document.createElement('div'); soWrap.id='soCards'; trWrap.parentNode.insertBefore(soWrap, trWrap.nextSibling); }
   if(trWrap) trWrap.style.display=showTR?'block':'none';
-  if(tmWrap) tmWrap.style.display=showTR?'none':'block';
+  if(tmWrap) tmWrap.style.display=(!showTR&&!showSO)?'block':'none';
+  if(soWrap) soWrap.style.display=showSO?'block':'none';
   var f=ROOT._ghFilter;
   if(trWrap){ trWrap.innerHTML='';
     var trList=rounds.filter(function(r){return _ghPassFilter(r,f);});
@@ -1724,6 +1732,11 @@ function renderMatches(ROOT){
       card.onclick=function(){ window._activeRound=r; if(r.isMatch){ tmOpenSaved(r); } else if(document.getElementById('screen-rounddetail')) showScreen('rounddetail'); else if(typeof showToast==='function') showToast('Coming soon'); };
       trWrap.appendChild(card);
     });
+  }
+  if(soWrap){ soWrap.innerHTML='';
+    var soList=solos.filter(function(r){return _ghPassFilter(r,f);});
+    if(!soList.length){ soWrap.innerHTML='<div style="text-align:center;color:var(--text-3);font-family:Inter,sans-serif;font-size:14px;padding:32px 0;">'+(solos.length?'No rounds in this filter.':'No solo rounds yet.')+'</div>'; }
+    soList.forEach(function(r){ soWrap.appendChild(soloHistoryCard(r)); });
   }
   if(tmWrap){ tmWrap.innerHTML='';
     var tmList=matches.filter(function(r){return _ghPassFilter(r,f);});

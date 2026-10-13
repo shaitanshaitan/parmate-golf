@@ -47,6 +47,9 @@ function _scDerive(r){
   var thcp=(r.teamHcp!=null)?r.teamHcp:((r.thcp!=null)?r.thcp:((r.team&&r.team.hcp!=null)?r.team.hcp:null));
   var players=r.players||(r.team&&r.team.players)||[];
   var vsLabel=(vsPar===0?'E':(vsPar>0?('+'+vsPar):(''+vsPar)));
+  if(r.mode==='solo' && typeof soloShareDerive==='function'){
+    return soloShareDerive(r, { isMatch:false, courseName:courseName, holes:holes, playedAt:playedAt, gross:gross, parTot:parTot });
+  }
   return { isMatch:false, courseName:courseName, holes:holes, playedAt:playedAt,
     teamLine:(r.teamName||(r.team&&r.team.name)||'My Team'),
     result:(vsLabel+' VS PAR'), gross:gross, parTot:parTot, thcp:thcp, playersCount:(players.length||0) };
@@ -74,7 +77,7 @@ function _renderScorecardCanvas(rRaw){
 
   _scCrownDraw(ctx,cx,108,150);
   _scLS(ctx,'PARMATE',cx,318,'800 92px Inter, sans-serif',_scGold(ctx,250,330),14);
-  _scLS(ctx,'SCRAMBLE',cx,384,'600 40px Inter, sans-serif',gold,18);
+  _scLS(ctx,(d.subtitle||'SCRAMBLE'),cx,384,'600 40px Inter, sans-serif',gold,18);
   _scLS(ctx,'SCORECARD',cx,468,'800 80px Inter, sans-serif',_scGold(ctx,408,478),10);
   var ruleY=512;
   if(d.isMatch){ _scLS(ctx,'MATCHPLAY',cx,552,'800 60px Inter, sans-serif',_scGold(ctx,508,560),8); ruleY=598; }
@@ -95,7 +98,9 @@ function _renderScorecardCanvas(rRaw){
   _scFlanked(ctx,tLine,cx,1182,'700 '+tSize+'px Inter, sans-serif',gold,'rgba(212,165,75,0.55)',26,90);
 
   var rows;
-  if(d.isMatch){
+  if(d.rows){
+    rows=d.rows;
+  } else if(d.isMatch){
     rows=[['WIN',String(d.win),''],['LOSS',String(d.loss),''],['SQUARE',String(d.square),''],['PLAYERS',d.playersLabel,''],['DATE','','']];
   } else {
     rows=[['GROSS',(d.gross!=null?String(d.gross):'\u2013'),''],

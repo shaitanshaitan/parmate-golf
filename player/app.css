@@ -5782,3 +5782,102 @@ input { transition:border-color 0.4s, background 0.2s; }
 /* ===== Dutch (NL): single-word round buttons (VOLGENDE, OPSLAAN ...) are longer than NEXT/SAVE.
    i18n.js sets <html lang="nl">; "PLAY GOLF" (two spans) is not affected. ===== */
 html[lang="nl"] .play-btn span:only-child {font-size: 11px !important; letter-spacing: 0.02em !important;}
+
+
+/* ===== Solo Round setup (screen-solosetup) · copied from Choose Tee / Scramble Format + Solo parts ===== */
+#screen-solosetup{flex-direction:column;background:var(--bg);}
+#screen-solosetup.active{display:flex;}
+#screen-solosetup .section{background:transparent;border:0;border-radius:0;overflow:visible;margin:0;}
+#screen-solosetup .app-header {height: 56px; flex: 0 0 56px; background: var(--green); display: flex; align-items: center; padding: 0 16px; position: relative;}
+#screen-solosetup .logo {position: absolute; left: 16px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; gap: 6px;}
+#screen-solosetup .logo .crown {display: block; width: 24px; height: 24px; object-fit: contain;}
+#screen-solosetup .logo .wordmark {font-family: 'Roboto', sans-serif; font-weight: 700; font-size: 20px; color: #fff; letter-spacing: -0.2px; line-height: 1;}
+#screen-solosetup .header-icons {position: absolute; right: 16px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; gap: 12px;}
+#screen-solosetup .icon-btn {width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center; color: #fff; background: transparent; padding: 0; cursor: pointer;}
+#screen-solosetup .sub-header {flex: 0 0 44px; background: var(--gold); display: flex; align-items: center; justify-content: space-between; padding: 0 16px;}
+#screen-solosetup .sub-header .title {font-family: 'Roboto', sans-serif; font-weight: 700; font-size: 16px; color: var(--green);}
+#screen-solosetup .sub-header .actions {display: flex; align-items: center; gap: 8px;}
+#screen-solosetup .back-pill {background: var(--green); color: #fff; border: none; border-radius: 20px; padding: 6px 14px; font-family: 'Roboto', sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 0.06em; cursor: pointer;}
+#screen-solosetup .body-area {flex: 1 1 auto; background: #fff; padding: 20px 16px 92px; overflow-y: auto; min-height: 0;}
+#screen-solosetup .player-block {margin-bottom: 8px;}
+#screen-solosetup .player-label {font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; color: var(--text); text-align: center; margin-bottom: 10px;}
+#screen-solosetup .player-avatar-wrap {width: 72px; height: 72px; border-radius: 50%;
+    overflow: hidden; border: 2.5px solid var(--green);
+    background: #f0f4f1; margin: 0 auto 8px;
+    display: flex; align-items: center; justify-content: center;}
+#screen-solosetup .player-avatar-wrap img {width: 100%; height: 100%; object-fit: cover; display: block;}
+#screen-solosetup .player-meta {text-align: center; margin-bottom: 12px;}
+#screen-solosetup .player-nickname {font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500; color: var(--text-2); margin-right: 8px;}
+#screen-solosetup .player-hcp {font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text-3);}
+#screen-solosetup .tee-group {display: flex; gap: 8px; margin-bottom: 16px;}
+#screen-solosetup .tee-btn {flex: 1; min-width: 0; height: 38px; padding: 0 6px;
+    border-radius: 8px; border: none;
+    font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
+    cursor: pointer; background: var(--green); color: #fff;
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    white-space: nowrap;
+    opacity: 0.45; transition: opacity 0.15s;}
+#screen-solosetup .tee-btn.active {opacity: 1;}
+#screen-solosetup .tee-dot {width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;}
+#screen-solosetup .tee-dot.champion {background: var(--tee1);}
+#screen-solosetup .tee-dot.medal {background: var(--tee2);}
+#screen-solosetup .tee-dot.forward {background: var(--tee3);}
+#screen-solosetup .player-divider {height: 1px; background: rgba(0,0,0,0.07); margin-bottom: 20px;}
+#screen-solosetup .player-block:last-child .player-divider {display: none;}
+#screen-solosetup .dock {position: absolute; left: 0; right: 0; bottom: 0; height: 86px; z-index: 15; pointer-events: none;}
+#screen-solosetup .bottom-nav {position: absolute; left: 0; right: 0; bottom: 0; height: 72px; background: var(--green); display: grid; grid-template-columns: 1fr 1fr 96px 1fr 1fr; align-items: center; pointer-events: auto; padding-bottom: 6px;}
+#screen-solosetup .nav-tab {display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #fff; cursor: pointer; opacity: 0.65; position: relative; background: transparent; border: 0; padding: 0;}
+#screen-solosetup .nav-tab.active {opacity: 1;}
+#screen-solosetup .nav-spacer {position: relative; align-self: stretch;}
+#screen-solosetup .nav-tab.active::before {content: ""; position: absolute; top: 4px; width: 22px; height: 3px; border-radius: 2px; background: var(--gold);}
+#screen-solosetup .nav-tab svg {display: block;}
+#screen-solosetup .nav-tab img.nav-icon {display: block; width: 24px; height: 24px; object-fit: contain; filter: brightness(0) invert(1);}
+#screen-solosetup .nav-tab .label {font-family: 'Inter', sans-serif; font-weight: 500; font-size: 10px; letter-spacing: 0.02em; color: #fff;}
+#screen-solosetup .play-btn {position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); width: 84px; height: 84px; border-radius: 50%; background: var(--green); color: #fff; font-family: 'Roboto', sans-serif; font-weight: 700; font-size: 15px; line-height: 1.05; letter-spacing: 0.06em; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 4px solid #fff; box-shadow: 0 8px 18px rgba(0,0,0,0.25); pointer-events: auto; cursor: pointer; z-index: 4; text-transform: uppercase;}
+#screen-solosetup .play-btn span {display: block;}
+#screen-solosetup .tee-dot.senior{background:#2f6fd0;}
+#screen-solosetup .section-title {font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700;
+    color: var(--text); text-align: center;
+    margin-bottom: 18px; letter-spacing: 0.04em; text-transform: uppercase;}
+#screen-solosetup .format-pill {height: 72px; border-radius: 8px;
+    border: 1.5px solid var(--green);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 700;
+    cursor: pointer; background: #fff; color: var(--green);
+    transition: all 0.15s; text-align: center; padding: 0 6px;}
+#screen-solosetup .format-pill.active {background: var(--green); color: #fff; border-color: var(--green);}
+#screen-solosetup .so-course {font-family: 'Roboto', sans-serif; font-weight: 700; font-size: 18px; color: var(--green); text-align: center;}
+#screen-solosetup .so-course-meta {font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text-3); text-align: center; margin: 2px 0 14px;}
+#screen-solosetup .so-player {text-align: center; margin-bottom: 6px;}
+#screen-solosetup .so-player-name {font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; color: var(--text); margin-top: 6px;}
+#screen-solosetup .section-title {margin: 14px 0 8px;}
+#screen-solosetup .so-field {display: flex; align-items: center; gap: 6px; height: 44px; border: 1.5px solid rgba(26,107,60,0.35); border-radius: 8px; padding: 0 12px; background: #fff;}
+#screen-solosetup .so-field input {flex: 1; min-width: 0; border: none; outline: none; background: transparent; font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 600; color: var(--text);}
+#screen-solosetup .so-field span {font-family: 'Inter', sans-serif; font-weight: 700; color: var(--text-3);}
+#screen-solosetup .tee-group {flex-wrap: wrap; margin-bottom: 0;}
+#screen-solosetup .tee-btn {min-width: 86px;}
+#screen-solosetup .tee-dot.blue {background: #2f6fd6;}
+#screen-solosetup .tee-dot.senior {background: #c9a227;}
+#screen-solosetup .so-formats {display: grid; grid-template-columns: 1fr 1fr; gap: 10px;}
+#screen-solosetup .so-formats .format-pill {height: 48px; font-size: 14px;}
+#screen-solosetup .so-fmt-desc {font-family: 'Inter', sans-serif; font-size: 12px; line-height: 1.45; color: var(--text-3); margin-top: 8px;}
+#screen-solosetup .so-allow {display: grid; grid-template-columns: 112px 1fr; gap: 10px; align-items: center;}
+#screen-solosetup .so-pct input {width: 52px; flex: 0 0 52px; text-align: right; -moz-appearance: textfield; appearance: textfield;}
+#screen-solosetup .so-field input::-webkit-outer-spin-button, #screen-solosetup .so-field input::-webkit-inner-spin-button {-webkit-appearance: none; margin: 0;}
+#screen-solosetup .so-allow-hint {font-family: 'Inter', sans-serif; font-size: 12px; line-height: 1.4; color: var(--text-3);}
+#screen-solosetup .so-result {display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px;}
+#screen-solosetup .so-res-cell {border-radius: 10px; background: #f4f8f5; border: 1px solid rgba(26,107,60,0.15); padding: 10px 8px; display: flex; flex-direction: column; align-items: center;}
+#screen-solosetup .so-res-cell.main {background: var(--green); border-color: var(--green);}
+#screen-solosetup .so-res-label {font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-3);}
+#screen-solosetup .so-res-cell.main .so-res-label {color: rgba(255,255,255,0.8);}
+#screen-solosetup .so-res-value {font-family: 'Roboto', sans-serif; font-size: 30px; font-weight: 700; color: var(--green); line-height: 1.2;}
+#screen-solosetup .so-res-cell.main .so-res-value {color: #fff;}
+#screen-solosetup .so-tee-meta, #screen-solosetup .so-nine {font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text-3); text-align: center; margin-top: 8px;}
+#screen-solosetup .so-warn, #screen-solosetup .so-warn-inline {font-family: 'Inter', sans-serif; font-size: 12px; line-height: 1.4; color: #8a5a00; background: #fff6e0; border-radius: 8px; padding: 8px 10px; margin-top: 10px;}
+/* Solo on the shared scorecards */
+#screen-trscore .so-hole-strokes {font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700; color: #b07d12; margin-top: 3px;}
+#screen-trscore .so-hole-strokes.none {color: var(--text-3); font-weight: 500;}
+#screen-trfull .so-dots, #screen-rounddetail .so-dots {color: #b07d12; font-size: 11px; font-weight: 700; margin-left: 1px; letter-spacing: -1px;}
+#screen-trfull .so-dots.minus, #screen-rounddetail .so-dots.minus {color: var(--text-3); letter-spacing: 0;}
+/* Choose Game: fourth card */
+#screen-choosegame .game-card.solo-round {background-image: url('icons/covers/6.jpg');}

@@ -226,6 +226,7 @@ function showScreen(id, opts) {
   if (typeof acInitStep === 'function') acInitStep(id, el);
   if (typeof trInitStep === 'function') trInitStep(id, el);
   if (typeof tmInitStep === 'function') tmInitStep(id, el);
+  if (typeof soloInitStep === 'function') soloInitStep(id, el);   // Solo Round setup (app-solo.js)
   if (typeof applyLang === 'function') applyLang();
 }
 
@@ -1303,7 +1304,7 @@ function trInit_trcourse(ROOT){
     // (trComposeCourse also sets _trFlow.parByHole/siByHole indirectly; ensure the
     // flow-level copies used by the TM live-match builder are populated here too.)
     if (typeof trSyncParSiFromCourse === 'function') trSyncParSiFromCourse();
-    showScreen('trteam');
+    showScreen((typeof soloOn === 'function' && soloOn()) ? 'solosetup' : 'trteam');   // Solo skips team/tee/format
   });
 
   // ── Add-new-course button — flash ──────────────────────
@@ -2392,9 +2393,11 @@ function trcUpdateView() {
     else if(_trcScores[i]!=null) d.classList.add('scored');
   });
   trcUpdateStats();
+  if (typeof soloUpdateHole === 'function') soloUpdateHole();   // Solo: strokes + net/points (hidden for team rounds)
 }
 
 function trcUpdateStats() {
+  if (typeof soloUpdateStats === 'function' && soloUpdateStats()) return;   // Solo: gross/net/points
   const n=trcTotal();
   const played=_trcScores.filter(s=>s!=null);
   const gross=played.reduce((a,b)=>a+b,0);
@@ -2420,6 +2423,7 @@ function trcInit(scr) {
     const thcp=(res&&res.teamHcp!=null)?(' · Team HCP '+res.teamHcp):'';
     cm.textContent=(c._playedLoopName||'')+' · Par '+(c.par||'–')+thcp;
   }
+  if (typeof soloDecorate === 'function') soloDecorate(scr);   // Solo header + stat labels (restores team labels otherwise)
   if (scr._scWired) { trcUpdateView(); return; }
 
   document.getElementById('trc_prevHole').addEventListener('click', ()=>{ if(_trcHole>0){_trcHole--;trcUpdateView();} });
@@ -2440,6 +2444,7 @@ function trcInit(scr) {
     _trcBuf=_trcBuf.slice(0,-1); document.getElementById('trc_numpadDisplay').textContent=_trcBuf||'\u2013';
   });
   document.getElementById('trc_numpadOk').addEventListener('click', ()=>{
+    if(_trcBuf!=='' && typeof soloScoreOk==='function' && !soloScoreOk(parseInt(_trcBuf))) return;   // Solo stroke play: 0 not allowed
     if(_trcBuf!==''){ _trcScores[_trcHole]=parseInt(_trcBuf); if(_trcHole<trcTotal()-1)_trcHole++; }
     document.getElementById('trc_numpad').classList.remove('open');
     _trcBuf=''; trcUpdateView();
@@ -2457,6 +2462,7 @@ function trcInit(scr) {
 
 // ── Screen 13: Full Scorecard table ──
 function trcRenderFull(scr) {
+  if (typeof soloRenderFull === 'function' && soloRenderFull(scr)) return;   // Solo card (restores team header otherwise)
   const c=_trFlow.course||{}, n=trcTotal();
   const cn=scr.querySelector('.course-name'); if(cn) cn.textContent=c.name||'Course';
   const cm=scr.querySelector('.course-meta'); if(cm) cm.textContent=(c._playedLoopName?c._playedLoopName+' · ':'')+'Par '+(c.par||'–');
@@ -2492,6 +2498,7 @@ function trcRenderFull(scr) {
 
 // ── Save the completed round (Firestore + Home list) ──
 async function trcSaveRound() {
+  if (typeof soloOn === 'function' && soloOn()) return soloSaveRound();   // Solo round document
   const c=_trFlow.course||{}, n=trcTotal();
   const played=_trcScores.filter(s=>s!=null);
   if(played.length<n){
@@ -6710,7 +6717,8 @@ function renderHomeScreen() {
   const teamOf  = r => r.isMatch ? ((r.teamA&&r.teamA.name)||'') : (r.teamName || (r.team&&r.team.name) || '');
   const tOf     = r => Date.parse(r.playedAt||r.date||0)||0;
 
-  const rounds = all.filter(r=>!r.isMatch).map(r=>{ const g=grossOf(r),p=parOf(r); return Object.assign({_g:g,_vs:g-p,_t:tOf(r)}, r); }).sort((a,b)=>b._t-a._t).slice(0,5);
+  const _solo = r => (typeof soloIsRound === 'function' && soloIsRound(r));
+  const rounds = all.filter(r=>!r.isMatch && !_solo(r)).map(r=>{ const g=grossOf(r),p=parOf(r); return Object.assign({_g:g,_vs:g-p,_t:tOf(r)}, r); }).sort((a,b)=>b._t-a._t).slice(0,5);
   const roundsRow = document.getElementById('homeRoundsRow');
   if (roundsRow) roundsRow.innerHTML = rounds.length ? rounds.map(r=>{
       const vsCol = r._vs>0?'#c85a4a':(r._vs<0?'#1a6b3c':'#777');
@@ -6740,7 +6748,7 @@ function renderHomeScreen() {
   const coursesRow = document.getElementById('homeCoursesRow');
   if (coursesRow) {
     const cmap = {};
-    all.forEach(r=>{ const n=r.courseName||''; if(!n) return; if(!cmap[n]) cmap[n]={name:n,games:0,best:null,_t:0}; cmap[n].games++; const tt=tOf(r); if(tt>cmap[n]._t) cmap[n]._t=tt; if(!r.isMatch){ const vs=grossOf(r)-parOf(r); if(cmap[n].best==null||vs<cmap[n].best) cmap[n].best=vs; } });
+    all.forEach(r=>{ const n=r.courseName||''; if(!n) return; if(!cmap[n]) cmap[n]={name:n,games:0,best:null,_t:0}; cmap[n].games++; const tt=tOf(r); if(tt>cmap[n]._t) cmap[n]._t=tt; if(!r.isMatch && !_solo(r)){ const vs=grossOf(r)-parOf(r); if(cmap[n].best==null||vs<cmap[n].best) cmap[n].best=vs; } });
     const courses = Object.keys(cmap).map(k=>cmap[k]).sort((a,b)=>b._t-a._t).slice(0,5);
     coursesRow.innerHTML = courses.length ? courses.map(c=>{
         const bestStr=(c.best==null)?'\u2013':(c.best>0?'+'+c.best:String(c.best));
@@ -6755,11 +6763,11 @@ function renderHomeScreen() {
   const teamsRow = document.getElementById('homeTeamsRow');
   if (teamsRow) {
     const count = (pred) => { const c={}; all.filter(pred).forEach(r=>{ const n=teamOf(r); if(n) c[n]=(c[n]||0)+1; }); let best=null,bn=0; for(const k in c){ if(c[k]>bn){bn=c[k];best=k;} } return best; };
-    const topRoundTeam = count(r=>!r.isMatch);
+    const topRoundTeam = count(r=>!r.isMatch && !_solo(r));
     const topMatchTeam = count(r=>r.isMatch);
     const teamByName = n => (_savedTeams||[]).filter(t=>t.teamName===n)[0];
     const stats = (name) => {
-      const games = all.filter(r=>teamOf(r)===name); const rg = games.filter(r=>!r.isMatch);
+      const games = all.filter(r=>teamOf(r)===name && !_solo(r)); const rg = games.filter(r=>!r.isMatch);
       const wins = games.filter(r=>r.isMatch && r.result && r.result.teamAWon>r.result.teamBWon).length;
       let best='\u2013'; if(rg.length){ const bv=Math.min.apply(null, rg.map(r=>grossOf(r)-parOf(r))); best=(bv>0?'+':'')+bv; }
       return { rounds: games.length, wins: (games.some(g=>g.isMatch)?wins:'\u2013'), best: best };
@@ -7400,6 +7408,7 @@ function maybePauseTrRound() {
     holes: trcTotal(),
     pausedAt: new Date().toISOString(),
   };
+  if (typeof soloPauseSnapshot === 'function') Object.assign(_pausedRound, soloPauseSnapshot());   // keeps Solo mode + setup
   console.log('[PAUSE] paused round created:', _pausedRound.courseName, _pausedRound.holesPlayed + '/' + _pausedRound.holes);
   showPausedRoundBanner();
   savePausedRoundToCloud();
@@ -7410,7 +7419,7 @@ function maybePauseTrRound() {
 // Called when leaving the TR scorecard via the BACK pill.
 function trcLeaveScorecard() {
   maybePauseTrRound();
-  showScreen('trresult');
+  showScreen((typeof soloLeaveTarget === 'function' && soloLeaveTarget()) || 'trresult');
 }
 
 // Tapping the banner: restore the TR flow + scores and jump back into the scorecard.
@@ -7419,6 +7428,7 @@ function resumePausedRound() {
   if (!_trFlow) _trFlow = {};
   _trFlow.course = JSON.parse(JSON.stringify(_pausedRound.course));
   if (_pausedRound.team) _trFlow.team = JSON.parse(JSON.stringify(_pausedRound.team));
+  if (typeof soloPauseRestore === 'function') soloPauseRestore(_pausedRound);   // Solo mode or team round
   _trcScores = _pausedRound.trcScores.slice();
   _trcHole = _pausedRound.trcHole || 0;
   _trcBuf = '';
