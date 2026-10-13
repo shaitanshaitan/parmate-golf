@@ -1,4 +1,4 @@
-// Parmate player app - Dutch texts, keyed by the English text. Generated 2026-10-13 14:53 by parmate_i18n.py build.
+// Parmate player app - Dutch texts, keyed by the English text. Generated 2026-10-13 15:03 by parmate_i18n.py build.
 // Do not edit by hand: change parmate_texts_nl.xlsx and run build again.
 window.PM_STRINGS_NL = {
 "(Authentication + Firestore) — your data is stored on Google's EU servers. See": "(Authenticatie + Firestore) — je gegevens worden opgeslagen op de EU-servers van Google. Zie",
@@ -315,7 +315,7 @@ window.PM_STRINGS_NL = {
 "Enter course name": "Voer baannaam in",
 "Enter opponent team name and size": "Voer naam en grootte van het team van de tegenstander in",
 "Enter opponent team name, size and players": "Voer naam, grootte en spelers van het team van de tegenstander in",
-"Enter Team Member(s)": "Voer teamle(d)en in",
+"Enter Team Member(s)": "Voer teamleden in",
 "Enter the 5-letter match code shared by your opponent": "Voer de 5-letter matchcode in die je tegenstander deelt",
 "equal |": "gelijk",
 "Error:": "Fout:",
@@ -748,7 +748,7 @@ window.PM_STRINGS_NL = {
 "Select at least 2 players first": "Kies eerst minimaal 2 spelers",
 "Select country": "Selecteer land",
 "Select exactly {0} buddy{1} for a {2} team.": "Selecteer exact {0} buddy{1} voor een {2}-team.",
-"Select Team Member(s)": "Selecteer teamle(d)en",
+"Select Team Member(s)": "Selecteer teamleden",
 "Select team size first": "Selecteer eerst de teamgrootte",
 "Select your team first": "Kies eerst je team",
 "Send": "Verzenden",
@@ -955,6 +955,7 @@ window.PM_STRINGS_NL = {
 "Your Team — {0}": "Jouw team — {0}",
 "Your teams": "Je teams",
 "You’re on the Free plan": "Je gebruikt het gratis abonnement",
+"{0} (you)": "{0} (jij)",
 "{0} DN": "{0} DOWN",
 "{0} equal": "{0} gelijk",
 "{0} is now your buddy! 🏌️": "{0} is nu je buddy! 🏌️",
@@ -963,6 +964,8 @@ window.PM_STRINGS_NL = {
 "{0} min read ·": "{0} min leestijd ·",
 "{0} strokes of scratch": "{0} slagen van scratch",
 "{0} team reset.": "{0} team gereset.",
+"{0} teammate selected": "{0} teamgenoot geselecteerd",
+"{0} teammates selected": "{0} teamgenoten geselecteerd",
 "{0} won": "{0} gewonnen",
 "{0}-hole mode — enter the {1}-hole rating, slope and par from your scorecard.": "{0}-hole modus — voer de {1}-hole rating, slope en par van je scorekaart in.",
 "| Last 5": "| Laatste 5",

@@ -1,8 +1,8 @@
 // ─── Parmate Team HCP · Service Worker ───
-// v9 — Dutch translation engine (i18n.js + lang-nl.js). App split into separate files: lang.js, faq-data.js, vendor/qrcode-generator.js, app.css and app-*.js.
+// v10 — NL button text size. v9 — Dutch translation engine (i18n.js + lang-nl.js). App split into separate files: lang.js, faq-data.js, vendor/qrcode-generator.js, app.css and app-*.js.
 // Bump APP_VERSION on every deploy that must invalidate caches.
 // When a ?v= tag changes in index.html, change it in APP_SHELL below too (same value).
-const APP_VERSION = 'parmate-team-hcp-v9';
+const APP_VERSION = 'parmate-team-hcp-v10';
 const APP_CACHE   = APP_VERSION;
 
 // Minimal app shell (served at the site root). Kept tiny and cached individually
@@ -15,7 +15,7 @@ const APP_SHELL = [
   '/vendor/qrcode-generator.js?v=' + ASSET_V,
   '/lang-nl.js',
   '/i18n.js?v=20261013d',
-  '/app.css?v=20261013b',
+  '/app.css?v=20261013f',
   '/app-main.js?v=20261013d',
   '/app-tm-flow.js?v=20261013c',
   '/app-tm-hcp.js?v=20261013c',

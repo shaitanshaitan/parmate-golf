@@ -5778,3 +5778,7 @@ input { transition:border-color 0.4s, background 0.2s; }
 .sc-dl-btn{flex:0 0 auto;background:#fff;border:1.5px solid #1a6b3c;color:#1a6b3c;border-radius:22px;padding:12px 18px;font-family:'Inter',sans-serif;font-weight:700;font-size:14px;cursor:pointer;}
 .sc-share-close{background:none;border:none;color:#888;font-family:'Inter',sans-serif;font-weight:600;font-size:14px;cursor:pointer;padding:4px;}
 .round-share-btn{flex:0 0 auto;background:#1a6b3c;color:#fff;border:none;border-radius:8px;width:36px;height:36px;font-size:1.05rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:0 2px;}
+
+/* ===== Dutch (NL): single-word round buttons (VOLGENDE, OPSLAAN ...) are longer than NEXT/SAVE.
+   i18n.js sets <html lang="nl">; "PLAY GOLF" (two spans) is not affected. ===== */
+html[lang="nl"] .play-btn span:only-child {font-size: 11px !important; letter-spacing: 0.02em !important;}
