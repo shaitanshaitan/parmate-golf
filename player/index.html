@@ -6991,12 +6991,12 @@ input { transition:border-color 0.4s, background 0.2s; }
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<script src="js/lang.js?v=20261013"></script>
+<script src="lang.js?v=20261013"></script>
 <script>
 // ═══════════════════════════════════
 // i18n — TRANSLATIONS
 // ═══════════════════════════════════
-// LANG (all UI translations) lives in js/lang.js, loaded just above this script
+// LANG (all UI translations) lives in lang.js, loaded just above this script
 
 let _lang = localStorage.getItem('parmate_lang') ||
   (navigator.language.startsWith('nl') ? 'nl' : 'en');
@@ -21365,7 +21365,7 @@ function tmCodeContinue(){
 }
 
 </script>
-<script src="js/vendor/qrcode-generator.js?v=20261013"></script>
+<script src="vendor/qrcode-generator.js?v=20261013"></script>
 <script>
 
 // ═══════════════════════════════════════════════════════════
@@ -23552,10 +23552,10 @@ function renderMatches(ROOT){
 window.switchType=function(t){ var R=document.getElementById('screen-matches'); if(R){ R._ghType=t; renderMatches(R); } };
 
 </script>
-<script src="js/faq-data.js?v=20261013"></script>
+<script src="faq-data.js?v=20261013"></script>
 <script>
 
-// FAQ data (_FAQ_CATEGORIES, _FAQ_CAT_ORDER, _FAQ_ARTICLES) lives in js/faq-data.js
+// FAQ data (_FAQ_CATEGORIES, _FAQ_CAT_ORDER, _FAQ_ARTICLES) lives in faq-data.js
 var _faqLang = 'en';
 function _faqQ(a){ return (_faqLang==='nl' && a.question_nl) ? a.question_nl : a.question_en; }
 function _faqCatName(id){ var c=_FAQ_CATEGORIES[id]; return c ? (c[_faqLang]||c.en) : id; }
