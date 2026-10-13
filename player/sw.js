@@ -1,8 +1,8 @@
 // ─── Parmate Team HCP · Service Worker ───
-// v5 — app split into separate files (lang.js, faq-data.js, vendor/qrcode-generator.js).
+// v7 — app split into separate files (lang.js, faq-data.js, vendor/qrcode-generator.js, app.css).
 // Bump APP_VERSION on every deploy that must invalidate caches.
 // When a ?v= tag changes in index.html, change it in APP_SHELL below too (same value).
-const APP_VERSION = 'parmate-team-hcp-v6';
+const APP_VERSION = 'parmate-team-hcp-v7';
 const APP_CACHE   = APP_VERSION;
 
 // Minimal app shell (served at the site root). Kept tiny and cached individually
@@ -12,7 +12,8 @@ const APP_SHELL = [
   '/', '/index.html', '/manifest.json',
   '/lang.js?v=' + ASSET_V,
   '/faq-data.js?v=' + ASSET_V,
-  '/vendor/qrcode-generator.js?v=' + ASSET_V
+  '/vendor/qrcode-generator.js?v=' + ASSET_V,
+  '/app.css?v=20261013b'
 ];
 
 // External origins that must always hit the network and never be cached.
