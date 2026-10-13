@@ -1,12 +1,19 @@
 // ─── Parmate Team HCP · Service Worker ───
-// v4 — root-served paths, network-first navigations, stale-while-revalidate assets.
+// v5 — app split into separate files (js/lang.js, js/faq-data.js, js/vendor/qrcode-generator.js).
 // Bump APP_VERSION on every deploy that must invalidate caches.
-const APP_VERSION = 'parmate-team-hcp-v4';
+// When a ?v= tag changes in index.html, change it in APP_SHELL below too (same value).
+const APP_VERSION = 'parmate-team-hcp-v5';
 const APP_CACHE   = APP_VERSION;
 
 // Minimal app shell (served at the site root). Kept tiny and cached individually
 // so a single missing file can never abort install (the v2 bug that wedged the SW).
-const APP_SHELL = ['/', '/index.html', '/manifest.json'];
+const ASSET_V   = '20261013';   // must match the ?v= tags in index.html
+const APP_SHELL = [
+  '/', '/index.html', '/manifest.json',
+  '/js/lang.js?v=' + ASSET_V,
+  '/js/faq-data.js?v=' + ASSET_V,
+  '/js/vendor/qrcode-generator.js?v=' + ASSET_V
+];
 
 // External origins that must always hit the network and never be cached.
 const NETWORK_ONLY_ORIGINS = [
