@@ -109,9 +109,10 @@ function _renderScorecardCanvas(rRaw){
           ['PLAYERS',String(d.playersCount||'\u2013'),''],
           ['DATE','','']];
   }
-  var dd='',mmyy='';
-  if(d.playedAt){ try{ var dt=new Date(d.playedAt); dd=String(dt.getDate()); mmyy=dt.toLocaleDateString('en-GB',{month:'long',year:'numeric'}).toUpperCase(); }catch(e){} }
-  rows[rows.length-1][1]=dd; rows[rows.length-1][2]=mmyy;
+  // Date as 14-10-2026 (the spelled-out month was cut off on narrow cards)
+  var dateStr='';
+  if(d.playedAt){ try{ var dt=new Date(d.playedAt); if(!isNaN(dt)) dateStr=('0'+dt.getDate()).slice(-2)+'-'+('0'+(dt.getMonth()+1)).slice(-2)+'-'+dt.getFullYear(); }catch(e){} }
+  rows[rows.length-1][1]=dateStr; rows[rows.length-1][2]='';
 
   var tLeft=180,tRight=W-180,vline=600,rowH=66,topY=1232;
   ctx.lineWidth=1.5; ctx.strokeStyle=lineL;

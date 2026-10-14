@@ -5881,3 +5881,30 @@ html[lang="nl"] .play-btn span:only-child {font-size: 11px !important; letter-sp
 #screen-trfull .so-dots.minus, #screen-rounddetail .so-dots.minus {color: var(--text-3); letter-spacing: 0;}
 /* Choose Game: fourth card */
 #screen-choosegame .game-card.solo-round {background-image: url('icons/covers/6.jpg');}
+
+/* ===== What's New, now a section at the top of Help & FAQ (was a pop-up) ===== */
+#screen-faq .wn-card {background: #fff; border: 1.5px solid rgba(26,107,60,0.18); border-radius: 12px; margin: 0 0 18px; overflow: hidden;}
+#screen-faq .wn-card summary {list-style: none; display: flex; align-items: center; gap: 12px; padding: 12px 14px; cursor: pointer;}
+#screen-faq .wn-card summary::-webkit-details-marker {display: none;}
+#screen-faq .wn-crown {font-size: 24px; line-height: 1;}
+#screen-faq .wn-sum-text {flex: 1; display: flex; flex-direction: column;}
+#screen-faq .wn-sum-title {font-family: 'Roboto', sans-serif; font-weight: 700; font-size: 15px; color: var(--green);}
+#screen-faq .wn-sum-ver {font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); margin-top: 2px;}
+#screen-faq .wn-chev {font-size: 22px; color: var(--text-3); transition: transform 0.2s ease;}
+#screen-faq .wn-card[open] .wn-chev {transform: rotate(90deg);}
+#screen-faq .wn-body {padding: 0 14px 12px;}
+#screen-faq .wn-body .whats-new-label {color: var(--text); font-family: 'Inter', sans-serif;}
+#screen-faq .wn-body .whats-new-desc {color: var(--text-3); font-family: 'Inter', sans-serif;}
+#screen-faq .wn-body .whats-new-item {border-bottom-color: rgba(0,0,0,0.07);}
+
+/* ===== Solo setup, cleaner layout (14 Oct): compact format switch with (i), one handicap box ===== */
+#screen-solosetup .so-fmt-row {display: flex; align-items: center; gap: 10px; margin-top: 16px;}
+#screen-solosetup .so-seg {flex: 1; display: flex; background: #eef4f0; border-radius: 20px; padding: 3px;}
+#screen-solosetup .so-seg .so-fmt {flex: 1; height: 32px; border: 0; border-radius: 17px; background: transparent; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; color: var(--green); cursor: pointer;}
+#screen-solosetup .so-seg .so-fmt.active {background: var(--green); color: #fff;}
+#screen-solosetup .so-info {flex: 0 0 28px; width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--green); background: #fff; color: var(--green); font-family: Georgia, serif; font-style: italic; font-weight: 700; font-size: 14px; line-height: 1; cursor: pointer;}
+#screen-solosetup .so-result {grid-template-columns: 1fr; margin-top: 16px;}
+#screen-solosetup .so-res-cell.main {flex-direction: row; justify-content: space-between; padding: 10px 16px;}
+#screen-solosetup .so-res-cell.main .so-res-value {font-size: 26px;}
+#screen-solosetup .so-info.on {background: var(--green); color: #fff;}
+#screen-solosetup .so-fmt-info {font-family: 'Inter', sans-serif; font-size: 12px; line-height: 1.45; color: var(--text-3); background: #f4f8f5; border-radius: 8px; padding: 8px 10px; margin-top: 8px;}

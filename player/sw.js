@@ -1,8 +1,8 @@
 // ─── Parmate Team HCP · Service Worker ───
-// v11 — Solo Round (app-solo.js). v10 — NL button text size. v9 — Dutch translation engine (i18n.js + lang-nl.js). App split into separate files: lang.js, faq-data.js, vendor/qrcode-generator.js, app.css and app-*.js.
+// v12 — Solo screen cleanup, What's New moved to FAQ. v11 — Solo Round (app-solo.js). v10 — NL button text size. v9 — Dutch translation engine (i18n.js + lang-nl.js). App split into separate files: lang.js, faq-data.js, vendor/qrcode-generator.js, app.css and app-*.js.
 // Bump APP_VERSION on every deploy that must invalidate caches.
 // When a ?v= tag changes in index.html, change it in APP_SHELL below too (same value).
-const APP_VERSION = 'parmate-team-hcp-v11';
+const APP_VERSION = 'parmate-team-hcp-v12';
 const APP_CACHE   = APP_VERSION;
 
 // Minimal app shell (served at the site root). Kept tiny and cached individually
@@ -15,9 +15,9 @@ const APP_SHELL = [
   '/vendor/qrcode-generator.js?v=' + ASSET_V,
   '/lang-nl.js',
   '/i18n.js?v=20261013d',
-  '/app.css?v=20261013g',
-  '/app-main.js?v=20261013g',
-  '/app-solo.js?v=20261013g',
+  '/app.css?v=20261014a',
+  '/app-main.js?v=20261014a',
+  '/app-solo.js?v=20261014a',
   '/app-tm-flow.js?v=20261013c',
   '/app-tm-hcp.js?v=20261013c',
   '/app-tm-code.js?v=20261013c',
@@ -29,7 +29,7 @@ const APP_SHELL = [
   '/app-faq.js?v=20261013d',
   '/app-menu.js?v=20261013c',
   '/app-chat.js?v=20261013c',
-  '/app-sharecard.js?v=20261013g'
+  '/app-sharecard.js?v=20261014a'
 ];
 
 // External origins that must always hit the network and never be cached.

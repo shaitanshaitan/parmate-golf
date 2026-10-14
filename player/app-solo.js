@@ -190,7 +190,6 @@ function soloRenderSetup(scr) {
   var f = _trFlow, c = f.course || {}, me = (f.team.players || [])[0] || soloMe();
   var set = function (id, v) { var e = document.getElementById(id); if (e) e.textContent = v; };
   set('so_course', c.name || 'Course');
-  set('so_courseMeta', (c._playedLoopName || c.name || '') + ' · ' + (c.holes || 18) + ' holes · Par ' + (c.par != null ? c.par : '–'));
   set('so_name', me.name || 'You');
   var av = document.getElementById('so_avatar');
   if (av) {
@@ -200,8 +199,7 @@ function soloRenderSetup(scr) {
   }
   var idx = document.getElementById('so_index');
   if (idx && document.activeElement !== idx) idx.value = (f.solo.index != null && f.solo.index !== '') ? f.solo.index : '';
-  var pct = document.getElementById('so_pct');
-  if (pct && document.activeElement !== pct) pct.value = f.solo.pct;
+  f.solo.pct = SOLO_DEFAULT_PCT;   // Solo is always 100% (allowances belong to matches / organisers)
 
   // tee buttons from the course data (gender-aware)
   var wrap = document.getElementById('so_tees');
@@ -221,15 +219,11 @@ function soloRenderSetup(scr) {
       var tb = e.target.closest('#so_tees .tee-btn');
       if (tb) { _trFlow.solo.teeKey = tb.dataset.tee; soloRenderSetup(scr); return; }
       var fb = e.target.closest('.so-fmt');
-      if (fb) { _trFlow.solo.format = fb.dataset.fmt; soloRenderSetup(scr); return; }
+      if (fb) { _trFlow.solo.format = fb.dataset.fmt; soloRenderSetup(scr); var ib = document.getElementById('so_fmtInfo'); if (ib && ib.style.display !== 'none') ib.textContent = soloFormatText(); return; }
     });
     scr.addEventListener('input', function (e) {
       if (!soloOn()) return;
       if (e.target.id === 'so_index') _trFlow.solo.index = e.target.value === '' ? null : e.target.value;
-      if (e.target.id === 'so_pct') {
-        var v = parseFloat(e.target.value);
-        _trFlow.solo.pct = isNaN(v) ? SOLO_DEFAULT_PCT : Math.max(0, Math.min(100, v));
-      }
       soloRenderSetupResult();
     });
     scr._soWired = true;
@@ -238,22 +232,33 @@ function soloRenderSetup(scr) {
 }
 
 function soloRenderSetupResult() {
-  var f = _trFlow, r = soloCalcNow();
+  var f = _trFlow, c = f.course || {}, r = soloCalcNow();
   var set = function (id, v) { var e = document.getElementById(id); if (e) e.textContent = v; };
-  set('so_ch', r.calc ? soloPhLabel(r.calc.courseHcp) : '–');
-  set('so_ph', r.calc ? soloPhLabel(r.calc.playingHcp) : '–');
-  set('so_teeMeta', r.tee ? (r.tee.label + ' · Rating ' + r.tee.rating + ' · Slope ' + r.tee.slope + ' · Par ' + r.tee.par) : '');
-  var fd = document.getElementById('so_fmtDesc');
-  if (fd) fd.textContent = (f.solo.format === 'stableford')
-    ? 'Points per hole on your net score: net par 2, net birdie 3, net bogey 1. Enter 0 to pick up.'
-    : 'Count every stroke. Your net score is your gross score minus your handicap strokes.';
-  var nine = document.getElementById('so_nine');
-  if (nine) nine.style.display = (r.n <= 9) ? '' : 'none';
+  // course line: loop, holes, par, plus rating and slope of the chosen tee
+  var parts = [c._playedLoopName || c.name || '', r.n + ' holes', 'Par ' + (r.tee ? r.tee.par : (c.par != null ? c.par : '–'))];
+  if (r.tee) { parts.push('Rating ' + r.tee.rating); parts.push('Slope ' + r.tee.slope); }
+  set('so_courseMeta', parts.filter(Boolean).join(' · '));
+  set('so_ch', r.calc ? soloPhLabel(r.calc.playingHcp) : '–');   // at 100% Course HCP = Playing HCP
   var w = document.getElementById('so_warn');
   if (w) {
     if (!r.siOk) { w.textContent = 'This course has no complete stroke index. Handicap strokes are spread over holes 1 to ' + r.n + ' in order.'; w.style.display = ''; }
     else w.style.display = 'none';
   }
+}
+
+// (i) next to the format switch: opens / closes a short explanation under it
+function soloFormatText() {
+  var stable = _trFlow && _trFlow.solo && _trFlow.solo.format === 'stableford';
+  return stable
+    ? 'Points per hole on your net score: net par 2, net birdie 3, net bogey 1. Enter 0 to pick up.'
+    : 'Count every stroke. Your net score is your gross score minus your handicap strokes.';
+}
+function soloFormatInfo() {
+  var box = document.getElementById('so_fmtInfo'); if (!box) return;
+  var open = box.style.display === 'none';
+  box.textContent = soloFormatText();
+  box.style.display = open ? '' : 'none';
+  var btn = document.querySelector('#screen-solosetup .so-info'); if (btn) btn.classList.toggle('on', open);
 }
 
 function soloBack() { showScreen('trcourse'); }
@@ -480,6 +485,29 @@ function soloHistoryCard(r) {
   return card;
 }
 
+// Home: "Solo Rounds | Last 5" (same card style as Team Rounds). Tap opens the round detail.
+function soloRenderHomeRow(all, fmtDate, esc) {
+  var row = document.getElementById('homeSoloRow'); if (!row) return;
+  var tOf = function (r) { return Date.parse(r.playedAt || r.date || 0) || 0; };
+  var list = (all || []).filter(soloIsRound).sort(function (a, b) { return tOf(b) - tOf(a); }).slice(0, 5);
+  window._homeSoloList = list;
+  if (!list.length) { row.innerHTML = '<div class="hh-empty">No solo rounds yet \u2014 play a Solo Round to see it here.</div>'; return; }
+  row.innerHTML = list.map(function (r, i) {
+    var stable = r.soloFormat === 'stableford';
+    var big = stable ? (r.stablefordPoints != null ? r.stablefordPoints : '\u2013') : (r.net != null ? r.net : '\u2013');
+    var vs = (r.netVsPar != null) ? r.netVsPar : null;
+    var vsCol = vs == null ? '#777' : (vs > 0 ? '#c85a4a' : (vs < 0 ? '#1a6b3c' : '#777'));
+    var holes = r.holes || (r.scores || []).length || 18;
+    return '<div class="hh-card" onclick="window._activeRound=window._homeSoloList[' + i + ']; showScreen(&quot;rounddetail&quot;)">'
+      + '<div class="hh-card-l"><div class="hh-card-date">' + fmtDate(r.playedAt || r.date) + '</div>'
+      + '<div class="hh-card-course">' + esc(r.courseName || 'Course') + '</div>'
+      + '<div class="hh-card-meta">' + esc(r.loopName || '') + ' \u00b7 ' + holes + 'H \u00b7 PH ' + soloPhLabel(r.playingHcp || 0) + '</div>'
+      + '<div class="hh-card-fmt">' + esc(r.format || '') + '</div></div>'
+      + '<div class="hh-card-r"><div class="hh-card-gross">' + big + '</div><div class="hh-card-lbl">' + (stable ? 'POINTS' : 'NET') + '</div>'
+      + '<div class="hh-card-vspar" style="color:' + vsCol + '">' + (vs != null ? soloSigned(vs) : '\u2013') + '</div><div class="hh-card-lbl">NET VS PAR</div></div></div>';
+  }).join('');
+}
+
 // Round Detail for a solo round
 function soloRenderDetail(ROOT, r) {
   var stable = r.soloFormat === 'stableford';
@@ -494,7 +522,7 @@ function soloRenderDetail(ROOT, r) {
   set('.meta-course', r.courseName || 'Course');
   var rows = ROOT.querySelectorAll('.round-meta-header .meta-row');
   if (rows[0]) rows[0].textContent = (r.loopName || '') + ' · ' + n + ' holes' + (r.tee ? (' · ' + r.tee + ' tee') : '');
-  if (rows[1]) rows[1].textContent = (r.teamName || '') + ' · ' + (r.format || '') + ' · ' + (r.allowancePct != null ? r.allowancePct : 100) + '%';
+  if (rows[1]) rows[1].textContent = (r.teamName || '') + ' · ' + (r.format || '');   // Solo is always 100%, so no percentage
   set('.meta-thcp', 'PH ' + soloPhLabel(r.playingHcp || 0) + (r.courseHcp != null ? ' · CH ' + soloPhLabel(r.courseHcp) : ''));
   var labels = ROOT.querySelectorAll('.stats-bar .stat-label'), vals = ROOT.querySelectorAll('.stats-bar .stat-value');
   var L = stable ? ['Points', 'Gross', 'Net vs Par', 'Holes'] : ['Net', 'Gross', 'Net vs Par', 'Holes'];
@@ -527,7 +555,7 @@ function soloShareDerive(r, base) {
   base.rows = [
     ['GROSS', (r.gross != null ? String(r.gross) : '–'), ''],
     [stable ? 'POINTS' : 'NET', String(stable ? (r.stablefordPoints != null ? r.stablefordPoints : '–') : (r.net != null ? r.net : '–')), ''],
-    ['HANDICAP', 'PH ' + soloPhLabel(r.playingHcp || 0), (r.allowancePct != null ? r.allowancePct : 100) + '%'],
+    ['HANDICAP', 'PH ' + soloPhLabel(r.playingHcp || 0), ''],
     ['PAR', (base.parTot ? String(base.parTot) : '–'), ''],
     ['DATE', '', '']
   ];

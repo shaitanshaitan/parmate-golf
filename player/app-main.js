@@ -5511,7 +5511,7 @@ async function requestDataDeletion() {
     showToast(t('toast_deletion_sent'), 'success');
   } catch(e) {
     // Fallback — email link
-    window.location.href = `mailto:privacy@theninthtee.com?subject=Data Deletion Request&body=Please delete my account. UID: ${uid}, Email: ${email}`;
+    window.location.href = `mailto:legal@theninthtee.eu?subject=Data Deletion Request&body=Please delete my account. UID: ${uid}, Email: ${email}`;
   }
 }
 
@@ -5519,19 +5519,17 @@ async function requestDataDeletion() {
 
 const WHATS_NEW_VERSION = 'parmate_seen_v0.9';
 
-function checkWhatsNew() {
-  if (!localStorage.getItem(WHATS_NEW_VERSION)) {
-    setTimeout(() => showWhatsNew(), 800); // slight delay after sign-in
-  }
-}
+// The pop-up is gone (14 Oct 2026): "What's New" now lives at the top of Help & FAQ (menu).
+function checkWhatsNew() { /* no automatic pop-up any more */ }
 
+// Opens Help & FAQ with the What's New section expanded.
 function showWhatsNew() {
-  document.getElementById('whatsNewModal').style.display = 'flex';
+  if (typeof showScreen === 'function') showScreen('faq');
+  var d = document.getElementById('faqWhatsNew'); if (d) d.open = true;
 }
 
 function dismissWhatsNew() {
-  document.getElementById('whatsNewModal').style.display = 'none';
-  localStorage.setItem(WHATS_NEW_VERSION, '1');
+  var d = document.getElementById('faqWhatsNew'); if (d) d.open = false;
 }
 
 function openProfile() {
@@ -6730,6 +6728,8 @@ function renderHomeScreen() {
         + '<div class="hh-card-r"><div class="hh-card-gross">'+(r._g||'\u2013')+'</div><div class="hh-card-lbl">GROSS</div>'
         + '<div class="hh-card-vspar" style="color:'+vsCol+'">'+(r._g?(r._vs>0?'+'+r._vs:r._vs):'\u2013')+'</div><div class="hh-card-lbl">VS PAR</div></div></div>';
     }).join('') : '<div class="hh-empty">No team rounds yet \u2014 play a round to see your best here.</div>';
+
+  if (typeof soloRenderHomeRow === 'function') soloRenderHomeRow(all, fmtDate, esc);   // Solo Rounds | Last 5 (app-solo.js)
 
   const matches = all.filter(r=>r.isMatch).map(m=>{ const a=(m.result&&m.result.teamAWon)||0,b=(m.result&&m.result.teamBWon)||0; return Object.assign({_m:a-b,_t:tOf(m)}, m); }).sort((a,b)=>b._t-a._t).slice(0,5);
   const matchesRow = document.getElementById('homeMatchesRow');
