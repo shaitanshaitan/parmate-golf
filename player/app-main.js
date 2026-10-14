@@ -205,6 +205,7 @@ function showScreen(id, opts) {
         document.getElementById('screen-trscore').classList.contains('active') &&
         id !== 'trscore' && id !== 'trfull';
   if (_leavingTrScore && typeof maybePauseTrRound === 'function') maybePauseTrRound();
+  if (typeof m1BeforeShow === 'function') m1BeforeShow(id);   // 1vs1: pause an unsaved match (app-match.js)
   // Clear read-only view mode once we navigate anywhere except the view screens.
   if (id !== 'trloop' && id !== 'trparsi' && typeof _viewMode !== 'undefined') { _viewMode = false; }
   if (id !== 'tmscore' && id !== 'tmfull') window._tmView = null;  // leave saved-match view
@@ -227,6 +228,7 @@ function showScreen(id, opts) {
   if (typeof trInitStep === 'function') trInitStep(id, el);
   if (typeof tmInitStep === 'function') tmInitStep(id, el);
   if (typeof soloInitStep === 'function') soloInitStep(id, el);   // Solo Round setup (app-solo.js)
+  if (typeof m1InitStep === 'function') m1InitStep(id, el);   // 1vs1 Match Play screens (app-match.js)
   if (typeof applyLang === 'function') applyLang();
 }
 
@@ -1304,7 +1306,8 @@ function trInit_trcourse(ROOT){
     // (trComposeCourse also sets _trFlow.parByHole/siByHole indirectly; ensure the
     // flow-level copies used by the TM live-match builder are populated here too.)
     if (typeof trSyncParSiFromCourse === 'function') trSyncParSiFromCourse();
-    showScreen((typeof soloOn === 'function' && soloOn()) ? 'solosetup' : 'trteam');   // Solo skips team/tee/format
+    showScreen((typeof soloOn === 'function' && soloOn()) ? 'solosetup'
+             : ((typeof m1On === 'function' && m1On()) ? 'm1setup' : 'trteam'));   // Solo and 1vs1 skip team/tee/format
   });
 
   // ── Add-new-course button — flash ──────────────────────
@@ -5240,7 +5243,7 @@ function renderMyData() {
   // rounds remain in Firestore; Pro simply reveals the rest, no migration) ---
   const _visibleRounds = _savedRounds.slice(0, maxMatchHistoryForUser());
   // --- Rounds: split solo vs match ---
-  const soloRounds  = _visibleRounds.filter(r => !r.isMatch);
+  const soloRounds  = _visibleRounds.filter(r => !r.isMatch && r.mode !== 'match1v1');   // legacy list: skip 1vs1 matches
   const matchRounds = _visibleRounds.filter(r =>  r.isMatch);
 
   document.getElementById('soloRoundCount').textContent  = soloRounds.length;
@@ -6715,7 +6718,7 @@ function renderHomeScreen() {
   const teamOf  = r => r.isMatch ? ((r.teamA&&r.teamA.name)||'') : (r.teamName || (r.team&&r.team.name) || '');
   const tOf     = r => Date.parse(r.playedAt||r.date||0)||0;
 
-  const _solo = r => (typeof soloIsRound === 'function' && soloIsRound(r));
+  const _solo = r => (typeof soloIsRound === 'function' && soloIsRound(r)) || (typeof m1IsRound === 'function' && m1IsRound(r));   // not a team game
   const rounds = all.filter(r=>!r.isMatch && !_solo(r)).map(r=>{ const g=grossOf(r),p=parOf(r); return Object.assign({_g:g,_vs:g-p,_t:tOf(r)}, r); }).sort((a,b)=>b._t-a._t).slice(0,5);
   const roundsRow = document.getElementById('homeRoundsRow');
   if (roundsRow) roundsRow.innerHTML = rounds.length ? rounds.map(r=>{
@@ -6730,6 +6733,7 @@ function renderHomeScreen() {
     }).join('') : '<div class="hh-empty">No team rounds yet \u2014 play a round to see your best here.</div>';
 
   if (typeof soloRenderHomeRow === 'function') soloRenderHomeRow(all, fmtDate, esc);   // Solo Rounds | Last 5 (app-solo.js)
+  if (typeof m1RenderHomeRow === 'function') m1RenderHomeRow(all, fmtDate, esc);   // 1vs1 Matches | Last 5 (app-match.js)
 
   const matches = all.filter(r=>r.isMatch).map(m=>{ const a=(m.result&&m.result.teamAWon)||0,b=(m.result&&m.result.teamBWon)||0; return Object.assign({_m:a-b,_t:tOf(m)}, m); }).sort((a,b)=>b._t-a._t).slice(0,5);
   const matchesRow = document.getElementById('homeMatchesRow');
@@ -7425,6 +7429,7 @@ function trcLeaveScorecard() {
 // Tapping the banner: restore the TR flow + scores and jump back into the scorecard.
 function resumePausedRound() {
   if (!_pausedRound) { hidePausedRoundBanner(); return; }
+  if (typeof m1ResumePaused === 'function' && m1ResumePaused()) return;   // 1vs1 match (app-match.js)
   if (!_trFlow) _trFlow = {};
   _trFlow.course = JSON.parse(JSON.stringify(_pausedRound.course));
   if (_pausedRound.team) _trFlow.team = JSON.parse(JSON.stringify(_pausedRound.team));

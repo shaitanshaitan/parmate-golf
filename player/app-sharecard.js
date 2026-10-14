@@ -18,6 +18,7 @@ function _scDerive(r){
   var holes=r.holes||Math.max(par.length,(r.scores||[]).length)||9;
   var courseName=(r.courseName||r.loopName||'Round');
   var playedAt=(r.playedAt||r.date);
+  if(r.mode==='match1v1' && typeof m1ShareDerive==='function') return m1ShareDerive(r, { courseName:courseName, holes:holes, playedAt:playedAt });   // 1vs1 (app-match.js)
   if(isMatch){
     var A=r.teamA||{},B=r.teamB||{};
     var aScores=r.scores||A.scores||[], bScores=r.oppScores||B.scores||[];

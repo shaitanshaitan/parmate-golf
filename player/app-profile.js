@@ -862,6 +862,7 @@ function renderRoundDetail(ROOT){
   ROOT=ROOT||document.getElementById('screen-rounddetail'); if(!ROOT) return;
   var r=window._activeRound||{};
   if(r.isMatch){ renderMatchDetail(ROOT, r); return; }
+  if(typeof m1DetailHook==='function' && m1DetailHook(ROOT, r)) return;   // 1vs1 match (app-match.js)
   if(typeof soloIsRound==='function' && soloIsRound(r)){ soloRenderDetail(ROOT, r); return; }   // Solo Round (app-solo.js)
   // restore round chrome (a match view may have changed these)
   var _sub=ROOT.querySelector('.sub-header .title'); if(_sub) _sub.textContent='Round Detail';
@@ -1481,7 +1482,7 @@ function renderNotifList(ROOT){
           '<button class="og-btn og-continue" onclick="resumePausedRound()">\u25B6 Resume</button>' +
         '</div>' +
         '<div class="og-info">' +
-          '<span class="og-badge active">TEAM ROUND</span>' +
+          '<span class="og-badge active">'+(pr.mode==='match1v1'?'1VS1 MATCH':(pr.mode==='solo'?'SOLO ROUND':'TEAM ROUND'))+'</span>' +
           '<div class="og-title">Resume your round</div>' +
           '<div class="og-sub">' + prBits.join(' \u00b7 ') + '</div>' +
         '</div>' +
@@ -1691,7 +1692,8 @@ async function openGameCancel(id, status){
 function renderMatches(ROOT){
   var all=(typeof _savedRounds!=='undefined'?_savedRounds:[]);
   var isSolo=function(r){ return typeof soloIsRound==='function' && soloIsRound(r); };
-  var rounds=all.filter(function(r){return r && !r.isMatch && !isSolo(r);});
+  var isM1=function(r){ return typeof m1IsRound==='function' && m1IsRound(r); };
+  var rounds=all.filter(function(r){return r && !r.isMatch && !isSolo(r) && !isM1(r);});
   var solos=all.filter(function(r){return r && isSolo(r);});
   var matches=all.filter(function(r){return r && r.isMatch;});
   ROOT._ghType = ROOT._ghType || 'TR';
@@ -1711,7 +1713,7 @@ function renderMatches(ROOT){
   var soWrap=ROOT.querySelector('#soCards');
   if(!soWrap && trWrap){ soWrap=document.createElement('div'); soWrap.id='soCards'; trWrap.parentNode.insertBefore(soWrap, trWrap.nextSibling); }
   if(trWrap) trWrap.style.display=showTR?'block':'none';
-  if(tmWrap) tmWrap.style.display=(!showTR&&!showSO)?'block':'none';
+  if(tmWrap) tmWrap.style.display=(ROOT._ghType==='TM')?'block':'none';
   if(soWrap) soWrap.style.display=showSO?'block':'none';
   var f=ROOT._ghFilter;
   if(trWrap){ trWrap.innerHTML='';
@@ -1738,6 +1740,7 @@ function renderMatches(ROOT){
     if(!soList.length){ soWrap.innerHTML='<div style="text-align:center;color:var(--text-3);font-family:Inter,sans-serif;font-size:14px;padding:32px 0;">'+(solos.length?'No rounds in this filter.':'No solo rounds yet.')+'</div>'; }
     soList.forEach(function(r){ soWrap.appendChild(soloHistoryCard(r)); });
   }
+  if(typeof m1RenderHistory==='function') m1RenderHistory(ROOT, all, f);   // 1vs1 tab (app-match.js)
   if(tmWrap){ tmWrap.innerHTML='';
     var tmList=matches.filter(function(r){return _ghPassFilter(r,f);});
     if(!tmList.length){ tmWrap.innerHTML='<div style="text-align:center;color:var(--text-3);font-family:Inter,sans-serif;font-size:14px;padding:32px 0;">'+(matches.length?'No matches in this filter.':'No team matches yet.')+'</div>'; }
