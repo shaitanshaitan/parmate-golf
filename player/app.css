@@ -6226,3 +6226,27 @@ html[lang="nl"] .play-btn span:only-child {font-size: 11px !important; letter-sp
 #screen-rounddetail .sc-table.m1-mode th, #screen-rounddetail .sc-table.m1-mode td {padding-left: 3px; padding-right: 3px;}
 #screen-matches .type-toggle.m1-four .type-btn {font-size: 12px; letter-spacing: 0;}
 
+/* 1vs1 setup, 15 Oct round 2: one type scale (names 15px, controls 13px, labels 11px), aligned opponent row, no allowance */
+#screen-m1setup .m1-p-head {align-items: center; gap: 10px; min-height: 44px;}
+#screen-m1setup .m1-p-name, #screen-m1setup .m1-pick-name {font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; color: var(--text);}
+#screen-m1setup .m1-pick {height: 40px; padding: 0 10px; align-self: center;}
+#screen-m1setup .m1-pick:not(.set) .m1-pick-name {color: var(--green); font-weight: 600;}
+#screen-m1setup .m1-pick.set {padding-left: 0;}
+#screen-m1setup .m1-idx {flex: 0 0 auto; flex-direction: row; align-items: center; gap: 6px; height: 40px; padding: 0 10px; border: 1.5px solid rgba(26,107,60,0.35); border-radius: 8px; background: #fff;}
+#screen-m1setup .m1-idx span {font-size: 11px; letter-spacing: 0.06em;}
+#screen-m1setup .m1-idx input {width: 46px; height: 36px; border: 0; padding: 0; text-align: right; font-size: 15px; background: transparent;}
+#screen-m1setup .m1-player .tee-btn, #screen-m1setup .m1-g, #screen-m1setup .so-seg .so-fmt {font-size: 13px;}
+#screen-m1setup .m1-result {margin-top: 14px; padding: 12px 16px; border-radius: 10px; background: var(--green); color: #fff; font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; line-height: 1.35; text-align: center;}
+#screen-m1setup .m1-res-sub {font-size: 12px;}
+/* names are never cut: they wrap inside narrow columns */
+#screen-m1full .stat-label, #screen-rounddetail .stats-bar .stat-label {overflow-wrap: anywhere; line-height: 1.25;}
+#screen-m1full .m1-table th:nth-child(4), #screen-m1full .m1-table th:nth-child(5) {max-width: none; overflow: visible; text-overflow: clip; white-space: normal; overflow-wrap: anywhere; text-transform: none; letter-spacing: 0; font-size: 11px; line-height: 1.2;}
+#screen-rounddetail .sc-table.m1-mode th:nth-child(4), #screen-rounddetail .sc-table.m1-mode th:nth-child(5) {white-space: normal; overflow-wrap: anywhere; text-transform: none; letter-spacing: 0; line-height: 1.2;}
+#screen-m1score .m1-row-name {white-space: normal; overflow-wrap: anywhere;}
+/* player names in the stats boxes: normal case so a long name fits on one line */
+#screen-m1full .stat-label.m1-name-lbl, #screen-rounddetail .stats-bar .stat-label.m1-name-lbl {text-transform: none; letter-spacing: 0; font-size: 11px; overflow-wrap: anywhere;}
+#screen-m1full .stats-bar .stat-cell:nth-child(2), #screen-m1full .stats-bar .stat-cell:nth-child(3),
+#screen-rounddetail .stats-bar.m1-names .stat-cell:nth-child(2), #screen-rounddetail .stats-bar.m1-names .stat-cell:nth-child(3) {padding-left: 2px; padding-right: 2px;}
+#screen-m1full .stat-label.m1-name-lbl, #screen-rounddetail .stats-bar .stat-label.m1-name-lbl {overflow-wrap: normal; white-space: nowrap; overflow: hidden; text-overflow: clip;}
+#screen-m1full .stat-label.m1-name-lbl.long, #screen-rounddetail .stats-bar .stat-label.m1-name-lbl.long {font-size: 10px;}
+#screen-m1full .stat-label.m1-name-lbl.xlong, #screen-rounddetail .stats-bar .stat-label.m1-name-lbl.xlong {font-size: 9px;}

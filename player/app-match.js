@@ -118,7 +118,14 @@ function m1LoopLabel(c, n) {
   var l = (c && c._playedLoopName) || '';
   return /^\s*(9|18|27)[\s-]*hol(e|es)\s*$/i.test(l) ? '' : l;
 }
-function m1Short(name) { var w = String(name || '').trim().split(/\s+/)[0] || ''; return w.length > 8 ? w.slice(0, 7) + '.' : w; }
+// Long names get a smaller font in the narrow stats boxes, so they stay on one line
+function m1FitName(el, name) {
+  if (!el) return;
+  var l = String(name || '').length;
+  el.classList.toggle('long', l > 11 && l <= 14);
+  el.classList.toggle('xlong', l > 14);
+}
+function m1Short(name) { return String(name || '').trim().split(/\s+/)[0] || ''; }   // first name, never cut off
 
 function m1AvatarOf(p) {
   if (!p) return 'icons/home-crown.png';
@@ -176,7 +183,7 @@ function m1CalcNow() {
   var si = c.indexPerHole || [];
   var tA = m1Tee(m.a), tB = m.b ? m1Tee(m.b) : null;
   var net = m.scoring === 'net';
-  var pct = net ? m.pct : 100;
+  var pct = 100;   // 1vs1: net uses the full Playing Handicaps, no allowance setting
   var cA = tA ? trCalcSingle(m.a.index, tA, n, pct) : null;
   var cB = (tB && m.b) ? trCalcSingle(m.b.index, tB, n, pct) : null;
   var ms = (net && cA && cB) ? trMatchStrokes(cA.playingHcp, cB.playingHcp, si, n)
@@ -228,8 +235,6 @@ function m1RenderSetup(scr) {
   if (iA && document.activeElement !== iA) iA.value = (m.a.index != null && m.a.index !== '') ? m.a.index : '';
   var iB = document.getElementById('m1_indexB');
   if (iB && document.activeElement !== iB) iB.value = (m.b && m.b.index != null && m.b.index !== '') ? m.b.index : '';
-  var pc = document.getElementById('m1_pct');
-  if (pc && document.activeElement !== pc) pc.value = m.pct;
 
   var wA = document.getElementById('m1_teesA'); if (wA) wA.innerHTML = m1TeeButtons(m.a, 'A');
   var wB = document.getElementById('m1_teesB'); if (wB) wB.innerHTML = m.b ? m1TeeButtons(m.b, 'B') : '';
@@ -239,7 +244,6 @@ function m1RenderSetup(scr) {
     gB.querySelectorAll('.m1-g').forEach(function (b) { b.classList.toggle('active', !!m.b && b.dataset.g === (m.b.gender || 'M')); });
   }
   scr.querySelectorAll('.m1-sc').forEach(function (b) { b.classList.toggle('active', b.dataset.sc === m.scoring); });
-  var ar = document.getElementById('m1_allowRow'); if (ar) ar.style.display = m.scoring === 'net' ? '' : 'none';
 
   if (!scr._m1Wired) {
     scr.addEventListener('click', function (e) {
@@ -259,7 +263,6 @@ function m1RenderSetup(scr) {
       var mm = m1M(), v = e.target.value;
       if (e.target.id === 'm1_indexA') mm.a.index = v === '' ? null : v;
       else if (e.target.id === 'm1_indexB') { if (mm.b) mm.b.index = v === '' ? null : v; }
-      else if (e.target.id === 'm1_pct') { var n = parseFloat(v); mm.pct = isNaN(n) ? M1_DEFAULT_PCT : Math.max(0, Math.min(100, n)); }
       else return;
       m1RenderSetupResult();
     });
@@ -274,16 +277,16 @@ function m1RenderSetupResult() {
   var set = function (id, v) { var e = document.getElementById(id); if (e) e.textContent = v; };
   var par = r.tA ? r.tA.par : (c.par != null ? c.par : '–');
   set('m1_courseMeta', [m1LoopLabel(c, r.n), r.n + ' holes', 'Par ' + par].filter(Boolean).join(' · '));
-  var lbl = 'Strokes', val = '–', sub = '';
-  if (!r.net) { lbl = 'Gross match'; val = 'No strokes'; }
-  else if (!m.b) { lbl = 'Strokes'; val = '–'; }
-  else if (r.cA && r.cB) {
-    if (!r.ms.diff) { lbl = 'Level match'; val = '0'; }
-    else { lbl = m1Short(r.ms.receiver === 'A' ? m.a.name : m.b.name) + ' receives'; val = String(r.ms.diff); }
+  var line = '', sub = '';
+  if (!r.net) line = 'Gross match, no strokes';
+  else if (m.b && r.cA && r.cB) {
+    var rcv = r.ms.receiver === 'A' ? m.a.name : (m.b ? m.b.name : '');
+    if (!r.ms.diff) line = 'Same Playing HCP, no strokes';
+    else line = m1Short(rcv) + (r.ms.diff === 1 ? ' receives 1 stroke' : (' receives ' + r.ms.diff + ' strokes'));
     sub = 'Playing HCP · ' + m1Short(m.a.name) + ' ' + soloPhLabel(r.cA.playingHcp) + ' · ' + m1Short(m.b.name) + ' ' + soloPhLabel(r.cB.playingHcp);
   }
-  set('m1_resLabel', lbl); set('m1_res', val); set('m1_resSub', sub);
-  var resEl = document.getElementById('m1_res'); if (resEl) resEl.style.fontSize = (val.length > 3) ? '20px' : '';
+  var box = document.getElementById('m1_resBox'); if (box) box.style.display = line ? '' : 'none';
+  set('m1_res', line); set('m1_resSub', sub);
   var w = document.getElementById('m1_warn');
   if (w) {
     if (r.net && r.ms.diff && !r.siOk) { w.textContent = 'This course has no complete stroke index. Strokes are given on holes 1 to ' + Math.min(r.ms.diff, r.n) + ' in order.'; w.style.display = ''; }
@@ -294,7 +297,7 @@ function m1RenderSetupResult() {
 function m1ScoringText() {
   return (_trFlow && _trFlow.m1 && _trFlow.m1.scoring === 'gross')
     ? 'Mano a mano, no handicaps. The lowest score on a hole wins it.'
-    : 'Both Playing Handicaps at the allowance. The higher handicap receives the difference, one stroke per hole on the hardest holes (lowest stroke index).';
+    : 'Based on both Playing Handicaps. The higher handicap receives the difference, one stroke per hole on the hardest holes (lowest stroke index).';
 }
 function m1ScoringInfo() {
   var box = document.getElementById('m1_scInfo'); if (!box) return;
@@ -352,7 +355,7 @@ function m1Start() {
   m.a.index = m1ValidIndex(m.a.index) ? parseFloat(m.a.index) : null;
   m.b.index = m1ValidIndex(m.b.index) ? parseFloat(m.b.index) : null;
   m.calc = {
-    n: r.n, net: r.net, pct: r.net ? m.pct : null,
+    n: r.n, net: r.net, pct: r.net ? 100 : null,
     teeA: r.tA, teeB: r.tB,
     chA: r.cA ? r.cA.courseHcp : null, phA: r.cA ? r.cA.playingHcp : null,
     chB: r.cB ? r.cB.courseHcp : null, phB: r.cB ? r.cB.playingHcp : null,
@@ -437,7 +440,7 @@ function m1RenderScore() {
   var m = m1M(), c = _trFlow.course || {}, n = m1N(), h = m.hole, ch = m1CourseHole(h);
   var set = function (id, v) { var e = document.getElementById(id); if (e) e.textContent = v; };
   set('m1s_course', c.name || 'Course');
-  set('m1s_meta', [m1LoopLabel(c, n), n + ' holes', m.calc.net ? ('Net ' + m.calc.pct + '%') : 'Gross'].filter(Boolean).join(' · '));
+  set('m1s_meta', [m1LoopLabel(c, n), n + ' holes', m.calc.net ? 'Net' : 'Gross'].filter(Boolean).join(' · '));
 
   var s = m1StateNow(), st = s.st, out = s.out;
   // status bar
@@ -662,8 +665,9 @@ function m1RenderFull() {
   var m = m1M(), c = _trFlow.course || {}, n = m1N(), s = m1StateNow();
   var set = function (id, v) { var e = document.getElementById(id); if (e) e.textContent = v; };
   set('m1f_course', c.name || 'Course');
-  set('m1f_meta', [m1LoopLabel(c, n), m1Name('A') + ' vs ' + m1Name('B'), m.calc.net ? ('Net ' + m.calc.pct + '%') : 'Gross'].filter(Boolean).join(' · '));
+  set('m1f_meta', [m1LoopLabel(c, n), m1Name('A') + ' vs ' + m1Name('B'), m.calc.net ? 'Net' : 'Gross'].filter(Boolean).join(' · '));
   set('m1f_lblA', m1Short(m1Name('A'))); set('m1f_lblB', m1Short(m1Name('B')));
+  m1FitName(document.getElementById('m1f_lblA'), m1Short(m1Name('A'))); m1FitName(document.getElementById('m1f_lblB'), m1Short(m1Name('B')));
   set('m1f_thA', m1Short(m1Name('A'))); set('m1f_thB', m1Short(m1Name('B')));
   set('m1f_stMatch', s.out.done ? m1ShortText(s.out.winner === 'H' ? 'Halved' : s.out.text) : (s.st.up === 0 ? 'AS' : m1RunText(s.st.up)));
   set('m1f_stA', s.st.wonA + s.ex.filter(function (x) { return x === 'A'; }).length);
@@ -828,7 +832,7 @@ function m1RenderHistory(ROOT, all, f) {
     card.innerHTML = '<div class="round-left"><div class="round-date">' + d + '</div>' +
       '<div class="round-course">' + m1Esc(r.courseName || 'Course') + '</div>' +
       '<div class="round-meta">' + m1Esc(m1LoopLabel({ _playedLoopName: r.loopName }) || r.courseName || '') + ' · ' + (r.holes || 18) + 'H · vs <span data-no-i18n>' + m1Esc(B.name || 'Opponent') + '</span></div>' +
-      '<div class="round-format">' + (r.scoring === 'gross' ? 'Gross' : ('Net ' + (r.allowancePct != null ? r.allowancePct : 100) + '%')) + '</div></div>' +
+      '<div class="round-format">' + (r.scoring === 'gross' ? 'Gross' : 'Net') + '</div></div>' +
       '<div class="round-right"><div class="round-gross" style="color:' + col + ';">' + m1Esc(m1ShortResult(r)) + '</div><div class="round-par-label">Result</div>' +
       '<div class="round-vspar" style="color:' + col + ';">' + o + '</div><div class="round-vspar-label">Outcome</div></div>' +
       '<div class="round-chevron">›</div>';
@@ -858,7 +862,11 @@ function m1RenderHomeRow(all, fmtDate, escF) {
 // Round Detail (screen-rounddetail). Returns true when it rendered a 1vs1 match.
 function m1DetailHook(ROOT, r) {
   var tbl = ROOT.querySelector('.sc-table'); if (tbl) tbl.classList.toggle('m1-mode', m1IsRound(r));
-  if (!m1IsRound(r)) return false;
+  if (!m1IsRound(r)) {   // shared screen: undo the 1vs1 name labels so Team Round / Solo labels translate again
+    ROOT.querySelectorAll('.stats-bar .stat-label.m1-name-lbl').forEach(function (e) { e.classList.remove('m1-name-lbl', 'long', 'xlong'); e.removeAttribute('data-no-i18n'); });
+    var sb0 = ROOT.querySelector('.stats-bar'); if (sb0) sb0.classList.remove('m1-names');
+    return false;
+  }
   m1RenderDetail(ROOT, r); return true;
 }
 function m1RenderDetail(ROOT, r) {
@@ -869,7 +877,7 @@ function m1RenderDetail(ROOT, r) {
   set('.meta-date', fmtDate(r.playedAt));
   set('.meta-course', r.courseName || 'Course');
   var rows = ROOT.querySelectorAll('.round-meta-header .meta-row');
-  if (rows[0]) rows[0].textContent = [m1LoopLabel({ _playedLoopName: r.loopName }), n + ' holes'].filter(Boolean).join(' · ') + ' · ' + (r.scoring === 'gross' ? 'Gross' : ('Net ' + (r.allowancePct != null ? r.allowancePct : 100) + '%'));
+  if (rows[0]) rows[0].textContent = [m1LoopLabel({ _playedLoopName: r.loopName }), n + ' holes'].filter(Boolean).join(' · ') + ' · ' + (r.scoring === 'gross' ? 'Gross' : 'Net');
   if (rows[1]) rows[1].textContent = (A.name || 'You') + (A.playingHcp != null && r.scoring !== 'gross' ? ' (PH ' + soloPhLabel(A.playingHcp) + ')' : '') + ' vs ' +
                                      (B.name || 'Opponent') + (B.playingHcp != null && r.scoring !== 'gross' ? ' (PH ' + soloPhLabel(B.playingHcp) + ')' : '');
   set('.meta-thcp', r.resultText || '');
@@ -882,7 +890,9 @@ function m1RenderDetail(ROOT, r) {
   if (vals[2]) { vals[2].textContent = res.wonB != null ? res.wonB : '–'; vals[2].className = 'stat-value'; }
   var hp = (r.holesPlayed != null ? r.holesPlayed : n);
   if (vals[3]) { vals[3].textContent = hp > n ? (n + '+' + (hp - n)) : (hp + '/' + n); vals[3].className = 'stat-value'; }
-  [labels[1], labels[2]].forEach(function (e) { if (e) e.setAttribute('data-no-i18n', ''); });
+  [labels[1], labels[2]].forEach(function (e, k) { if (e) { e.setAttribute('data-no-i18n', ''); e.classList.add('m1-name-lbl'); m1FitName(e, L[k + 1]); } });
+  var sbar = ROOT.querySelector('.stats-bar'); if (sbar) sbar.classList.add('m1-names');
+  [labels[0], labels[3]].forEach(function (e) { if (e) e.classList.remove('m1-name-lbl'); });
   var th = ROOT.querySelector('.sc-table thead tr');
   if (th) th.innerHTML = '<th>Hole</th><th>Par</th><th>SI</th><th data-no-i18n>' + m1Esc(m1Short(A.name) || 'You') + '</th><th data-no-i18n>' + m1Esc(m1Short(B.name) || 'Opp') + '</th><th>Match</th>';
   var tb = ROOT.querySelector('.sc-table tbody'); if (!tb) return;
@@ -905,7 +915,7 @@ function m1ShareDerive(r, base) {
   base.rows = [
     ['WINNER', o === 'Halved' ? 'HALVED' : String(o === 'Won' ? (A.name || 'You') : (B.name || 'Opponent')).toUpperCase(), ''],
     ['HOLES WON', (res.wonA != null ? res.wonA : 0) + ' – ' + (res.wonB != null ? res.wonB : 0), ''],
-    ['SCORING', r.scoring === 'gross' ? 'GROSS' : ('NET ' + (r.allowancePct != null ? r.allowancePct : 100) + '%'), ''],
+    ['SCORING', r.scoring === 'gross' ? 'GROSS' : 'NET', ''],
     ['HOLES', String(r.holesPlayed != null ? r.holesPlayed : (r.holes || '')), ''],
     ['DATE', '', '']
   ];

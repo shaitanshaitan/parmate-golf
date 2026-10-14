@@ -66,7 +66,7 @@
     })();
   });
 </script>
-<link rel="stylesheet" href="app.css?v=20261015c">
+<link rel="stylesheet" href="app.css?v=20261015d">
 
 <!-- styles moved to app.css (block 2) -->
 </head>
@@ -1273,7 +1273,7 @@
 <script src="i18n.js?v=20261013d"></script>
 <script src="app-main.js?v=20261015c"></script>
 <script src="app-solo.js?v=20261015c"></script>
-<script src="app-match.js?v=20261015c"></script>
+<script src="app-match.js?v=20261015d"></script>
 
 <!-- ── MATCH GATE OVERLAY ── -->
 <div class="match-overlay" id="matchGateOverlay" style="display:none;">
@@ -4966,7 +4966,7 @@
           <div class="m1-p-head">
             <img class="m1-av" id="m1_avA" src="icons/home-crown.png" alt="">
             <div class="m1-p-name" id="m1_nameA" data-no-i18n>You</div>
-            <label class="m1-idx"><span>HCP</span><input id="m1_indexA" type="number" step="0.1" min="-10" max="54" inputmode="decimal" placeholder="14.5"></label>
+            <label class="m1-idx"><span>HCP</span><input id="m1_indexA" type="number" step="0.1" min="-10" max="54" inputmode="decimal" placeholder="0.0"></label>
           </div>
           <div class="tee-group" id="m1_teesA"></div>
         </div>
@@ -4977,7 +4977,7 @@
           <div class="m1-p-head">
             <img class="m1-av" id="m1_avB" src="icons/home-crown.png" alt="">
             <button class="m1-pick" id="m1_pickB" type="button" onclick="m1OpenPicker()"><span class="m1-pick-name" id="m1_nameB">Choose opponent</span><span class="m1-chev">&rsaquo;</span></button>
-            <label class="m1-idx"><span>HCP</span><input id="m1_indexB" type="number" step="0.1" min="-10" max="54" inputmode="decimal" placeholder="18.0"></label>
+            <label class="m1-idx"><span>HCP</span><input id="m1_indexB" type="number" step="0.1" min="-10" max="54" inputmode="decimal" placeholder="0.0"></label>
           </div>
           <div class="m1-gender" id="m1_genderB" style="display:none">
             <button class="m1-g active" type="button" data-g="M">Men's tees</button>
@@ -4995,14 +4995,7 @@
         </div>
         <div class="so-fmt-info" id="m1_scInfo" style="display:none"></div>
 
-        <div class="m1-allow" id="m1_allowRow">
-          <span class="m1-allow-label">Allowance</span>
-          <div class="so-field so-pct"><input id="m1_pct" type="number" min="0" max="100" step="5" inputmode="numeric"><span>%</span></div>
-        </div>
-
-        <div class="so-result">
-          <div class="so-res-cell main"><span class="so-res-label" id="m1_resLabel">Strokes</span><span class="so-res-value" id="m1_res">&ndash;</span></div>
-        </div>
+        <div class="m1-result" id="m1_resBox" style="display:none"><span id="m1_res"></span></div>
         <div class="m1-res-sub" id="m1_resSub"></div>
         <div class="so-warn" id="m1_warn" style="display:none"></div>
       </div>
@@ -5175,8 +5168,8 @@
         <div class="course-meta" id="m1f_meta"></div>
         <div class="stats-bar">
           <div class="stat-cell"><span class="stat-label">Match</span><span class="stat-value" id="m1f_stMatch">&ndash;</span></div>
-          <div class="stat-cell"><span class="stat-label" id="m1f_lblA" data-no-i18n>You</span><span class="stat-value" id="m1f_stA">0</span></div>
-          <div class="stat-cell"><span class="stat-label" id="m1f_lblB" data-no-i18n>Opp</span><span class="stat-value" id="m1f_stB">0</span></div>
+          <div class="stat-cell"><span class="stat-label m1-name-lbl" id="m1f_lblA" data-no-i18n>You</span><span class="stat-value" id="m1f_stA">0</span></div>
+          <div class="stat-cell"><span class="stat-label m1-name-lbl" id="m1f_lblB" data-no-i18n>Opp</span><span class="stat-value" id="m1f_stB">0</span></div>
           <div class="stat-cell"><span class="stat-label">Holes</span><span class="stat-value" id="m1f_stHoles">0 / 18</span></div>
         </div>
         <table class="sc-table m1-table">

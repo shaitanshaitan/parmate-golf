@@ -1217,3 +1217,12 @@ Object.assign(window.PM_STRINGS_NL, {
 "1VS1 MATCH": "1VS1 MATCH",
 "SOLO ROUND": "SOLO RONDE"
 });
+
+// ── 1vs1 round 2 (15 Oct): strokes sentence, no allowance. DRAFT Dutch, for Robbie to review.
+Object.assign(window.PM_STRINGS_NL, {
+"{0} receives {1} strokes": "{0} krijgt {1} slagen mee",
+"{0} receives 1 stroke": "{0} krijgt 1 slag mee",
+"Same Playing HCP, no strokes": "Gelijke Playing HCP, geen slagen",
+"Gross match, no strokes": "Brutomatch, geen slagen",
+"Based on both Playing Handicaps. The higher handicap receives the difference, one stroke per hole on the hardest holes (lowest stroke index).": "Op basis van beide Playing Handicaps. De hoogste handicap krijgt het verschil mee: één slag per hole op de moeilijkste holes (laagste stroke index)."
+});
