@@ -66,7 +66,7 @@
     })();
   });
 </script>
-<link rel="stylesheet" href="app.css?v=20261014a">
+<link rel="stylesheet" href="app.css?v=20261015a">
 
 <!-- styles moved to app.css (block 2) -->
 </head>
@@ -1271,8 +1271,9 @@
 <script src="lang.js?v=20261013e"></script>
 <script src="lang-nl.js"></script>
 <script src="i18n.js?v=20261013d"></script>
-<script src="app-main.js?v=20261014a"></script>
-<script src="app-solo.js?v=20261014a"></script>
+<script src="app-main.js?v=20261015a"></script>
+<script src="app-solo.js?v=20261015b"></script>
+<script src="app-match.js?v=20261015b"></script>
 
 <!-- ── MATCH GATE OVERLAY ── -->
 <div class="match-overlay" id="matchGateOverlay" style="display:none;">
@@ -1693,6 +1694,15 @@
           <div class="hh-name" id="homeUsername">username</div>
         </div>
 
+        <!-- 1vs1 Matches | Last 5 -->
+        <div class="hh-section">
+          <div class="hh-sec-head">
+            <div class="hh-sec-title">1vs1 Matches <span>| Last 5</span></div>
+            <button class="hh-viewall" type="button" onclick="showScreen('matches'); if (typeof switchType === 'function') switchType('M1');">view all</button>
+          </div>
+          <div class="hh-row" id="homeM1Row"></div>
+        </div>
+
         <!-- Team Rounds | Best 5 -->
         <div class="hh-section">
           <div class="hh-sec-head">
@@ -1914,6 +1924,7 @@
 
         <!-- Type toggle: TR vs TM -->
         <div class="type-toggle">
+          <button class="type-btn" id="btnM1" onclick="switchType('M1')">1vs1</button>
           <button class="type-btn active" id="btnTR" onclick="switchType('TR')">Team Round</button>
           <button class="type-btn" id="btnTM" onclick="switchType('TM')">Team Match</button>
           <button class="type-btn" id="btnSO" onclick="switchType('SO')">Solo</button>
@@ -3764,6 +3775,9 @@
 
       <!-- Body: three stacked game cards -->
       <div class="body-area">
+        <button class="game-card match-1v1" type="button" aria-label="1vs1 Match Play" onclick="cgMatch1v1()">
+          <span class="game-label"><span>1vs1</span><span>Match</span></span>
+        </button>
         <button class="game-card team-round" type="button" aria-label="Team Round" onclick="cgTeamRound()">
           <span class="game-label" data-i18n-html="cg_team_round"><span>Team</span><span>Round</span></span>
         </button>
@@ -4922,6 +4936,264 @@
       </div>
 
       
+    </section>
+<!-- ════ 1VS1 MATCH PLAY · setup · app-match.js ════ -->
+<section id="screen-m1setup" class="screen" data-screen="m1setup">
+      <div class="app-header">
+        <div class="logo">
+          <img class="crown" alt="" src="icons/home-crown.png">
+          <span class="wordmark">Parmate</span>
+        </div>
+        <div class="header-icons">
+          <button class="icon-btn" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 19.5c.6-3 3.2-4.8 6.5-4.8 1.5 0 2.8.4 3.9 1.1"></path><line x1="18" y1="13" x2="18" y2="20"></line><line x1="14.5" y1="16.5" x2="21.5" y2="16.5"></line></svg></button>
+          <button class="icon-btn" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2H4.5L6 16z"></path><path d="M10 20.5a2 2 0 0 0 4 0"></path></svg></button>
+          <button class="icon-btn" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="8" x2="19" y2="8"></line><line x1="5" y1="12" x2="19" y2="12"></line><line x1="5" y1="16" x2="19" y2="16"></line></svg></button>
+        </div>
+      </div>
+
+      <div class="sub-header">
+        <span class="title">1vs1 Match Play</span>
+        <div class="actions">
+          <button class="back-pill" type="button" onclick="m1Back()">BACK</button>
+        </div>
+      </div>
+
+      <div class="body-area">
+        <div class="so-course" id="m1_course">Course</div>
+        <div class="so-course-meta" id="m1_courseMeta"></div>
+
+        <div class="m1-player">
+          <div class="m1-p-head">
+            <img class="m1-av" id="m1_avA" src="icons/home-crown.png" alt="">
+            <div class="m1-p-name" id="m1_nameA" data-no-i18n>You</div>
+            <label class="m1-idx"><span>HCP</span><input id="m1_indexA" type="number" step="0.1" min="-10" max="54" inputmode="decimal" placeholder="14.5"></label>
+          </div>
+          <div class="tee-group" id="m1_teesA"></div>
+        </div>
+
+        <div class="m1-vs"><span>VS</span></div>
+
+        <div class="m1-player">
+          <div class="m1-p-head">
+            <img class="m1-av" id="m1_avB" src="icons/home-crown.png" alt="">
+            <button class="m1-pick" id="m1_pickB" type="button" onclick="m1OpenPicker()"><span class="m1-pick-name" id="m1_nameB">Choose opponent</span><span class="m1-chev">&rsaquo;</span></button>
+            <label class="m1-idx"><span>HCP</span><input id="m1_indexB" type="number" step="0.1" min="-10" max="54" inputmode="decimal" placeholder="18.0"></label>
+          </div>
+          <div class="m1-gender" id="m1_genderB" style="display:none">
+            <button class="m1-g active" type="button" data-g="M">Men's tees</button>
+            <button class="m1-g" type="button" data-g="F">Ladies' tees</button>
+          </div>
+          <div class="tee-group" id="m1_teesB"></div>
+        </div>
+
+        <div class="so-fmt-row">
+          <div class="so-seg">
+            <button class="so-fmt m1-sc active" type="button" data-sc="net">Net</button>
+            <button class="so-fmt m1-sc" type="button" data-sc="gross">Gross</button>
+          </div>
+          <button class="so-info" type="button" onclick="m1ScoringInfo()" aria-label="About net and gross">i</button>
+        </div>
+        <div class="so-fmt-info" id="m1_scInfo" style="display:none"></div>
+
+        <div class="m1-allow" id="m1_allowRow">
+          <span class="m1-allow-label">Allowance</span>
+          <div class="so-field so-pct"><input id="m1_pct" type="number" min="0" max="100" step="5" inputmode="numeric"><span>%</span></div>
+        </div>
+
+        <div class="so-result">
+          <div class="so-res-cell main"><span class="so-res-label" id="m1_resLabel">Strokes</span><span class="so-res-value" id="m1_res">&ndash;</span></div>
+        </div>
+        <div class="m1-res-sub" id="m1_resSub"></div>
+        <div class="so-warn" id="m1_warn" style="display:none"></div>
+      </div>
+
+      <!-- Opponent picker: buddies or a guest -->
+      <div class="m1-sheet" id="m1_sheet" onclick="if(event.target===this) m1ClosePicker()">
+        <div class="m1-sheet-card">
+          <div class="m1-sheet-head"><span>Opponent</span><button class="m1-sheet-x" type="button" onclick="m1ClosePicker()" aria-label="Close">&times;</button></div>
+          <div class="m1-sheet-list" id="m1_buddyList"></div>
+          <div class="m1-guest">
+            <input id="m1_guestName" type="text" maxlength="24" placeholder="Guest name" autocomplete="off">
+            <button class="m1-guest-btn" type="button" onclick="m1PickGuest()">Add guest</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="dock">
+        <nav class="bottom-nav">
+          <button class="nav-tab active" type="button"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"></path><path d="M5 10v10h14V10"></path></svg><span class="label">Home</span></button>
+          <button class="nav-tab" type="button"><img class="nav-icon" alt="" src="icons/nav-teams.svg"><span class="label">Teams</span></button>
+          <div class="nav-spacer" aria-hidden="true"></div>
+          <button class="nav-tab" type="button"><img class="nav-icon" alt="" src="icons/nav-matches-cg.png"><span class="label">Matches</span></button>
+          <button class="nav-tab" type="button"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="11" x2="12" y2="17"></line><circle cx="12" cy="7.5" r="0.6" fill="currentColor"></circle></svg><span class="label">Info</span></button>
+        </nav>
+        <button class="play-btn" type="button" onclick="m1Start()"><span>START</span></button>
+      </div>
+    </section>
+<!-- ════ 1VS1 MATCH PLAY · scorecard (hole by hole) · app-match.js ════ -->
+<section id="screen-m1score" class="screen" data-screen="m1score">
+      <div class="app-header">
+        <div class="logo">
+          <img class="crown" alt="" src="icons/home-crown.png">
+          <span class="wordmark">Parmate</span>
+        </div>
+        <div class="header-icons">
+          <button class="icon-btn" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 19.5c.6-3 3.2-4.8 6.5-4.8 1.5 0 2.8.4 3.9 1.1"></path><line x1="18" y1="13" x2="18" y2="20"></line><line x1="14.5" y1="16.5" x2="21.5" y2="16.5"></line></svg></button>
+          <button class="icon-btn" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2H4.5L6 16z"></path><path d="M10 20.5a2 2 0 0 0 4 0"></path></svg></button>
+          <button class="icon-btn" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="8" x2="19" y2="8"></line><line x1="5" y1="12" x2="19" y2="12"></line><line x1="5" y1="16" x2="19" y2="16"></line></svg></button>
+        </div>
+      </div>
+
+      <div class="sub-header">
+        <span class="title">1vs1 Match</span>
+        <div class="actions">
+          <button class="back-pill" type="button" onclick="m1LeaveScorecard()">BACK</button>
+        </div>
+      </div>
+
+      <div class="body-area">
+        <div class="section">
+          <div class="context-course" id="m1s_course">Course</div>
+          <div class="context-meta" id="m1s_meta"></div>
+        </div>
+
+        <div class="section">
+          <div class="m1-status" id="m1s_status">
+            <span class="m1-st-main" id="m1s_statusMain">All square</span>
+            <span class="m1-st-sub" id="m1s_statusSub"></span>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="hole-nav">
+            <button class="hole-arrow" id="m1s_prev" type="button" onclick="m1GoHole(-1)">&lt;</button>
+            <div class="hole-info">
+              <div class="hole-title" id="m1s_holeTitle">Hole 1 / 18</div>
+              <div class="hole-par" id="m1s_holePar">Par 4</div>
+            </div>
+            <button class="hole-arrow" id="m1s_next" type="button" onclick="m1GoHole(1)">&gt;</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="m1-row" id="m1s_rowA">
+            <img class="m1-av" id="m1s_avA" src="icons/home-crown.png" alt="">
+            <div class="m1-row-mid"><div class="m1-row-name" id="m1s_nameA" data-no-i18n>You</div><div class="m1-row-st" id="m1s_stA"></div></div>
+            <button class="m1-concede" type="button" data-p="A">Concede</button>
+            <button class="m1-score" type="button" data-p="A" id="m1s_scoreA">&ndash;</button>
+          </div>
+          <div class="m1-row" id="m1s_rowB">
+            <img class="m1-av" id="m1s_avB" src="icons/home-crown.png" alt="">
+            <div class="m1-row-mid"><div class="m1-row-name" id="m1s_nameB" data-no-i18n>Opponent</div><div class="m1-row-st" id="m1s_stB"></div></div>
+            <button class="m1-concede" type="button" data-p="B">Concede</button>
+            <button class="m1-score" type="button" data-p="B" id="m1s_scoreB">&ndash;</button>
+          </div>
+          <div class="m1-hole-res" id="m1s_holeRes"></div>
+        </div>
+
+        <div class="section">
+          <div class="dot-row" id="m1s_dots"></div>
+        </div>
+
+        <div class="section">
+          <button class="all-holes-btn" type="button" onclick="showScreen('m1full')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            All holes
+          </button>
+        </div>
+
+        <div class="section">
+          <button class="save-round-btn" id="m1s_save" type="button" onclick="m1Save()">SAVE MATCH</button>
+        </div>
+      </div>
+
+      <!-- Numpad overlay -->
+      <div class="numpad-overlay" id="m1s_numpad">
+        <div class="numpad-header">
+          <span class="numpad-context" id="m1s_npContext"></span>
+          <span class="numpad-display" id="m1s_npDisplay">&ndash;</span>
+          <button class="numpad-ok" id="m1s_npOk" type="button">OK</button>
+        </div>
+        <div class="numpad-grid" id="m1s_npGrid">
+          <button class="num-btn" type="button" data-val="1">1</button>
+          <button class="num-btn" type="button" data-val="2">2</button>
+          <button class="num-btn" type="button" data-val="3">3</button>
+          <button class="num-btn" type="button" data-val="4">4</button>
+          <button class="num-btn" type="button" data-val="5">5</button>
+          <button class="num-btn" type="button" data-val="6">6</button>
+          <button class="num-btn" type="button" data-val="7">7</button>
+          <button class="num-btn" type="button" data-val="8">8</button>
+          <button class="num-btn" type="button" data-val="9">9</button>
+          <button class="num-btn zero" type="button" data-val="0">0</button>
+          <button class="num-btn del" type="button" data-val="del">&#9003;</button>
+        </div>
+      </div>
+
+      <!-- Match finished / all square after the last hole -->
+      <div class="m1-finish" id="m1s_finish">
+        <div class="m1-fin-card">
+          <div class="m1-fin-crown"><img src="icons/home-crown.png" alt=""></div>
+          <div class="m1-fin-title" id="m1s_finTitle"></div>
+          <div class="m1-fin-sub" id="m1s_finSub"></div>
+          <div class="m1-fin-btns" id="m1s_finBtns"></div>
+        </div>
+      </div>
+
+      <div class="dock">
+        <nav class="bottom-nav">
+          <button class="nav-tab active" type="button"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"></path><path d="M5 10v10h14V10"></path></svg><span class="label">Home</span></button>
+          <button class="nav-tab" type="button"><img class="nav-icon" alt="" src="icons/nav-teams.svg"><span class="label">Teams</span></button>
+          <div class="nav-spacer" aria-hidden="true"></div>
+          <button class="nav-tab" type="button"><img class="nav-icon" alt="" src="icons/nav-matches-cg.png"><span class="label">Matches</span></button>
+          <button class="nav-tab" type="button"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="11" x2="12" y2="17"></line><circle cx="12" cy="7.5" r="0.6" fill="currentColor"></circle></svg><span class="label">Info</span></button>
+        </nav>
+        </div>
+    </section>
+<!-- ════ 1VS1 MATCH PLAY · all holes · app-match.js ════ -->
+<section id="screen-m1full" class="screen" data-screen="m1full">
+      <div class="app-header">
+        <div class="logo">
+          <img class="crown" alt="" src="icons/home-crown.png">
+          <span class="wordmark">Parmate</span>
+        </div>
+        <div class="header-icons">
+          <button class="icon-btn" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 19.5c.6-3 3.2-4.8 6.5-4.8 1.5 0 2.8.4 3.9 1.1"></path><line x1="18" y1="13" x2="18" y2="20"></line><line x1="14.5" y1="16.5" x2="21.5" y2="16.5"></line></svg></button>
+          <button class="icon-btn" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2H4.5L6 16z"></path><path d="M10 20.5a2 2 0 0 0 4 0"></path></svg></button>
+          <button class="icon-btn" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="8" x2="19" y2="8"></line><line x1="5" y1="12" x2="19" y2="12"></line><line x1="5" y1="16" x2="19" y2="16"></line></svg></button>
+        </div>
+      </div>
+
+      <div class="sub-header">
+        <span class="title">Full Scorecard</span>
+        <div class="actions">
+          <button class="back-pill" type="button" onclick="showScreen('m1score')">BACK</button>
+        </div>
+      </div>
+
+      <div class="body-area">
+        <div class="course-name" id="m1f_course">Course</div>
+        <div class="course-meta" id="m1f_meta"></div>
+        <div class="stats-bar">
+          <div class="stat-cell"><span class="stat-label">Match</span><span class="stat-value" id="m1f_stMatch">&ndash;</span></div>
+          <div class="stat-cell"><span class="stat-label" id="m1f_lblA" data-no-i18n>You</span><span class="stat-value" id="m1f_stA">0</span></div>
+          <div class="stat-cell"><span class="stat-label" id="m1f_lblB" data-no-i18n>Opp</span><span class="stat-value" id="m1f_stB">0</span></div>
+          <div class="stat-cell"><span class="stat-label">Holes</span><span class="stat-value" id="m1f_stHoles">0 / 18</span></div>
+        </div>
+        <table class="sc-table m1-table">
+          <thead><tr><th>Hole</th><th>Par</th><th>SI</th><th id="m1f_thA" data-no-i18n>A</th><th id="m1f_thB" data-no-i18n>B</th><th>Match</th></tr></thead>
+          <tbody id="m1f_body"></tbody>
+        </table>
+      </div>
+
+      <div class="dock">
+        <nav class="bottom-nav">
+          <button class="nav-tab active" type="button"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"></path><path d="M5 10v10h14V10"></path></svg><span class="label">Home</span></button>
+          <button class="nav-tab" type="button"><img class="nav-icon" alt="" src="icons/nav-teams.svg"><span class="label">Teams</span></button>
+          <div class="nav-spacer" aria-hidden="true"></div>
+          <button class="nav-tab" type="button"><img class="nav-icon" alt="" src="icons/nav-matches-cg.png"><span class="label">Matches</span></button>
+          <button class="nav-tab" type="button"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="11" x2="12" y2="17"></line><circle cx="12" cy="7.5" r="0.6" fill="currentColor"></circle></svg><span class="label">Info</span></button>
+        </nav>
+        </div>
     </section>
 <section id="screen-trtee" class="screen" data-screen="trtee">
 
@@ -6282,7 +6554,7 @@
 
 <script src="app-nav.js?v=20261013c"></script>
 <script src="app-myteams.js?v=20261013c"></script>
-<script src="app-profile.js?v=20261013g"></script>
+<script src="app-profile.js?v=20261015a"></script>
 <script src="faq-data.js?v=20261013"></script>
 <script src="app-faq.js?v=20261013d"></script>
 <script src="app-menu.js?v=20261013c"></script>
@@ -6337,7 +6609,7 @@
     <button class="sc-share-close" onclick="scCloseShare()" data-i18n="share_close">Close</button>
   </div>
 </div>
-<script src="app-sharecard.js?v=20261014a"></script>
+<script src="app-sharecard.js?v=20261015a"></script>
 
 </body>
 </html>

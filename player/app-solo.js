@@ -127,7 +127,9 @@ function soloOn() {
 
 function soloMe() {
   var p = (typeof _profile !== 'undefined' && _profile) ? _profile : {};
-  return { name: p.displayName || 'You', hcp: (p.hcpIndex != null ? p.hcpIndex : null), avatarId: p.avatarId,
+  var cu = window._fbAuth && window._fbAuth.currentUser;   // same fallback as the Home screen
+  var nm = p.displayName || (cu && cu.displayName) || (((cu && cu.email) || '').split('@')[0]) || 'You';
+  return { name: nm, hcp: (p.hcpIndex != null ? p.hcpIndex : null), avatarId: p.avatarId,
            gender: p.gender || 'M', isMe: true };
 }
 
