@@ -66,7 +66,7 @@
     })();
   });
 </script>
-<link rel="stylesheet" href="app.css?v=20261015d">
+<link rel="stylesheet" href="app.css?v=20261015e">
 
 <!-- styles moved to app.css (block 2) -->
 </head>
@@ -1273,7 +1273,7 @@
 <script src="i18n.js?v=20261013d"></script>
 <script src="app-main.js?v=20261015c"></script>
 <script src="app-solo.js?v=20261015c"></script>
-<script src="app-match.js?v=20261015d"></script>
+<script src="app-match.js?v=20261015e"></script>
 
 <!-- ── MATCH GATE OVERLAY ── -->
 <div class="match-overlay" id="matchGateOverlay" style="display:none;">
@@ -4962,30 +4962,29 @@
         <div class="so-course" id="m1_course">Course</div>
         <div class="so-course-meta" id="m1_courseMeta"></div>
 
+        <div class="m1-lbl">You</div>
         <div class="m1-player">
           <div class="m1-p-head">
             <img class="m1-av" id="m1_avA" src="icons/home-crown.png" alt="">
             <div class="m1-p-name" id="m1_nameA" data-no-i18n>You</div>
             <label class="m1-idx"><span>HCP</span><input id="m1_indexA" type="number" step="0.1" min="-10" max="54" inputmode="decimal" placeholder="0.0"></label>
           </div>
-          <div class="tee-group" id="m1_teesA"></div>
+          <div class="tee-group m1-tees" id="m1_teesA"></div>
         </div>
 
         <div class="m1-vs"><span>VS</span></div>
 
-        <div class="m1-player">
-          <div class="m1-p-head">
-            <img class="m1-av" id="m1_avB" src="icons/home-crown.png" alt="">
-            <button class="m1-pick" id="m1_pickB" type="button" onclick="m1OpenPicker()"><span class="m1-pick-name" id="m1_nameB">Choose opponent</span><span class="m1-chev">&rsaquo;</span></button>
-            <label class="m1-idx"><span>HCP</span><input id="m1_indexB" type="number" step="0.1" min="-10" max="54" inputmode="decimal" placeholder="0.0"></label>
-          </div>
-          <div class="m1-gender" id="m1_genderB" style="display:none">
-            <button class="m1-g active" type="button" data-g="M">Men's tees</button>
-            <button class="m1-g" type="button" data-g="F">Ladies' tees</button>
-          </div>
-          <div class="tee-group" id="m1_teesB"></div>
-        </div>
+        <div class="m1-lbl">Opponent</div>
+        <button class="m1-choose" id="m1_chooseB" type="button" onclick="m1OpenPicker()"><span>Choose opponent</span><span class="m1-chev">&rsaquo;</span></button>
+        <button class="m1-player m1-opp" id="m1_oppB" type="button" onclick="m1OpenDetails()" style="display:none">
+          <img class="m1-av" id="m1_avB" src="icons/home-crown.png" alt="">
+          <span class="m1-opp-txt"><span class="m1-p-name" id="m1_nameB" data-no-i18n>Opponent</span><span class="m1-opp-meta" id="m1_metaB"></span></span>
+          <span class="m1-edit">Edit<span class="m1-chev">&rsaquo;</span></span>
+        </button>
 
+        <div class="m1-hr"></div>
+
+        <div class="m1-lbl">Scoring</div>
         <div class="so-fmt-row">
           <div class="so-seg">
             <button class="so-fmt m1-sc active" type="button" data-sc="net">Net</button>
@@ -5000,15 +4999,43 @@
         <div class="so-warn" id="m1_warn" style="display:none"></div>
       </div>
 
-      <!-- Opponent picker: buddies or a guest -->
+      <!-- Opponent sheet: step 1 choose (buddy or guest), step 2 details (HCP, tees for, tee) -->
       <div class="m1-sheet" id="m1_sheet" onclick="if(event.target===this) m1ClosePicker()">
         <div class="m1-sheet-card">
           <div class="m1-sheet-head"><span>Opponent</span><button class="m1-sheet-x" type="button" onclick="m1ClosePicker()" aria-label="Close">&times;</button></div>
-          <div class="m1-sheet-list" id="m1_buddyList"></div>
-          <div class="m1-guest">
-            <input id="m1_guestName" type="text" maxlength="24" placeholder="Guest name" autocomplete="off">
-            <button class="m1-guest-btn" type="button" onclick="m1PickGuest()">Add guest</button>
+
+          <div class="m1-step" id="m1_step1">
+            <div class="m1-lbl">Buddies</div>
+            <div class="m1-sheet-list" id="m1_buddyList"></div>
+            <div class="m1-or"><span>or add a guest</span></div>
+            <div class="m1-guest">
+              <input id="m1_guestName" type="text" maxlength="24" placeholder="Guest name" autocomplete="off">
+              <button class="m1-guest-btn" type="button" onclick="m1PickGuest()">Next</button>
+            </div>
           </div>
+
+          <div class="m1-step" id="m1_step2" style="display:none">
+            <div class="m1-d-who">
+              <img class="m1-av" id="m1_dAv" src="icons/home-crown.png" alt="">
+              <span class="m1-d-name" id="m1_dName" data-no-i18n></span>
+              <button class="m1-link" type="button" onclick="m1BackToList()">&lsaquo; Other buddy or guest</button>
+            </div>
+            <div class="m1-lbl">Handicap Index</div>
+            <label class="m1-idx m1-idx-lg"><span>HCP</span><input id="m1_indexB" type="number" step="0.1" min="-10" max="54" inputmode="decimal" placeholder="0.0"></label>
+            <div id="m1_genderWrap">
+              <div class="m1-lbl">Tees for</div>
+              <div class="so-seg m1-gseg" id="m1_genderB">
+                <button class="so-fmt m1-g" type="button" data-g="M">Men</button>
+                <button class="so-fmt m1-g" type="button" data-g="F">Ladies</button>
+              </div>
+              <div class="m1-cap" id="m1_genderCap"></div>
+            </div>
+            <div class="m1-lbl">Tee</div>
+            <div class="tee-group m1-tees" id="m1_teesB"></div>
+            <button class="m1-done" type="button" onclick="m1DetailsDone()">Done</button>
+          </div>
+
+          <div class="m1-dots"><i id="m1_dot1"></i><i id="m1_dot2"></i></div>
         </div>
       </div>
 

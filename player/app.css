@@ -6250,3 +6250,40 @@ html[lang="nl"] .play-btn span:only-child {font-size: 11px !important; letter-sp
 #screen-m1full .stat-label.m1-name-lbl, #screen-rounddetail .stats-bar .stat-label.m1-name-lbl {overflow-wrap: normal; white-space: nowrap; overflow: hidden; text-overflow: clip;}
 #screen-m1full .stat-label.m1-name-lbl.long, #screen-rounddetail .stats-bar .stat-label.m1-name-lbl.long {font-size: 10px;}
 #screen-m1full .stat-label.m1-name-lbl.xlong, #screen-rounddetail .stats-bar .stat-label.m1-name-lbl.xlong {font-size: 9px;}
+/* ===== 1vs1 setup, Route B (15 Oct): section labels, divider, outlined tees, opponent folded into one line, two-step sheet ===== */
+#screen-m1setup .body-area {padding-bottom: 130px;}   /* scrolls; START never covers the last line */
+#screen-m1setup .m1-lbl {font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); margin: 0 0 8px;}
+#screen-m1setup .m1-player .tee-group {margin-top: 10px;}
+#screen-m1setup .m1-tees .tee-btn {height: 34px; border-radius: 17px; border: 1px solid rgba(26,107,60,0.3); background: #fff; color: var(--green); opacity: 1; font-size: 13px;}
+#screen-m1setup .m1-tees .tee-btn.active {background: var(--green); border-color: var(--green); color: #fff;}
+#screen-m1setup .m1-choose {display: flex; align-items: center; justify-content: space-between; width: 100%; height: 48px; padding: 0 14px; border: 1.5px dashed rgba(26,107,60,0.45); border-radius: 10px; background: #fff; font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; color: var(--green); cursor: pointer; box-sizing: border-box;}
+#screen-m1setup .m1-opp {display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; cursor: pointer; font: inherit; box-sizing: border-box;}
+#screen-m1setup .m1-opp-txt {flex: 1; min-width: 0; display: flex; flex-direction: column;}
+#screen-m1setup .m1-opp .m1-p-name {white-space: normal; overflow-wrap: anywhere;}
+#screen-m1setup .m1-opp-meta {font-family: 'Inter', sans-serif; font-size: 13px; color: var(--text-2); margin-top: 2px;}
+#screen-m1setup .m1-edit {display: flex; align-items: center; gap: 4px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; color: var(--green);}
+#screen-m1setup .m1-hr {height: 1px; background: rgba(0,0,0,0.08); margin: 22px 0 18px;}
+#screen-m1setup .so-fmt-row {margin-top: 0;}
+#screen-m1setup .play-btn.m1-wait {opacity: 0.55;}
+/* sheet */
+#screen-m1setup .m1-sheet-card {max-height: 86%; overflow-y: auto;}
+#screen-m1setup .m1-step .m1-lbl {margin-top: 16px;}
+#screen-m1setup #m1_step1 .m1-lbl:first-child {margin-top: 6px;}
+#screen-m1setup .m1-bud .m1-chev {margin-left: 4px;}
+#screen-m1setup .m1-or {display: flex; align-items: center; gap: 10px; margin: 16px 0 10px; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; color: var(--text-3);}
+#screen-m1setup .m1-or::before, #screen-m1setup .m1-or::after {content: ""; flex: 1; height: 1px; background: rgba(0,0,0,0.08);}
+#screen-m1setup .m1-guest {margin-top: 0;}
+#screen-m1setup .m1-d-who {display: flex; align-items: center; gap: 10px; margin-top: 6px;}
+#screen-m1setup .m1-d-name {flex: 1; min-width: 0; font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; color: var(--text); overflow-wrap: anywhere;}
+#screen-m1setup .m1-link {border: 0; background: none; padding: 6px 0; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; color: var(--green); cursor: pointer; white-space: nowrap;}
+#screen-m1setup .m1-idx-lg {width: 150px; height: 44px; box-sizing: border-box;}
+#screen-m1setup .m1-idx-lg input {font-size: 16px; width: 60px;}
+#screen-m1setup .m1-gseg {display: flex;}
+#screen-m1setup .m1-gseg .m1-g {flex: 1; height: 36px; border: 0; border-radius: 18px; background: transparent; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; color: var(--green); cursor: pointer;}
+#screen-m1setup .m1-gseg .m1-g.active {background: var(--green); color: #fff;}
+#screen-m1setup .m1-cap {font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text-3); margin-top: 6px; min-height: 0;}
+#screen-m1setup .m1-cap:empty {display: none;}
+#screen-m1setup .m1-done {display: block; width: 100%; height: 48px; margin-top: 22px; border: 0; border-radius: 24px; background: var(--green); color: #fff; font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer;}
+#screen-m1setup .m1-dots {display: flex; gap: 6px; justify-content: center; margin-top: 16px;}
+#screen-m1setup .m1-dots i {width: 8px; height: 8px; border-radius: 50%; background: #d6dfd9;}
+#screen-m1setup .m1-dots i.on {background: var(--green);}

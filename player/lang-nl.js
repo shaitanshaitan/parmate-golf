@@ -1226,3 +1226,17 @@ Object.assign(window.PM_STRINGS_NL, {
 "Gross match, no strokes": "Brutomatch, geen slagen",
 "Based on both Playing Handicaps. The higher handicap receives the difference, one stroke per hole on the hardest holes (lowest stroke index).": "Op basis van beide Playing Handicaps. De hoogste handicap krijgt het verschil mee: één slag per hole op de moeilijkste holes (laagste stroke index)."
 });
+
+// ── 1vs1 Route B (15 Oct): opponent sheet. DRAFT Dutch, for Robbie to review.
+Object.assign(window.PM_STRINGS_NL, {
+"Scoring": "Spelvorm",
+"Edit": "Wijzig",
+"Buddies": "Buddies",
+"or add a guest": "of voeg een gast toe",
+"Other buddy or guest": "Andere buddy of gast",
+"Tees for": "Tees voor",
+"Men": "Heren",
+"Ladies": "Dames",
+"Tee": "Tee",
+"Filled in from the profile": "Ingevuld vanuit het profiel"
+});

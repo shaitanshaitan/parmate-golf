@@ -219,6 +219,15 @@ function m1TeeButtons(p, which) {
   }).join('');
 }
 
+// Opponent summary line: "HCP 24.5 · Ladies · Medal" (Men/Ladies only when the course has ladies' tees)
+function m1OppMeta(p) {
+  if (!p) return '';
+  var t = m1Tee(p), parts = ['HCP ' + ((p.index != null && p.index !== '') ? p.index : '–')];
+  if (m1HasWomenTees()) parts.push(p.gender === 'F' ? 'Ladies' : 'Men');
+  if (t) parts.push(t.label);
+  return parts.join(' · ');
+}
+
 function m1RenderSetup(scr) {
   if (!m1On()) return;
   scr = scr || document.getElementById('screen-m1setup');
@@ -227,46 +236,49 @@ function m1RenderSetup(scr) {
   set('m1_course', c.name || 'Course');
   set('m1_nameA', m.a.name || 'You');
   var avA = document.getElementById('m1_avA'); if (avA) avA.src = m1AvatarOf(m.a);
-  var avB = document.getElementById('m1_avB'); if (avB) avB.src = m1AvatarOf(m.b);
-  var pick = document.getElementById('m1_pickB');
-  if (pick) pick.classList.toggle('set', !!m.b);
-  set('m1_nameB', m.b ? m.b.name : 'Choose opponent');
   var iA = document.getElementById('m1_indexA');
   if (iA && document.activeElement !== iA) iA.value = (m.a.index != null && m.a.index !== '') ? m.a.index : '';
-  var iB = document.getElementById('m1_indexB');
-  if (iB && document.activeElement !== iB) iB.value = (m.b && m.b.index != null && m.b.index !== '') ? m.b.index : '';
-
   var wA = document.getElementById('m1_teesA'); if (wA) wA.innerHTML = m1TeeButtons(m.a, 'A');
-  var wB = document.getElementById('m1_teesB'); if (wB) wB.innerHTML = m.b ? m1TeeButtons(m.b, 'B') : '';
-  var gB = document.getElementById('m1_genderB');
-  if (gB) {
-    gB.style.display = (m.b && m1HasWomenTees()) ? '' : 'none';
-    gB.querySelectorAll('.m1-g').forEach(function (b) { b.classList.toggle('active', !!m.b && b.dataset.g === (m.b.gender || 'M')); });
+
+  // opponent: dashed "Choose opponent" until chosen, then one summary line with Edit
+  var ch = document.getElementById('m1_chooseB'), op = document.getElementById('m1_oppB');
+  if (ch) ch.style.display = m.b ? 'none' : '';
+  if (op) op.style.display = m.b ? '' : 'none';
+  if (m.b) {
+    var avB = document.getElementById('m1_avB'); if (avB) avB.src = m1AvatarOf(m.b);
+    set('m1_nameB', m.b.name);
+    set('m1_metaB', m1OppMeta(m.b));
   }
   scr.querySelectorAll('.m1-sc').forEach(function (b) { b.classList.toggle('active', b.dataset.sc === m.scoring); });
+  var st = scr.querySelector('.play-btn'); if (st) st.classList.toggle('m1-wait', !m.b);
 
   if (!scr._m1Wired) {
     scr.addEventListener('click', function (e) {
       if (!m1On()) return;
       var mm = m1M();
       var tb = e.target.closest('.tee-btn[data-p]');
-      if (tb) { var p = tb.dataset.p === 'A' ? mm.a : mm.b; if (p) { p.teeKey = tb.dataset.tee; m1RenderSetup(scr); } return; }
+      if (tb) {
+        if (tb.dataset.p === 'A') { mm.a.teeKey = tb.dataset.tee; m1RenderSetup(scr); }
+        else if (mm.draft) { mm.draft.teeKey = tb.dataset.tee; m1RenderDetails(); }
+        return;
+      }
       var sb = e.target.closest('.m1-sc');
       if (sb) { mm.scoring = sb.dataset.sc; m1RenderSetup(scr); var ib = document.getElementById('m1_scInfo'); if (ib && ib.style.display !== 'none') ib.textContent = m1ScoringText(); return; }
       var gb = e.target.closest('.m1-g');
-      if (gb && mm.b) { mm.b.gender = gb.dataset.g; mm.b.teeKey = null; m1RenderSetup(scr); return; }
+      if (gb && mm.draft) { mm.draft.gender = gb.dataset.g; mm.draft.teeKey = null; mm.draft.genderFromProfile = false; m1RenderDetails(); return; }
       var bud = e.target.closest('.m1-bud');
       if (bud) { m1PickBuddy(parseInt(bud.dataset.i, 10)); return; }
     });
     scr.addEventListener('input', function (e) {
       if (!m1On()) return;
       var mm = m1M(), v = e.target.value;
-      if (e.target.id === 'm1_indexA') mm.a.index = v === '' ? null : v;
-      else if (e.target.id === 'm1_indexB') { if (mm.b) mm.b.index = v === '' ? null : v; }
-      else return;
-      m1RenderSetupResult();
+      if (e.target.id === 'm1_indexA') { mm.a.index = v === '' ? null : v; m1RenderSetupResult(); }
+      else if (e.target.id === 'm1_indexB') { if (mm.draft) mm.draft.index = v === '' ? null : v; }
     });
-    scr.addEventListener('keydown', function (e) { if (e.target.id === 'm1_guestName' && e.key === 'Enter') m1PickGuest(); });
+    scr.addEventListener('keydown', function (e) {
+      if (e.target.id === 'm1_guestName' && e.key === 'Enter') m1PickGuest();
+      if (e.target.id === 'm1_indexB' && e.key === 'Enter') e.target.blur();
+    });
     scr._m1Wired = true;
   }
   m1RenderSetupResult();
@@ -307,38 +319,81 @@ function m1ScoringInfo() {
   var btn = document.querySelector('#screen-m1setup .so-info'); if (btn) btn.classList.toggle('on', open);
 }
 
-// ── Opponent picker (buddies or a guest) ───────────────────────────────
+// ── Opponent sheet: step 1 choose (buddy or guest), step 2 details (HCP, tees for, tee) ──
+// The sheet edits a draft; Done copies it to the match, closing the sheet throws it away.
 function m1BuddyList() {
   return (typeof _buddies !== 'undefined' && Array.isArray(_buddies)) ? _buddies : [];
 }
-function m1OpenPicker() {
-  var list = document.getElementById('m1_buddyList'), b = m1BuddyList();
-  if (list) {
-    list.innerHTML = b.length ? b.map(function (x, i) {
-      return '<button class="m1-bud" type="button" data-i="' + i + '"><img src="' + m1Esc(m1AvatarOf(x)) + '" alt="">' +
-             '<span class="m1-bud-name" data-no-i18n>' + m1Esc(x.name || 'Buddy') + '</span>' +
-             '<span class="m1-bud-hcp">' + (x.hcp != null ? 'HCP ' + x.hcp : '') + '</span></button>';
-    }).join('') : '<div class="m1-sheet-empty">No buddies yet. Add a guest below.</div>';
-  }
-  var g = document.getElementById('m1_guestName'); if (g) g.value = '';
+function m1SheetStep(n) {
+  var s1 = document.getElementById('m1_step1'), s2 = document.getElementById('m1_step2');
+  if (s1) s1.style.display = n === 1 ? '' : 'none';
+  if (s2) s2.style.display = n === 2 ? '' : 'none';
+  var d1 = document.getElementById('m1_dot1'), d2 = document.getElementById('m1_dot2');
+  if (d1) d1.classList.toggle('on', n === 1);
+  if (d2) d2.classList.toggle('on', n === 2);
   var sh = document.getElementById('m1_sheet'); if (sh) sh.classList.add('open');
 }
-function m1ClosePicker() { var sh = document.getElementById('m1_sheet'); if (sh) sh.classList.remove('open'); }
-function m1SetOpponent(p) {
-  m1M().b = p;
-  m1ClosePicker();
-  m1RenderSetup();
-  if (p.index == null) { var iB = document.getElementById('m1_indexB'); if (iB) iB.focus(); }
+function m1RenderList() {
+  var list = document.getElementById('m1_buddyList'), b = m1BuddyList();
+  if (!list) return;
+  list.innerHTML = b.length ? b.map(function (x, i) {
+    return '<button class="m1-bud" type="button" data-i="' + i + '"><img src="' + m1Esc(m1AvatarOf(x)) + '" alt="">' +
+           '<span class="m1-bud-name" data-no-i18n>' + m1Esc(x.name || 'Buddy') + '</span>' +
+           '<span class="m1-bud-hcp">' + (x.hcp != null ? 'HCP ' + x.hcp : '') + '</span><span class="m1-chev">&rsaquo;</span></button>';
+  }).join('') : '<div class="m1-sheet-empty">No buddies yet. Add a guest below.</div>';
+}
+// "Choose opponent": step 1
+function m1OpenPicker() {
+  m1RenderList();
+  var g = document.getElementById('m1_guestName'); if (g) g.value = '';
+  m1SheetStep(1);
+}
+// "Edit" on the opponent line: straight to step 2 with the current opponent
+function m1OpenDetails() {
+  var m = m1M(); if (!m.b) { m1OpenPicker(); return; }
+  m.draft = m1Clone(m.b);
+  m1RenderDetails(); m1SheetStep(2);
+}
+function m1BackToList() { m1OpenPicker(); }
+function m1ClosePicker() {
+  var sh = document.getElementById('m1_sheet'); if (sh) sh.classList.remove('open');
+  if (_trFlow && _trFlow.m1) _trFlow.m1.draft = null;
+}
+function m1RenderDetails() {
+  var d = m1M().draft; if (!d) return;
+  var set = function (id, v) { var e = document.getElementById(id); if (e) e.textContent = v; };
+  var av = document.getElementById('m1_dAv'); if (av) av.src = m1AvatarOf(d);
+  set('m1_dName', d.name);
+  var iB = document.getElementById('m1_indexB');
+  if (iB && document.activeElement !== iB) iB.value = (d.index != null && d.index !== '') ? d.index : '';
+  var gw = document.getElementById('m1_genderWrap'); if (gw) gw.style.display = m1HasWomenTees() ? '' : 'none';
+  document.querySelectorAll('#m1_genderB .m1-g').forEach(function (b) { b.classList.toggle('active', b.dataset.g === (d.gender || 'M')); });
+  set('m1_genderCap', d.genderFromProfile ? 'Filled in from the profile' : '');
+  var wB = document.getElementById('m1_teesB'); if (wB) wB.innerHTML = m1TeeButtons(d, 'D');
+}
+function m1ToDetails(p) {
+  m1M().draft = p;
+  m1RenderDetails(); m1SheetStep(2);
+  if (p.index == null) { var iB = document.getElementById('m1_indexB'); if (iB) setTimeout(function () { iB.focus(); }, 50); }
 }
 function m1PickBuddy(i) {
   var x = m1BuddyList()[i]; if (!x) return;
-  m1SetOpponent({ name: x.name || 'Buddy', index: (x.hcp != null ? x.hcp : null), uid: x.uid || null, avatarId: (x.avatarId != null ? x.avatarId : null),
-                  avatarUrl: x.avatarUrl || null, gender: x.gender || 'M', teeKey: null, isGuest: false });
+  m1ToDetails({ name: x.name || 'Buddy', index: (x.hcp != null ? x.hcp : null), uid: x.uid || null, avatarId: (x.avatarId != null ? x.avatarId : null),
+                avatarUrl: x.avatarUrl || null, gender: x.gender || 'M', genderFromProfile: !!x.gender, teeKey: null, isGuest: false });
 }
 function m1PickGuest() {
   var g = document.getElementById('m1_guestName'), name = g ? g.value.trim() : '';
   if (!name) { m1Toast('Enter a name for your guest'); if (g) g.focus(); return; }
-  m1SetOpponent({ name: name, index: null, uid: null, gender: 'M', teeKey: null, isGuest: true });
+  m1ToDetails({ name: name, index: null, uid: null, gender: 'M', genderFromProfile: false, teeKey: null, isGuest: true });
+}
+// "Done": the draft becomes the opponent
+function m1DetailsDone() {
+  var m = m1M(), d = m.draft; if (!d) { m1ClosePicker(); return; }
+  if (d.index != null && d.index !== '' && !m1ValidIndex(d.index)) { m1Toast("Enter " + m1Short(d.name) + "'s Handicap Index (-10 to 54)"); return; }
+  var t = m1Tee(d); if (t) d.teeKey = t.label;
+  m.b = d; m.draft = null;
+  var sh = document.getElementById('m1_sheet'); if (sh) sh.classList.remove('open');
+  m1RenderSetup();
 }
 
 // ── START ──────────────────────────────────────────────────────────────
@@ -349,7 +404,7 @@ function m1Start() {
   if (!m.b) { m1Toast('Choose your opponent'); m1OpenPicker(); return; }
   if (r.net) {
     if (!m1ValidIndex(m.a.index)) { m1Toast('Enter your Handicap Index (-10 to 54)'); return; }
-    if (!m1ValidIndex(m.b.index)) { m1Toast('Enter ' + m1Short(m.b.name) + "'s Handicap Index (-10 to 54)"); return; }
+    if (!m1ValidIndex(m.b.index)) { m1Toast('Enter ' + m1Short(m.b.name) + "'s Handicap Index (-10 to 54)"); m1OpenDetails(); return; }
     if (!r.tA || !r.tB || !r.cA || !r.cB) { m1Toast('Choose a tee with a rating and slope'); return; }
   }
   m.a.index = m1ValidIndex(m.a.index) ? parseFloat(m.a.index) : null;
