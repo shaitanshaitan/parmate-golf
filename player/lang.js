@@ -311,7 +311,7 @@ const LANG = {
     sec_team2:           'Opponent Team',
     wn_cta:              "Let's Play 🏌️",
     wn_title:            "What's New in Parmate",
-    wn_version:          'Beta v1.0 — July 2026',
+    wn_version:          'Version 1.0 · October 2026',
     // Scorecard
     sc_gross:         'Gross',
     sc_par_played:    'Par Played',
@@ -638,7 +638,7 @@ const LANG = {
     sec_team2:           'Tegenstander',
     wn_cta:              'Spelen maar 🏌️',
     wn_title:            'Wat is er nieuw in Parmate',
-    wn_version:          'Beta v1.0 — July 2026',
+    wn_version:          'Versie 1.0 · oktober 2026',
     // Scorecard
     sc_gross:         'Bruto',
     sc_par_played:    'Gespeelde Par',
