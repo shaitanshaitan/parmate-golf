@@ -6,6 +6,17 @@
 [build]
   publish = "."
 
+# ── Firebase sign-in helpers on our own domain (Release 3a) ──
+# Google sign-in runs through https://play.parmate.golf/__/auth/... instead of
+# whs-teamhcp-trg-26-app.firebaseapp.com, so the Google screen shows our own domain and
+# browsers that block cross-site storage keep working. Must stay ABOVE the player rule:
+# Netlify uses the first rule that matches. 200 = transparent proxy (a 301/302 breaks it).
+[[redirects]]
+  from   = "https://play.parmate.golf/__/*"
+  to     = "https://whs-teamhcp-trg-26-app.firebaseapp.com/__/:splat"
+  status = 200
+  force  = true
+
 # ── Serve player app on play subdomain ──
 [[redirects]]
   from   = "https://play.parmate.golf/*"
