@@ -7128,6 +7128,8 @@ async function onSignedIn(user) {
   const _alo = document.getElementById('authLoadingOverlay');
   if (_alo) { _alo.style.display = 'none'; _alo.style.pointerEvents = 'none'; }
   _appReady = true;   // Release 2: focus/visibility refresh may run from now on
+  // v28: remind about a missing name / username / gender (only when the profile really loaded)
+  if (!_loadTimedOut && typeof pmProfileNudge === 'function') setTimeout(function(){ pmProfileNudge(user.uid); }, 2500);
   // QR-invite entry: open the join flow using the URL param OR a code stashed before a
   // sign-in redirect (Google redirect can strip query params). Stash expires after 10 min.
   try {

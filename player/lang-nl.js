@@ -1297,4 +1297,14 @@ window.PM_STRINGS_NL = {
 "Join to see the live scorecard and enter scores on your phone too.": "Neem deel om de live scorekaart te zien en ook op je eigen telefoon scores in te voeren.",
 "Not now": "Niet nu",
 "Decline": "Afwijzen",
+/* v28 Profile reminder (19 Oct 2026). Claude's suggestion, still to be reviewed by Robbie. */
+"Complete your profile": "Maak je profiel compleet",
+"Buddies find you and play against you with these details. Still missing:": "Hiermee vinden buddies je en kunnen ze tegen je spelen. Dit ontbreekt nog:",
+"Your name": "Je naam",
+"A username": "Een gebruikersnaam",
+"Your gender, so the right tee ratings are used": "Je geslacht, zodat de juiste Course Rating en Slope worden gebruikt",
+"Your public profile, so buddies can find you": "Je openbare profiel, zodat buddies je kunnen vinden",
+"Complete profile": "Profiel aanvullen",
+"Profile complete. Thanks!": "Profiel compleet. Bedankt!",
+"Saved, but some details are still missing.": "Opgeslagen, maar er ontbreekt nog iets.",
 };

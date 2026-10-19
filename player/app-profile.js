@@ -135,12 +135,13 @@
         await window._fbDb.collection('users').doc(uid).collection('profile').doc('data').set(patch,{merge:true});
         // Mirror public-facing fields (incl. cover/avatar) so others' Public Profile stays current
         try{
-          var _pub={ displayName:_profile.displayName||null, hcpIndex:(_profile.hcpIndex!=null?_profile.hcpIndex:null), homeCourse:_profile.homeCourse||null, country:_profile.country||null, gender:_profile.gender||'M', avatarId:(_profile.avatarId!=null?_profile.avatarId:null), avatarUrl:_profile.avatarUrl||null, coverId:(_profile.coverId!=null?_profile.coverId:null), coverUrl:_profile.coverUrl||null };
+          var _pub={ displayName:_profile.displayName||null, hcpIndex:(_profile.hcpIndex!=null?_profile.hcpIndex:null), homeCourse:_profile.homeCourse||null, country:_profile.country||null, gender:_profile.gender||null, avatarId:(_profile.avatarId!=null?_profile.avatarId:null), avatarUrl:_profile.avatarUrl||null, coverId:(_profile.coverId!=null?_profile.coverId:null), coverUrl:_profile.coverUrl||null };
           await window._fbDb.collection('public_profiles').doc(uid).set(_pub,{merge:true});
         }catch(_pe){ console.warn('public_profiles sync', _pe); }
       }
     }catch(err){ console.warn('save profile', err); }
     if(typeof renderHomeScreen==='function') renderHomeScreen();
+    if(typeof pmProfileAfterSave==='function') pmProfileAfterSave();   // v28: profile reminder goes silent once complete
     setTimeout(function(){ if(document.getElementById('screen-profile')) showScreen('profile'); else screenBack(); }, 650);
   };
 })();
@@ -156,6 +157,8 @@ function renderEditProfile(ROOT){
   if(prof.lang) setv('f-lang', prof.lang);
   if(prof.country) setv('f-country', prof.country);
   if(prof.gender && typeof setGender==='function') setGender(prof.gender);
+  else ['g-male','g-female','g-other'].forEach(function(id){ var el=document.getElementById(id); if(el) el.classList.remove('active'); });   // v28: nothing saved = nothing selected
+  if(typeof pmProfileMarkMissing==='function') pmProfileMarkMissing();
   var im=document.getElementById('main-avatar'); if(im) im.src = prof.avatarUrl || (prof.avatarId&&AV[prof.avatarId]) || 'icons/home-crown.png';
   var bn=document.getElementById('bannerImg');
   if(bn){
@@ -1765,3 +1768,95 @@ function renderMatches(ROOT){
 }
 window.switchType=function(t){ var R=document.getElementById('screen-matches'); if(R){ R._ghType=t; renderMatches(R); } };
 
+
+
+// ── v28 · Profile reminder ─────────────────────────────────────────────
+// After sign-in: a pop-up when name, username or gender is missing in the profile, or the public
+// profile (what buddies see and search) does not exist yet. "Later" snoozes it for a day on this
+// device. As soon as everything is filled in and saved it never shows again (the check simply passes).
+// When the profile is opened from the pop-up, the missing fields are outlined.
+var _pmNudge = { shownFor: null, fromNudge: false, missing: [] };
+function _pmTrim(v){ return String(v == null ? '' : v).trim(); }
+async function pmProfileMissing(uid){
+  var p = (typeof _profile !== 'undefined' && _profile) || {}, miss = [];
+  if (!_pmTrim(p.displayName)) miss.push('name');
+  if (!_pmTrim(p.username).replace(/^@/, '')) miss.push('username');
+  if (['M', 'F', 'O'].indexOf(p.gender) < 0) miss.push('gender');
+  if (!miss.length && uid && window._fbDb) {
+    try {
+      var s = await window._fbDb.collection('public_profiles').doc(uid).get();
+      var d = s.exists ? (s.data() || {}) : null;
+      if (!d || !_pmTrim(d.displayName) || !d.gender) miss.push('public');
+    } catch (e) { /* offline or blocked: say nothing rather than nag wrongly */ }
+  }
+  return miss;
+}
+function _pmSnoozeKey(uid){ return 'pm_profile_nudge_' + uid; }
+async function pmProfileNudge(uid){
+  uid = uid || (window._fbAuth && window._fbAuth.currentUser && window._fbAuth.currentUser.uid);
+  if (!uid || _pmNudge.shownFor === uid) return;
+  try { var until = parseInt(localStorage.getItem(_pmSnoozeKey(uid)) || '0', 10); if (until && Date.now() < until) return; } catch (e) {}
+  var miss = await pmProfileMissing(uid);
+  _pmNudge.missing = miss;
+  if (!miss.length) { try { localStorage.removeItem(_pmSnoozeKey(uid)); } catch (e) {} return; }
+  // never on top of another pop-up, the sign-in sheet or a scorecard: try again a little later
+  var busy = document.getElementById('m1lPrompt') || document.getElementById('pmNudge') ||
+             (function(){ var a = document.getElementById('authModal'); return a && a.style.display && a.style.display !== 'none'; })() ||
+             /^screen-(trscore|m1score|soloscore|tmscore)$/.test(((document.querySelector('.screen.active') || {}).id) || '');
+  if (busy) { setTimeout(function(){ pmProfileNudge(uid); }, 8000); return; }
+  _pmNudge.shownFor = uid;
+  var label = { name: 'Your name', username: 'A username', gender: 'Your gender, so the right tee ratings are used',
+                public: 'Your public profile, so buddies can find you' };
+  var ov = document.createElement('div');
+  ov.className = 'm1l-prompt'; ov.id = 'pmNudge';
+  ov.innerHTML = '<div class="m1l-card">' +
+    '<div class="m1l-ic">\uD83D\uDC64</div>' +
+    '<div class="m1l-title">Complete your profile</div>' +
+    '<div class="m1l-txt">Buddies find you and play against you with these details. Still missing:</div>' +
+    '<ul class="pm-miss">' + miss.map(function(k){ return '<li>' + label[k] + '</li>'; }).join('') + '</ul>' +
+    '<div class="m1l-btns">' +
+      '<button class="m1l-btn primary" type="button" data-act="go">Complete profile</button>' +
+      '<button class="m1l-btn link" type="button" data-act="later">Later</button>' +
+    '</div></div>';
+  ov.addEventListener('click', function(ev){
+    var b = ev.target.closest('[data-act]');
+    if (!b) { if (ev.target === ov) b = { getAttribute: function(){ return 'later'; } }; else return; }
+    var act = b.getAttribute('data-act');
+    if (ov.parentNode) ov.parentNode.removeChild(ov);
+    if (act === 'go') {
+      _pmNudge.fromNudge = true;
+      if (document.getElementById('screen-editprofile') && typeof showScreen === 'function') showScreen('editprofile');
+    } else {
+      try { localStorage.setItem(_pmSnoozeKey(uid), String(Date.now() + 24 * 3600 * 1000)); } catch (e) {}
+    }
+  });
+  document.body.appendChild(ov);
+  requestAnimationFrame(function(){ ov.classList.add('open'); });
+}
+// Outline what is still missing on the Edit Profile screen (only when opened from the pop-up).
+function pmProfileMarkMissing(){
+  var on = _pmNudge.fromNudge ? _pmNudge.missing : [];
+  var mark = function(el, yes){ if (el) el.classList.toggle('pm-missing', !!yes); };
+  mark(document.getElementById('f-nickname'), on.indexOf('name') >= 0);
+  mark(document.getElementById('f-username'), on.indexOf('username') >= 0);
+  var g = document.getElementById('g-female'); mark(g && g.parentNode, on.indexOf('gender') >= 0);
+  if (!document._pmMarkWired) {
+    document.addEventListener('input', function(e){ if (e.target && e.target.classList && e.target.classList.contains('pm-missing') && _pmTrim(e.target.value)) e.target.classList.remove('pm-missing'); });
+    document.addEventListener('click', function(e){ var p = e.target && e.target.closest && e.target.closest('.gender-pills.pm-missing'); if (p) p.classList.remove('pm-missing'); });
+    document._pmMarkWired = true;
+  }
+}
+async function pmProfileAfterSave(){
+  var uid = window._fbAuth && window._fbAuth.currentUser && window._fbAuth.currentUser.uid;
+  if (!uid) return;
+  var was = _pmNudge.fromNudge;
+  _pmNudge.fromNudge = false;
+  var miss = await pmProfileMissing(uid);
+  _pmNudge.missing = miss;
+  if (!miss.length) {
+    try { localStorage.removeItem(_pmSnoozeKey(uid)); } catch (e) {}
+    if (was && typeof showToast === 'function') showToast('Profile complete. Thanks!', 'success');
+  } else if (was && typeof showToast === 'function') {
+    showToast('Saved, but some details are still missing.', 'info');
+  }
+}
