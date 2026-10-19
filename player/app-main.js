@@ -5338,35 +5338,40 @@ function renderMyData() {
 // LOAD SAVED DATA FROM FIRESTORE
 // ═══════════════════════════════════
 async function loadSavedData(uid) {
+  // Release 2: the four reads run at the same time (one network wait instead of four);
+  // results are still handled in the original order below.
+  const _db = window._fbDb;
+  const [_rC, _rT, _rR, _rS] = await Promise.allSettled([
+    _db.collection('users').doc(uid).collection('saved').doc('courses_v2').get(),
+    _db.collection('users').doc(uid).collection('saved').doc('teams_v2').get(),
+    _db.collection('users').doc(uid).collection('rounds').orderBy('playedAt', 'desc').get(),
+    _db.collection('courses_shared').limit(200).get(),
+  ]);
+  const _got = r => { if (r.status === 'rejected') throw r.reason; return r.value; };
+
   try {
-    const snap = await window._fbDb.collection('users').doc(uid).collection('saved').doc('courses_v2').get();
+    const snap = _got(_rC);
     if (snap.exists && Array.isArray(snap.data().list)) {
       _savedCourses = snap.data().list;
     }
   } catch(e) { console.warn('Could not load courses:', e); }
 
   try {
-    const snap = await window._fbDb.collection('users').doc(uid).collection('saved').doc('teams_v2').get();
+    const snap = _got(_rT);
     if (snap.exists && Array.isArray(snap.data().list)) {
       _savedTeams = snap.data().list;
     }
   } catch(e) { console.warn('Could not load teams:', e); }
 
   try {
-    const snap = await window._fbDb
-      .collection('users').doc(uid)
-      .collection('rounds')
-      .orderBy('playedAt', 'desc')
-      .get();
+    const snap = _got(_rR);
     _savedRounds = [];
     snap.forEach(doc => _savedRounds.push(doc.data()));
   } catch(e) { console.warn('Could not load rounds:', e); }
 
   // Load shared course database
   try {
-    const snap = await window._fbDb.collection('courses_shared')
-      .limit(200)
-      .get();
+    const snap = _got(_rS);
     _sharedCourses = [];
     snap.forEach(doc => _sharedCourses.push({ ...doc.data(), _docId: doc.id }));
     // Sort alphabetically in JS — no index needed
@@ -6188,7 +6193,11 @@ async function acceptBuddyRequest(reqId) {
 
 let _sentBuddyRequests = []; // track sent requests to show pending state
 
-async function loadBuddiesData(uid) {
+async function loadBuddiesData(uid, skipRender) {
+  // Release 2: sentRequests starts together with buddies.
+  const _pSent = window._fbDb.collection('users').doc(uid).collection('sentRequests')
+    .where('status','==','pending').where('type','==','buddy_request').get();
+  _pSent.catch(() => {});
   try {
     const snap = await window._fbDb.collection('users').doc(uid).collection('buddies').get();
     _buddies = [];
@@ -6208,12 +6217,11 @@ async function loadBuddiesData(uid) {
         } catch(e) {}
       }));
     } catch(e) {}
-    renderBuddiesList();
+    if (!skipRender) renderBuddiesList();
   } catch(e) { console.warn('Could not load buddies:', e); }
 
   try {
-    const snap = await window._fbDb.collection('users').doc(uid).collection('sentRequests')
-      .where('status','==','pending').where('type','==','buddy_request').get();
+    const snap = await _pSent;
     _sentBuddyRequests = [];
     snap.forEach(doc => _sentBuddyRequests.push({ id: doc.id, ...doc.data() }));
   } catch(e) {}
@@ -6645,7 +6653,16 @@ function stopBuddyRequestListener(){ if(_reqUnsub){ try{ _reqUnsub(); }catch(e){
 // When the app returns to the foreground, re-attach the buddy-request listener so any
 // requests that arrived while backgrounded show up immediately — no logout/login needed.
 let _bellRefreshT = null;
+// Release 2: only after sign-in has finished loading (no double listener start during
+// login), and only when the app comes back after at least 30 s in the background. Before,
+// every focus event (also after the Google popup or any alert) restarted all listeners,
+// which re-reads every notification, request and chat thread each time.
+let _appReady = false;
+let _hiddenSince = 0;
 function _refreshLiveOnFocus(){
+  if(!_appReady) return;
+  if(!_hiddenSince || (Date.now() - _hiddenSince) < 30000){ _hiddenSince = 0; return; }
+  _hiddenSince = 0;
   const uid = window._fbAuth && window._fbAuth.currentUser && window._fbAuth.currentUser.uid;
   if(!uid || !window._fbDb) return;
   clearTimeout(_bellRefreshT);
@@ -6655,24 +6672,37 @@ function _refreshLiveOnFocus(){
     if(typeof loadOpenGames==='function') loadOpenGames(uid).then(function(){ if(typeof updateNotifBadge==='function') updateNotifBadge(); }).catch(function(){});
   }, 150);
 }
-document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='visible') _refreshLiveOnFocus(); });
-window.addEventListener('focus', _refreshLiveOnFocus);
+document.addEventListener('visibilitychange', function(){
+  if(document.visibilityState==='hidden'){ _hiddenSince = Date.now(); return; }
+  _refreshLiveOnFocus();
+});
 
 async function loadProfileData(uid) {
+  // Release 2: profile + users doc in one wait; buddies, teams, requests and notifications
+  // in a second wait (they all start together). Results are handled in the original order.
+  const _db = window._fbDb;
+  const _pP = _db.collection('users').doc(uid).collection('profile').doc('data').get();
+  const _pU = _db.collection('users').doc(uid).get();
+  const _pB = loadBuddiesData(uid, true);   // starts now, renders after the profile is in
+  const _pT = _db.collection('users').doc(uid).collection('teams').get();
+  const _pQ = _db.collection('users').doc(uid).collection('buddyRequests').where('status', '==', 'pending').get();
+  const _pN = _db.collection('users').doc(uid).collection('notifications').where('type','==','buddy_accepted').get();
+  [_pP, _pU, _pT, _pQ, _pN].forEach(p => p.catch(() => {}));   // handled below; avoid unhandled-rejection noise
   // Load profile
   try {
-    const snap = await window._fbDb.collection('users').doc(uid).collection('profile').doc('data').get();
+    const snap = await _pP;
     if (snap.exists) { _profile = snap.data(); }
-    try { const _u = await window._fbDb.collection('users').doc(uid).get(); if (_u.exists) { const _ud = _u.data() || {}; _profile = _profile || {}; if (_ud.avatarUrl && !_profile.avatarUrl) _profile.avatarUrl = _ud.avatarUrl; if (_ud.coverUrl && !_profile.coverUrl) _profile.coverUrl = _ud.coverUrl; } } catch(e){}
+    try { const _u = await _pU; if (_u.exists) { const _ud = _u.data() || {}; _profile = _profile || {}; if (_ud.avatarUrl && !_profile.avatarUrl) _profile.avatarUrl = _ud.avatarUrl; if (_ud.coverUrl && !_profile.coverUrl) _profile.coverUrl = _ud.coverUrl; } } catch(e){}
     if (_profile) { updateUserPill(); prefillFromProfile(); }
   } catch(e) { console.warn('Could not load profile:', e); }
 
   // Load buddies
-  await loadBuddiesData(uid);
+  try { await _pB; } catch(e) {}
+  if (typeof renderBuddiesList === 'function') renderBuddiesList();   // now that _profile is in
 
   // Load teams
   try {
-    const snap = await window._fbDb.collection('users').doc(uid).collection('teams').get();
+    const snap = await _pT;
     _teams = [];
     snap.forEach(doc => _teams.push({ id: doc.id, ...doc.data() }));
     renderTeamsList();
@@ -6680,8 +6710,7 @@ async function loadProfileData(uid) {
 
   // Load pending buddy requests (filter to buddy_request type)
   try {
-    const snap = await window._fbDb.collection('users').doc(uid).collection('buddyRequests')
-      .where('status', '==', 'pending').get();
+    const snap = await _pQ;
     _pendingRequests = [];
     snap.forEach(doc => _pendingRequests.push({ id: doc.id, ...doc.data() }));
     updateRequestBadge();
@@ -6692,8 +6721,7 @@ async function loadProfileData(uid) {
   // when the user opens the Notifications screen. A separate `processed` flag prevents
   // re-adding the buddy on every sign-in.
   try {
-    const snap = await window._fbDb.collection('users').doc(uid)
-      .collection('notifications').where('type','==','buddy_accepted').get();
+    const snap = await _pN;
     snap.forEach(async doc => {
       const n = doc.data();
       if (!n.processed) {
@@ -6946,11 +6974,21 @@ async function onSignedIn(user) {
   document.getElementById('lockedHero').style.display  = 'none';
   document.getElementById('appContent').classList.add('unlocked');
   setGameMode('single');
-  // Load the data Home needs BEFORE revealing it — prevents the login screen flashing
+  // Load the data Home needs BEFORE revealing it — prevents the login screen flashing.
+  // Release 2: both loaders run at the same time. The teams list needs _savedTeams
+  // (loadSavedData) and _teams (loadProfileData), so it is drawn again once both are in.
+  // Safety net: on a very slow or no connection, show Home after 8 s and fill it in later.
+  _appReady = false;
+  const _loads = Promise.allSettled([loadSavedData(user.uid), loadProfileData(user.uid)])
+    .then(function(){ if (typeof renderTeamsList === 'function') renderTeamsList(); });
+  let _loadTimedOut = false;
   try {
-    await loadSavedData(user.uid);    // must complete BEFORE loadProfileData
-    await loadProfileData(user.uid);  // _profile (avatar/cover/name) ready for Home
+    await Promise.race([_loads, new Promise(function(r){ setTimeout(function(){ _loadTimedOut = true; r(); }, 8000); })]);
   } catch (e) { console.warn('sign-in load', e); }
+  if (_loadTimedOut) {
+    console.warn('sign-in load slower than 8 s; showing Home and filling in when ready');
+    _loads.then(function(){ if (typeof renderHomeScreen === 'function') renderHomeScreen(); });
+  }
   startBuddyRequestListener(user.uid);
   startNotifListener(user.uid);
   if(typeof startThreadsBellListener==='function') startThreadsBellListener(user.uid);
@@ -6971,6 +7009,7 @@ async function onSignedIn(user) {
   // Only now dismiss the full-screen auth spinner — Home is already painted underneath
   const _alo = document.getElementById('authLoadingOverlay');
   if (_alo) { _alo.style.display = 'none'; _alo.style.pointerEvents = 'none'; }
+  _appReady = true;   // Release 2: focus/visibility refresh may run from now on
   // QR-invite entry: open the join flow using the URL param OR a code stashed before a
   // sign-in redirect (Google redirect can strip query params). Stash expires after 10 min.
   try {
@@ -6988,6 +7027,7 @@ async function onSignedIn(user) {
 }
 
 function onSignedOut() {
+  _appReady = false;
   // NEW-UI: show the redesigned Login screen; hide legacy locked hero
   const _legacyHero = document.getElementById('lockedHero');
   if (_legacyHero) _legacyHero.style.display = 'none';
@@ -9020,4 +9060,4 @@ if ('serviceWorker' in navigator) {
 document.addEventListener('DOMContentLoaded', applyLang);
 // BUILD STAMP — check this in the browser console to confirm which version is live.
 // If you deploy and don't see this exact string, you're being served a cached/old build.
-console.log('%cParmate build: 2026-10-19-r1b-v19', 'color:#1a6b3c;font-weight:bold;font-size:14px;');
+console.log('%cParmate build: 2026-10-19-r2-v20', 'color:#1a6b3c;font-weight:bold;font-size:14px;');
