@@ -6721,6 +6721,7 @@ function _refreshLiveOnFocus(){
   _bellRefreshT = setTimeout(function(){
     if(typeof startBuddyRequestListener==='function') startBuddyRequestListener(uid); // fresh snapshot → badge+bell
     if(typeof startThreadsBellListener==='function') startThreadsBellListener(uid); // re-attach messages unread
+    if(typeof startM1LiveListener==='function') startM1LiveListener(uid);           // v26: re-attach live 1vs1
     if(typeof loadOpenGames==='function') loadOpenGames(uid).then(function(){ if(typeof updateNotifBadge==='function') updateNotifBadge(); }).catch(function(){});
   }, 150);
 }
@@ -7107,6 +7108,7 @@ async function onSignedIn(user) {
   }
   startBuddyRequestListener(user.uid);
   startNotifListener(user.uid);
+  if (typeof startM1LiveListener === 'function') startM1LiveListener(user.uid);   // v26: live 1vs1 invites + scores
   if(typeof startThreadsBellListener==='function') startThreadsBellListener(user.uid);
   checkForActiveMatch(user.uid);
   if (typeof restorePausedRoundFromCloud === 'function') restorePausedRoundFromCloud(user.uid);
@@ -7152,6 +7154,7 @@ function onSignedOut() {
   document.getElementById('lockedHero').style.display = '';
   stopBuddyRequestListener();
   stopNotifListener();
+  if (typeof stopM1LiveListener === 'function') stopM1LiveListener();   // v26
   if(typeof stopThreadsBellListener==='function') stopThreadsBellListener();
   document.getElementById('appContent').classList.remove('unlocked');
   document.getElementById('bottomTabs').classList.remove('visible');

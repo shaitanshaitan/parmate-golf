@@ -1488,9 +1488,10 @@ function renderNotifList(ROOT){
         '</div>' +
       '</div>';
   }
+  var m1Html = (typeof m1LiveBellHtml === 'function') ? m1LiveBellHtml() : '';   // v26: live 1vs1 invites / matches
   var reqHtml = reqs.length ? ('<div class="og-section-label">'+_t('bell_requests')+'</div>'+reqs.map(renderBellRequest).join('')) : '';
   var ogHtml = og.length ? ('<div class="og-section-label">'+_t('og_section')+'</div>'+og.map(renderOpenGameCard).join('')) : '';
-  var notifHtml = _notifications.length ? _notifications.map(renderNotifRow).join('') : ((reqs.length||og.length||pausedHtml||(typeof _msgUnread!=='undefined'&&_msgUnread>0)) ? '' : '<div class="notif-empty">No notifications yet.</div>');
+  var notifHtml = _notifications.length ? _notifications.map(renderNotifRow).join('') : ((reqs.length||og.length||pausedHtml||m1Html||(typeof _msgUnread!=='undefined'&&_msgUnread>0)) ? '' : '<div class="notif-empty">No notifications yet.</div>');
   var msgHtml='';
   if(typeof _msgUnread!=='undefined' && _msgUnread>0){
     msgHtml='<div class="og-section-label">'+_t('inbox_title')+'</div>'+
@@ -1503,7 +1504,7 @@ function renderNotifList(ROOT){
         '<span style="color:#1a6b3c;font-weight:700;font-size:18px;">\u203a</span>'+
       '</div>';
   }
-  list.innerHTML = pausedHtml + msgHtml + reqHtml + ogHtml + notifHtml;
+  list.innerHTML = pausedHtml + m1Html + msgHtml + reqHtml + ogHtml + notifHtml;
 }
 async function renderNotifications(ROOT){
   ROOT=ROOT||document.getElementById('screen-notifications'); if(!ROOT) return;
@@ -1529,7 +1530,7 @@ function markNotifsReadSilently(uid){
     .catch(function(e){ console.warn('markNotifsReadSilently',e); });
 }
 function updateNotifBadge(){
-  var n=(_notifUnread||0)+((window._openGames&&window._openGames.length)||0)+((typeof _pendingRequests!=='undefined'&&_pendingRequests)?_pendingRequests.length:0)+((typeof _msgUnread!=='undefined'&&_msgUnread)?_msgUnread:0)+((typeof _pausedRound!=='undefined'&&_pausedRound)?1:0);
+  var n=(_notifUnread||0)+((window._openGames&&window._openGames.length)||0)+((typeof _pendingRequests!=='undefined'&&_pendingRequests)?_pendingRequests.length:0)+((typeof _msgUnread!=='undefined'&&_msgUnread)?_msgUnread:0)+((typeof _pausedRound!=='undefined'&&_pausedRound)?1:0)+((typeof m1LiveBadgeCount==='function')?m1LiveBadgeCount():0);
   document.querySelectorAll('.header-icons').forEach(function(hdr){
     var icons=hdr.querySelectorAll('.icon-btn'); var bell=icons[1]; if(!bell) return;
     bell.style.position='relative';

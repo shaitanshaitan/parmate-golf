@@ -65,7 +65,7 @@
   });
 </script>
 <link rel="preload" as="image" href="icons/login-bg.jpg">
-<link rel="stylesheet" href="app.css?v=20261019a">
+<link rel="stylesheet" href="app.css?v=20261019b">
 
 <!-- styles moved to app.css (block 2) -->
 </head>
@@ -1281,11 +1281,12 @@
 <div class="toast" id="toast"></div>
 
 <script src="lang.js?v=20261019b"></script>
-<script src="lang-nl.js?v=20261019e"></script>
+<script src="lang-nl.js?v=20261019f"></script>
 <script src="i18n.js?v=20261013d"></script>
-<script src="app-main.js?v=20261019e"></script>
+<script src="app-main.js?v=20261019f"></script>
 <script src="app-solo.js?v=20261015c"></script>
-<script src="app-match.js?v=20261015e"></script>
+<script src="app-match.js?v=20261019a"></script>
+<script src="app-m1live.js?v=20261019a"></script>
 
 <!-- ── MATCH GATE OVERLAY ── -->
 <div class="match-overlay" id="matchGateOverlay" style="display:none;">
@@ -5014,6 +5015,14 @@
           <span class="m1-opp-txt"><span class="m1-p-name" id="m1_nameB" data-no-i18n>Opponent</span><span class="m1-opp-meta" id="m1_metaB"></span></span>
           <span class="m1-edit">Edit<span class="m1-chev">&rsaquo;</span></span>
         </button>
+        <label class="m1-live" id="m1_liveRow" style="display:none">
+          <span class="m1-live-txt">
+            <span class="m1-live-t">📡 Live scoring with <span id="m1_liveName" data-no-i18n></span></span>
+            <span class="m1-live-s">Both phones show the same scorecard and both can enter scores.</span>
+          </span>
+          <input type="checkbox" id="m1_liveChk" checked onchange="m1LiveToggle(this.checked)">
+          <span class="m1-switch" aria-hidden="true"></span>
+        </label>
 
         <div class="m1-hr"></div>
 
@@ -5108,6 +5117,7 @@
         <div class="section">
           <div class="context-course" id="m1s_course">Course</div>
           <div class="context-meta" id="m1s_meta"></div>
+          <div class="m1-live-pill" id="m1s_live" style="display:none"></div>
         </div>
 
         <div class="section">
@@ -5131,13 +5141,13 @@
         <div class="section">
           <div class="m1-row" id="m1s_rowA">
             <img class="m1-av" id="m1s_avA" src="icons/home-crown.png" alt="">
-            <div class="m1-row-mid"><div class="m1-row-name" id="m1s_nameA" data-no-i18n>You</div><div class="m1-row-st" id="m1s_stA"></div></div>
+            <div class="m1-row-mid"><div class="m1-row-name" id="m1s_nameA" data-no-i18n>You</div><div class="m1-row-st" id="m1s_stA"></div><div class="m1-row-by" id="m1s_byA" style="display:none"></div></div>
             <button class="m1-concede" type="button" data-p="A">Concede</button>
             <button class="m1-score" type="button" data-p="A" id="m1s_scoreA">&ndash;</button>
           </div>
           <div class="m1-row" id="m1s_rowB">
             <img class="m1-av" id="m1s_avB" src="icons/home-crown.png" alt="">
-            <div class="m1-row-mid"><div class="m1-row-name" id="m1s_nameB" data-no-i18n>Opponent</div><div class="m1-row-st" id="m1s_stB"></div></div>
+            <div class="m1-row-mid"><div class="m1-row-name" id="m1s_nameB" data-no-i18n>Opponent</div><div class="m1-row-st" id="m1s_stB"></div><div class="m1-row-by" id="m1s_byB" style="display:none"></div></div>
             <button class="m1-concede" type="button" data-p="B">Concede</button>
             <button class="m1-score" type="button" data-p="B" id="m1s_scoreB">&ndash;</button>
           </div>
@@ -6607,7 +6617,7 @@
 
 <script src="app-nav.js?v=20261013c"></script>
 <script src="app-myteams.js?v=20261013c"></script>
-<script src="app-profile.js?v=20261019a"></script>
+<script src="app-profile.js?v=20261019b"></script>
 <script src="faq-data.js?v=20261013"></script>
 <script src="app-faq.js?v=20261013d"></script>
 <script src="app-menu.js?v=20261013c"></script>

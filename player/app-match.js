@@ -251,6 +251,7 @@ function m1RenderSetup(scr) {
   }
   scr.querySelectorAll('.m1-sc').forEach(function (b) { b.classList.toggle('active', b.dataset.sc === m.scoring); });
   var st = scr.querySelector('.play-btn'); if (st) st.classList.toggle('m1-wait', !m.b);
+  if (typeof m1LiveSetupRow === 'function') m1LiveSetupRow(m);   // "Live scoring with <buddy>"
 
   if (!scr._m1Wired) {
     scr.addEventListener('click', function (e) {
@@ -427,6 +428,7 @@ function m1Start() {
   _pausedRound = null; _scRoundSaved = false;
   if (typeof hidePausedRoundBanner === 'function') hidePausedRoundBanner();
   if (typeof clearPausedRoundFromCloud === 'function') clearPausedRoundFromCloud();
+  if (typeof m1LiveStartIfWanted === 'function') m1LiveStartIfWanted(m);   // buddy + Live on: shared scorecard
   showScreen('m1score');
 }
 
@@ -443,11 +445,12 @@ function m1Score(h, p) {
 }
 function m1SetScore(h, p, v) {
   var m = m1M(), n = m1N();
+  if (m.liveId && typeof m1LiveMark === 'function') m1LiveMark(h, p, v);   // live 1vs1 (app-m1live.js)
   if (h < n) { if (p === 'A') m.scoresA[h] = v; else m.scoresB[h] = v; return; }
   var x = m.extra[h - n]; if (x) { if (p === 'A') x.a = v; else x.b = v; }
 }
 function m1Concede(h) { var m = m1M(), n = m1N(); return h < n ? m.concede[h] : ((m.extra[h - n] || {}).c || null); }
-function m1SetConcede(h, v) { var m = m1M(), n = m1N(); if (h < n) m.concede[h] = v; else if (m.extra[h - n]) m.extra[h - n].c = v; }
+function m1SetConcede(h, v) { var m = m1M(), n = m1N(); if (m.liveId && typeof m1LiveMarkConcede === 'function') m1LiveMarkConcede(h); if (h < n) m.concede[h] = v; else if (m.extra[h - n]) m.extra[h - n].c = v; }
 function m1Strokes(h, p) { var c = m1M().calc, i = m1CourseHole(h); return ((p === 'A' ? c.strokesA : c.strokesB) || [])[i] || 0; }
 function m1Result(h) { return m1HoleResult(m1Score(h, 'A'), m1Score(h, 'B'), m1Strokes(h, 'A'), m1Strokes(h, 'B'), m1Concede(h)); }
 
@@ -545,18 +548,19 @@ function m1RenderScore() {
   else if (r) hr = (cc ? m1Short(m1Name(cc)) + ' concedes · ' : '') + m1Name(r) + ' wins the hole';
   set('m1s_holeRes', hr);
 
-  // dots: one per hole (+ extra holes), coloured from player A's side
+  // dots: one per hole (+ extra holes), coloured from my side (the buddy in a live match is player B)
   var dots = document.getElementById('m1s_dots');
   if (dots) {
-    var html = '', tot = m1HoleTotal();
+    var html = '', tot = m1HoleTotal(), meP = m.liveRole === 'B' ? 'B' : 'A';
     for (var i = 0; i < tot; i++) {
       var ri = m1Result(i), cls = 'dot' + (i === h ? ' active' : '') + (i >= n ? ' extra' : '');
-      if (ri === 'A') cls += ' won'; else if (ri === 'B') cls += ' lost'; else if (ri === 'H') cls += ' halved';
+      if (ri === meP) cls += ' won'; else if (ri === 'H') cls += ' halved'; else if (ri) cls += ' lost';
       html += '<div class="' + cls + '" data-h="' + i + '"></div>';
     }
     dots.innerHTML = html;
   }
   var sv = document.getElementById('m1s_save'); if (sv) { sv.classList.toggle('ready', out.done); sv.textContent = m.saved ? '✓ SAVED' : 'SAVE MATCH'; }
+  if (typeof m1LiveDecorate === 'function') m1LiveDecorate(h);   // live pill + "changed by"
   m1WireScore(scr);
 }
 
@@ -622,6 +626,7 @@ function m1NumOk() {
   }
   var other = p === 'A' ? 'B' : 'A';
   m1Normalize();
+  if (typeof m1LiveFlush === 'function') m1LiveFlush();   // live 1vs1: send this hole now
   if (m1Score(h, other) == null && m1Score(h, p) != null) { m1OpenNumpad(other); return; }   // score the other player next
   m1CloseNumpad(true);
   m1AfterChange(h, before);
@@ -632,6 +637,7 @@ function m1ToggleConcede(p) {
   var before = m1StateNow().out.done;
   m1SetConcede(h, m1Concede(h) === p ? null : p);
   m1Normalize();
+  if (typeof m1LiveFlush === 'function') m1LiveFlush();
   m1AfterChange(h, before);
 }
 
@@ -669,13 +675,19 @@ function m1HideFinish() { var f = document.getElementById('m1s_finish'); if (f) 
 function m1FinishAction(act) {
   var m = m1M();
   m1HideFinish();
-  if (act === 'extra') { m.extra.push({ a: null, b: null, c: null }); m.halved = false; m.hole = m1HoleTotal() - 1; m1RenderScore(); return; }
-  if (act === 'halve') { m.halved = true; m1RenderScore(); m1ShowFinish('done'); return; }
+  if (act === 'extra') { m.extra.push({ a: null, b: null, c: null }); m.halved = false; m.hole = m1HoleTotal() - 1;
+    if (typeof m1LiveExtraAdded === 'function') { m1LiveExtraAdded(); m1LiveFlush(); }
+    m1RenderScore(); return; }
+  if (act === 'halve') { m.halved = true; if (typeof m1LiveFlush === 'function') m1LiveFlush(); m1RenderScore(); m1ShowFinish('done'); return; }
   if (act === 'save') { m1Save(); return; }
   m1RenderScore();
 }
 
-function m1LeaveScorecard() { showScreen('m1setup'); }   // showScreen pauses an unsaved match first
+function m1LeaveScorecard() {   // showScreen pauses an unsaved match first
+  var m = m1M();
+  if (m && m.liveRole) { if (m.saved || !m.liveId) { showScreen('home'); return; } showScreen('home'); m1Toast('The live match continues. Open it again from the bell.', 'info'); return; }
+  showScreen('m1setup');
+}
 
 // ═════════════════════════════════════════════════════════════════════
 // screen-m1full (all holes)
@@ -777,12 +789,17 @@ async function m1Save() {
     resultText: m1ResultLine(s.out),
     playedAt: new Date().toISOString(),
   });
+  if (m.liveId) {   // live 1vs1: remember the link; the buddy stores the match from their own side
+    round.liveId = m.liveId;
+    if (m.liveRole === 'B' && typeof m1FlipRound === 'function') round = m1FlipRound(round);
+  }
   var btn = document.getElementById('m1s_save'); if (btn) btn.textContent = '⏳';
   try {
     await window._fbDb.collection('users').doc(uid).collection('rounds').doc(round.id).set(round);
     if (typeof _savedRounds !== 'undefined') _savedRounds.unshift(round);
     if (typeof renderMyData === 'function') renderMyData();
     m.saved = true;
+    if (m.liveId && typeof m1LiveSaved === 'function') m1LiveSaved();
     m1Toast('Match saved', 'success');
     _scRoundSaved = true; _pausedRound = null;
     if (typeof hidePausedRoundBanner === 'function') hidePausedRoundBanner();
@@ -803,6 +820,7 @@ function m1MaybePause() {
   if (!m1On()) return;
   var m = m1M();
   if (!m.calc || m.saved || (typeof _pausedRound !== 'undefined' && _pausedRound)) return;
+  if (m.liveId) { m1CloseNumpad(true); m1HideFinish(); return; }   // live 1vs1: the shared match is the saved state (bell: Continue)
   m1CloseNumpad(true); m1HideFinish();
   var n = m1N(), played = [], any = false;
   for (var i = 0; i < n; i++) {
