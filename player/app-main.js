@@ -5420,8 +5420,10 @@ function setAuthBtnLoading(id, loading, def) { const btn = document.getElementBy
 async function doGoogleSignIn() {
   if (!window._fbAuth) return;
   setAuthError('signInError','');
+  _authInProgress = true;   // blocks a service-worker reload while the popup is open (Release 1)
   try { await window._fbAuth.signInWithPopup(window._fbGoogleProvider); closeAuthModal(); }
   catch(e) { setAuthError('signInError', e.code === 'auth/popup-closed-by-user' ? 'Sign-in cancelled.' : e.code === 'auth/popup-blocked' ? 'Popup blocked.' : 'Google sign-in failed.'); }
+  finally { _authInProgress = false; }
 }
 
 async function doEmailSignIn() {
@@ -8894,7 +8896,40 @@ async function abandonMatch(matchId) {
 
 
 // ─── SERVICE WORKER ───
+// Release 1 (Oct 2026): no more surprise reloads.
+// clients.claim() in sw.js fires 'controllerchange' even on a FIRST visit (page had no
+// worker yet). The old handler reloaded the page then, which showed login twice and could
+// wipe a Google sign-in in progress. Now:
+//  • first install (page had no controller at load) → never reload; nothing to refresh.
+//  • real update → reload only at a safe moment: Login or Home visible, no sign-in sheet,
+//    no auth spinner, no open overlay. If not safe now, retry when the app is put in the
+//    background; otherwise the next normal launch picks up the new version anyway.
+let _swHadController = false;
+let _swReloadPending = false;
+let _swReloaded = false;
+let _authInProgress = false;   // set by doGoogleSignIn() while the Google popup is open
+function _swSafeToReload() {
+  if (_authInProgress) return false;
+  const modal = document.getElementById('authModal');
+  if (modal && !modal.classList.contains('hidden')) return false;
+  const alo = document.getElementById('authLoadingOverlay');
+  if (alo && alo.style.display !== 'none') return false;
+  const scr = (typeof _activeScreenId === 'function') ? _activeScreenId() : '';
+  if (scr !== 'home' && scr !== 'login') return false;
+  const busy = document.querySelector('.menu-overlay.open, .buddy-overlay.open, .profile-overlay.open, .legal-overlay.open, .results-overlay.open, .scorecard-overlay.open, .round-view-overlay.open');
+  if (busy) return false;
+  const shown = ['matchSetupOverlay','matchCodeOverlay','joinMatchOverlay','matchGateOverlay','rejoinModal','endMatchModal','csvImportOverlay','allHolesOverlay']
+    .some(function(id){ const el = document.getElementById(id); return el && el.style.display && el.style.display !== 'none'; });
+  return !shown;
+}
+function _swTryReload() {
+  if (!_swReloadPending || _swReloaded) return;
+  if (!_swSafeToReload()) return;
+  _swReloaded = true;
+  window.location.reload();
+}
 if ('serviceWorker' in navigator) {
+  _swHadController = !!navigator.serviceWorker.controller;   // read BEFORE any claim() can change it
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
       .then(reg => {
@@ -8912,13 +8947,13 @@ if ('serviceWorker' in navigator) {
         });
       })
       .catch(err => console.warn('SW failed:', err));
-    // When the controlling SW changes (new version took over), reload once so the
-    // page runs the new code. The flag guards against reload loops.
-    let _swReloaded = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (_swReloaded) return;
-      _swReloaded = true;
-      window.location.reload();
+      if (!_swHadController) { _swHadController = true; return; }   // first install: no reload
+      _swReloadPending = true;
+      _swTryReload();
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') _swTryReload();
     });
   });
 }
@@ -8926,4 +8961,4 @@ if ('serviceWorker' in navigator) {
 document.addEventListener('DOMContentLoaded', applyLang);
 // BUILD STAMP — check this in the browser console to confirm which version is live.
 // If you deploy and don't see this exact string, you're being served a cached/old build.
-console.log('%cParmate build: 2026-07-31-tm-row-style', 'color:#1a6b3c;font-weight:bold;font-size:14px;');
+console.log('%cParmate build: 2026-10-19-r1-v18', 'color:#1a6b3c;font-weight:bold;font-size:14px;');

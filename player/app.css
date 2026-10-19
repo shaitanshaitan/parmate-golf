@@ -867,11 +867,11 @@ input { transition:border-color 0.4s, background 0.2s; }
 /* ═══════════════════════════════════
    AUTH OVERLAYS
 ═══════════════════════════════════ */
-#authLoadingOverlay { position:fixed; inset:0; background:var(--bg); z-index:300; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:14px; }
+#authLoadingOverlay { position:fixed; inset:0; background:#134d2b; z-index:300; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:14px; }
 #authLoadingOverlay[style*="display: none"], #authLoadingOverlay[style*="display:none"] { pointer-events:none !important; }
-.auth-spinner { width:30px; height:30px; border:2px solid var(--border2); border-top-color:var(--gold); border-radius:50%; animation:spin 0.7s linear infinite; }
+.auth-spinner { width:30px; height:30px; border:2px solid rgba(255,255,255,0.25); border-top-color:#ffffff; border-radius:50%; animation:spin 0.7s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
-.auth-spinner-text { font-size:0.58rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--muted); }
+.auth-spinner-text { font-size:0.58rem; letter-spacing:0.2em; text-transform:uppercase; color:rgba(255,255,255,0.75); }
 
 .modal-overlay { position:fixed; inset:0; background:rgba(5,15,8,0.88); backdrop-filter:blur(8px); z-index:200; display:flex; align-items:flex-end; justify-content:center; animation:fadeIn 0.2s ease both; }
 .modal-overlay.hidden { display:none; }
@@ -1561,8 +1561,10 @@ input { transition:border-color 0.4s, background 0.2s; }
   --card-shadow:0 2px 8px rgba(0,0,0,0.08);--ui-bg:#ffffff;}
 .screen.active{display:block;}
 /* ===== Screen 01 · Login ===== */
+#screen-login { background:#134d2b; }   /* R1: green, never black, while the photo loads */
 #screen-login .splash {position: absolute;
     inset: 0;
+    background-color: #134d2b;
     background-image: url('icons/login-bg.jpg');
     background-size: cover;
     background-position: center center;
