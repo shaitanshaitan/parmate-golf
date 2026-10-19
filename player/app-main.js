@@ -5417,13 +5417,53 @@ function switchToRegister() {
 function setAuthError(id, msg) { const el = document.getElementById(id); if (!el) return; el.textContent = msg; el.classList.toggle('visible', !!msg); }
 function setAuthBtnLoading(id, loading, def) { const btn = document.getElementById(id); if (!btn) return; btn.textContent = loading ? 'Please wait…' : def; btn.disabled = loading; }
 
+// Release 1b: while the Google window is open, keep the green "Connecting…" spinner up behind
+// it, so returning to the app lands on the spinner instead of the sign-in sheet. On cancel or
+// error the spinner closes and the sheet shows the message. Because Google's page blocks
+// Firebase from seeing that its window was closed (COOP warning), a 10-second guard starts
+// once the app is back in front: if no user arrived by then, treat it as cancelled.
+let _gsiGuardT = null;
+let _gsiLeft = false;   // true once the app lost focus / went to the background for the Google window
+function _gsiMarkLeft() { if (_authInProgress) _gsiLeft = true; }
+function _gsiShowSpinner(on) {
+  const alo = document.getElementById('authLoadingOverlay');
+  if (!alo) return;
+  alo.style.display = on ? 'flex' : 'none';
+  alo.style.pointerEvents = on ? 'auto' : 'none';
+}
+function _gsiEnd(msg) {
+  clearTimeout(_gsiGuardT); _gsiGuardT = null;
+  window.removeEventListener('focus', _gsiArmGuard);
+  window.removeEventListener('blur', _gsiMarkLeft);
+  document.removeEventListener('visibilitychange', _gsiArmGuard);
+  if (!_authInProgress) return;
+  _authInProgress = false;
+  if (window._fbAuth && window._fbAuth.currentUser) return;   // signed in: onSignedIn() owns the spinner
+  _gsiShowSpinner(false);
+  if (msg) setAuthError('signInError', msg);
+}
+function _gsiArmGuard() {
+  if (document.visibilityState === 'hidden') { _gsiMarkLeft(); return; }
+  if (!_authInProgress || !_gsiLeft) return;   // only once the user has come BACK from the Google window
+  clearTimeout(_gsiGuardT);
+  _gsiGuardT = setTimeout(function(){ _gsiEnd('Sign-in cancelled.'); }, 10000);
+}
 async function doGoogleSignIn() {
-  if (!window._fbAuth) return;
+  if (!window._fbAuth || _authInProgress) return;
   setAuthError('signInError','');
   _authInProgress = true;   // blocks a service-worker reload while the popup is open (Release 1)
-  try { await window._fbAuth.signInWithPopup(window._fbGoogleProvider); closeAuthModal(); }
-  catch(e) { setAuthError('signInError', e.code === 'auth/popup-closed-by-user' ? 'Sign-in cancelled.' : e.code === 'auth/popup-blocked' ? 'Popup blocked.' : 'Google sign-in failed.'); }
-  finally { _authInProgress = false; }
+  _gsiLeft = false;
+  _gsiShowSpinner(true);
+  window.addEventListener('blur', _gsiMarkLeft);
+  window.addEventListener('focus', _gsiArmGuard);
+  document.addEventListener('visibilitychange', _gsiArmGuard);
+  try {
+    await window._fbAuth.signInWithPopup(window._fbGoogleProvider);
+    closeAuthModal();   // hidden behind the spinner; onSignedIn() takes over from here
+    _gsiEnd('');
+  } catch(e) {
+    _gsiEnd(e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request' ? 'Sign-in cancelled.' : e.code === 'auth/popup-blocked' ? 'Popup blocked.' : 'Google sign-in failed.');
+  }
 }
 
 async function doEmailSignIn() {
@@ -6874,6 +6914,22 @@ async function _homeUpload(kind, file){
   } catch(e){ console.warn('upload', e); if(typeof showToast==='function') showToast('Couldn\u2019t save photo'); }
 }
 
+// Release 1b: resolve when Home's avatar and cover images are loaded, or after maxMs.
+function _waitHomeImages(maxMs) {
+  const waits = [];
+  const av = document.getElementById('homeAvatarImg');
+  if (av && av.getAttribute('src') && !av.complete) {
+    waits.push(new Promise(function(r){ av.addEventListener('load', r, {once:true}); av.addEventListener('error', r, {once:true}); }));
+  }
+  const cov = document.getElementById('homeCover');
+  const m = cov && (cov.style.backgroundImage || '').match(/url\(["']?(.*?)["']?\)/);
+  if (m && m[1]) {
+    waits.push(new Promise(function(r){ const im = new Image(); im.onload = im.onerror = r; im.src = m[1]; }));
+  }
+  if (!waits.length) return Promise.resolve();
+  return Promise.race([Promise.all(waits), new Promise(function(r){ setTimeout(r, maxMs); })]);
+}
+
 async function onSignedIn(user) {
   // Re-raise the full-screen auth cover BEFORE any DOM reveal or async load.
   // onSignedOut() may have run first (brief null-user after a Google redirect) and
@@ -6909,6 +6965,9 @@ async function onSignedIn(user) {
   document.getElementById('bottomTabs').classList.remove('visible');
   renderHomeScreen();
   showScreen('home', { replace: true });
+  // Release 1b: let the avatar and cover finish loading first (max 0.8 s), so Home never
+  // flashes the placeholder crown and an empty cover.
+  try { await _waitHomeImages(800); } catch (_) {}
   // Only now dismiss the full-screen auth spinner — Home is already painted underneath
   const _alo = document.getElementById('authLoadingOverlay');
   if (_alo) { _alo.style.display = 'none'; _alo.style.pointerEvents = 'none'; }
@@ -8961,4 +9020,4 @@ if ('serviceWorker' in navigator) {
 document.addEventListener('DOMContentLoaded', applyLang);
 // BUILD STAMP — check this in the browser console to confirm which version is live.
 // If you deploy and don't see this exact string, you're being served a cached/old build.
-console.log('%cParmate build: 2026-10-19-r1-v18', 'color:#1a6b3c;font-weight:bold;font-size:14px;');
+console.log('%cParmate build: 2026-10-19-r1b-v19', 'color:#1a6b3c;font-weight:bold;font-size:14px;');
