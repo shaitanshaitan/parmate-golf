@@ -5853,8 +5853,10 @@ async function _doBuddySearch(q) {
       const safeName = (r.displayName || '').replace(/['"\\]/g, ' ');
       const isBuddy   = _buddies.find(b => b.uid === r.uid);
       const isPending = _sentBuddyRequests.find(s => s.toUid === r.uid);
+      const incoming  = _incomingBuddyRequest(r.uid);
       let addBtn;
       if (isBuddy)        addBtn = `<button class="ab-btn added" disabled>\u2713 ${t('ab_buddy')}</button>`;
+      else if (incoming)  addBtn = `<button class="ab-btn add" onclick="acceptBuddyRequest('${incoming.id}')">\u2713 ${t('ab_accept')}</button>`;
       else if (isPending) addBtn = `<button class="ab-btn added" disabled>\u23f3 ${t('ab_pending')}</button>`;
       else                addBtn = `<button class="ab-btn add" onclick="addBuddyDirect('${r.uid}','${safeName}')">+ ${t('ab_add')}</button>`;
       return `<div class="ab-row">
@@ -6032,12 +6034,17 @@ function _updateAddBuddyBtn(buddyUid) {
   const btn = document.getElementById('addBuddyBtn');
   if (!btn) return;
   const alreadyBuddy   = _buddies.find(b => b.uid === buddyUid);
-  const requestPending = _pendingRequests.find(r => r.fromUid === buddyUid) ||
-                         _sentBuddyRequests.find(r => r.toUid === buddyUid);
+  // v25: a request FROM this player is not "pending" for us, it can be accepted right here
+  const incoming       = _incomingBuddyRequest(buddyUid);
+  const requestPending = _sentBuddyRequests.find(r => r.toUid === buddyUid);
   if (alreadyBuddy) {
     btn.textContent = '✓ Already Buddies';
     btn.className   = 'btn-add-buddy already';
     btn.disabled    = true;
+  } else if (incoming) {
+    btn.textContent = '✓ Accept request';
+    btn.className   = 'btn-add-buddy';
+    btn.disabled    = false;
   } else if (requestPending) {
     btn.textContent = '⏳ Request Pending';
     btn.className   = 'btn-add-buddy sent';
@@ -6047,6 +6054,11 @@ function _updateAddBuddyBtn(buddyUid) {
     btn.className   = 'btn-add-buddy';
     btn.disabled    = false;
   }
+}
+
+// v25: open buddy request from this player to us (if any)
+function _incomingBuddyRequest(fromUid) {
+  return (_pendingRequests || []).find(r => r.fromUid === fromUid && (r.type || 'buddy_request') === 'buddy_request') || null;
 }
 
 function closePublicProfile() {
@@ -6061,6 +6073,8 @@ async function addBuddyDirect(buddyUid, toName){
   if (!uid || !buddyUid || !_profile) { showToast('Save your profile first.', 'error'); return; }
   if (_buddies.find(b => b.uid === buddyUid)) { showToast('Already your buddy.', 'info'); return; }
   if (_sentBuddyRequests.find(s => s.toUid === buddyUid)) { showToast('Request already pending.', 'info'); return; }
+  const _inc = _incomingBuddyRequest(buddyUid);
+  if (_inc) { await acceptBuddyRequest(_inc.id); return; }   // v25: they already asked us
   try {
     const reqId = Date.now().toString();
     await window._fbDb.collection('users').doc(buddyUid).collection('buddyRequests').doc(reqId).set({
@@ -6081,6 +6095,8 @@ async function addBuddyFromProfile() {
   const uid       = window._fbAuth?.currentUser?.uid;
   const buddyUid  = _viewingPublicUid;
   if (!uid || !buddyUid || !_profile) { showToast('Save your profile first.', 'error'); return; }
+  const _inc = _incomingBuddyRequest(buddyUid);
+  if (_inc) { await acceptBuddyRequest(_inc.id); _updateAddBuddyBtn(buddyUid); return; }   // v25
 
   const btn = document.getElementById('addBuddyBtn');
   if (btn) { btn.textContent = 'Sending…'; btn.disabled = true; }
@@ -6213,8 +6229,11 @@ async function acceptBuddyRequest(reqId) {
     await window._fbDb.collection('users').doc(uid).collection('buddyRequests').doc(reqId).delete();
 
     _pendingRequests = _pendingRequests.filter(r => r.id !== reqId);
-    _buddies.push({ uid: req.fromUid, name: req.fromName, hcp: req.fromHcp ?? null, avatarId: req.fromAvatar || null });
-    renderBuddiesList();
+    if (!_buddies.find(b => b.uid === req.fromUid)) {
+      const nb = await _enrichBuddy({ uid: req.fromUid, name: req.fromName, hcp: req.fromHcp ?? null, avatarId: req.fromAvatar || null, addedAt: new Date().toISOString() });
+      if (!_buddies.find(b => b.uid === req.fromUid)) _buddies.push(nb);
+    }
+    _refreshBuddyUI();   // v25: list, search rows, open profile, 1vs1 opponent sheet
     renderPendingRequests();
     updateRequestBadge();
     showToast(`${req.fromName} is now your buddy! 🏌️`, 'success');
@@ -6671,6 +6690,7 @@ function startBuddyRequestListener(uid){
               showToast('🏌️ Buddy request from ' + r.fromName, 'info');
           });
         }
+        if(!first && typeof _refreshBuddyUI==='function') _refreshBuddyUI();   // v25
         first = false;
         if(typeof updateRequestBadge==='function') updateRequestBadge();
         if(typeof renderPendingRequests==='function') renderPendingRequests();
@@ -6713,6 +6733,7 @@ async function loadProfileData(uid) {
   // Release 2: profile + users doc in one wait; buddies, teams, requests and notifications
   // in a second wait (they all start together). Results are handled in the original order.
   const _db = window._fbDb;
+  _buddiesLoaded = false;   // v25: live buddy_accepted handling waits until the list is in
   const _pP = _db.collection('users').doc(uid).collection('profile').doc('data').get();
   const _pU = _db.collection('users').doc(uid).get();
   const _pB = loadBuddiesData(uid, true);   // starts now, renders after the profile is in
@@ -6752,32 +6773,95 @@ async function loadProfileData(uid) {
   // notifications read here — the bell badge surfaces unread items, and read is set only
   // when the user opens the Notifications screen. A separate `processed` flag prevents
   // re-adding the buddy on every sign-in.
+  // v25: the same handler also runs live from the notification listener, so an accepted
+  // request shows up straight away (no restart needed).
+  _buddiesLoaded = true;
+  let _nDocs = [];
+  try { const snap = await _pN; _nDocs = snap.docs; } catch(e) {}
+  await _processBuddyAccepted(uid, _nDocs.concat(_baLatestDocs));
+}
+
+// ── v25: BUDDY ACCEPTED, LIVE ─────────────────────────────────
+// When someone accepts OUR request we get a buddy_accepted notification. Handle it once:
+// write the buddy into our own list, remove our "Pending" entry, update every open screen.
+// Runs at sign-in (loadProfileData) and live (startNotifListener). _baBusy stops both
+// paths handling the same notification at the same time.
+let _buddiesLoaded = false;   // true once the buddy list of this sign-in is in memory
+let _baLatestDocs  = [];      // notifications seen by the listener before that moment
+const _baBusy = new Set();
+
+function _onBuddyAcceptedSnap(uid, docs) {
+  const acc = (docs || []).filter(d => { const n = d.data() || {}; return n.type === 'buddy_accepted' && !n.processed; });
+  if (!acc.length) return;
+  if (!_buddiesLoaded) { _baLatestDocs = acc; return; }   // loadProfileData picks these up
+  _processBuddyAccepted(uid, acc);
+}
+
+async function _enrichBuddy(b) {
   try {
-    const snap = await _pN;
-    snap.forEach(async doc => {
-      const n = doc.data();
-      if (!n.processed) {
-        try {
-          await window._fbDb.collection('users').doc(uid).collection('buddies').doc(n.byUid).set({
-            name:     n.byName,
-            hcp:      n.byHcp ?? null,
-            avatarId: n.byAvatar || null,
-            addedAt:  n.at || new Date().toISOString(),
-          });
-          if (n.reqId) {
-            try {
-              await window._fbDb.collection('users').doc(uid).collection('sentRequests').doc(n.reqId).delete();
-              _sentBuddyRequests = _sentBuddyRequests.filter(r => r.id !== n.reqId);
-            } catch(e) {}
-          }
-          if (!_buddies.find(b => b.uid === n.byUid)) {
-            _buddies.push({ uid: n.byUid, name: n.byName, hcp: n.byHcp ?? null, avatarId: n.byAvatar || null });
-            renderBuddiesList();
-          }
-          await doc.ref.update({ processed: true });
-        } catch(e) { console.warn('Could not write reverse buddy:', e); }
+    const ps = await window._fbDb.collection('public_profiles').doc(b.uid).get();
+    if (ps.exists) { const d = ps.data() || {};
+      if (d.avatarUrl) b.avatarUrl = d.avatarUrl;
+      if (d.coverUrl)  b.coverUrl  = d.coverUrl;
+      if (d.avatarId != null && b.avatarId == null) b.avatarId = d.avatarId;
+      if (d.gender && !b.gender) b.gender = d.gender;   // 1vs1: Ladies/Men prefill
+      if (d.coverId  != null && b.coverId  == null) b.coverId  = d.coverId;
+    }
+  } catch(e) {}
+  return b;
+}
+
+async function _processBuddyAccepted(uid, docs) {
+  let changed = false;
+  for (const doc of (docs || [])) {
+    const n = (doc && doc.data && doc.data()) || {};
+    if (n.type !== 'buddy_accepted' || n.processed || !n.byUid || _baBusy.has(doc.id)) continue;
+    _baBusy.add(doc.id);
+    try {
+      await window._fbDb.collection('users').doc(uid).collection('buddies').doc(n.byUid).set({
+        name:     n.byName,
+        hcp:      n.byHcp ?? null,
+        avatarId: n.byAvatar || null,
+        addedAt:  n.at || new Date().toISOString(),
+      });
+      if (n.reqId) {
+        try { await window._fbDb.collection('users').doc(uid).collection('sentRequests').doc(n.reqId).delete(); } catch(e) {}
       }
-    });
+      _sentBuddyRequests = _sentBuddyRequests.filter(r => r.id !== n.reqId && r.toUid !== n.byUid);
+      if (!_buddies.find(b => b.uid === n.byUid)) {
+        const b = await _enrichBuddy({ uid: n.byUid, name: n.byName, hcp: n.byHcp ?? null, avatarId: n.byAvatar || null, addedAt: n.at || null });
+        if (!_buddies.find(x => x.uid === n.byUid)) _buddies.push(b);
+      }
+      await doc.ref.update({ processed: true });
+      changed = true;
+    } catch(e) {
+      console.warn('Could not write reverse buddy:', e);
+      _baBusy.delete(doc.id);   // try again on the next snapshot or sign-in
+    }
+  }
+  _baLatestDocs = [];
+  if (changed) _refreshBuddyUI();
+}
+
+// Redraw everything that shows buddies or pending requests (only what is on screen).
+function _refreshBuddyUI() {
+  try { if (typeof renderBuddiesList === 'function') renderBuddiesList(); } catch(e) {}
+  try { if (typeof renderSentRequests === 'function') renderSentRequests(); } catch(e) {}
+  try {
+    const ov = document.getElementById('publicProfileOverlay');
+    if (_viewingPublicUid && ov && ov.classList.contains('open')) _updateAddBuddyBtn(_viewingPublicUid);
+  } catch(e) {}
+  try {
+    const q = document.getElementById('buddySearchInput');
+    if (q && q.offsetParent !== null && q.value.trim().length >= 2) onBuddySearchInput();
+  } catch(e) {}
+  try {
+    const sh = document.getElementById('m1_sheet'), s1 = document.getElementById('m1_step1');
+    if (sh && sh.classList.contains('open') && s1 && s1.style.display !== 'none' && typeof m1RenderList === 'function') m1RenderList();
+  } catch(e) {}
+  try {
+    const bp = document.getElementById('buddyPickerWrap');
+    if (bp && bp.offsetParent !== null && typeof renderBuddyPicker === 'function') renderBuddyPicker();
   } catch(e) {}
 }
 
@@ -7073,6 +7157,7 @@ function onSignedOut() {
   document.getElementById('bottomTabs').classList.remove('visible');
   _savedCourses = []; _savedTeams = []; _savedRounds = [];
   _profile = null; _teams = []; _buddies = []; _sentBuddyRequests = []; _pendingRequests = [];
+  _buddiesLoaded = false; _baLatestDocs = []; _baBusy.clear();   // v25
   // Reset avatar pill
   const imgEl   = document.getElementById('userPillAvatarImg');
   const fallback= document.getElementById('userPillAvatarFallback');

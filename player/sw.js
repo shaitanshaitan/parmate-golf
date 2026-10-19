@@ -1,8 +1,8 @@
 // ─── Parmate Team HCP · Service Worker ───
-// v24 — Version 1.0 Live: release notes updated (Solo, 1vs1, faster start), Beta labels removed. v23 — Release 3d: Mollie in the privacy policy (in app and privacy.html), payment records kept 7 years. v22 — Release 3c: only / and /index.html become the offline start page, public privacy page, back button closes the sign-in sheet, hint for Instagram/Facebook browsers. v21 — Release 3a: never touch /__/ (Firebase sign-in helpers proxied to firebaseapp.com). v20 — Release 2: sign-in data loads in parallel, 8 s safety net, live listeners no longer restarted on every focus. v19 — Release 1b: spinner behind the Google window (no sign-in sheet on return), Home waits for avatar/cover, green splash. v18 — Release 1: no surprise reload on first install or mid sign-in, green login/spinner, lang-nl.js versioned, icon links fixed. v17 — 1vs1 setup Route B: opponent sheet in two steps. v16 — 1vs1 setup cleanup: no allowance, full names, strokes sentence. v15 — full 1vs1 release in one upload (fresh tags, so no stale cached files). v14 — 1vs1 Dutch texts, player name fallback. v13 — 1vs1 Match Play (app-match.js), new Choose Game order. v12 — Solo screen cleanup, What's New moved to FAQ. v11 — Solo Round (app-solo.js). v10 — NL button text size. v9 — Dutch translation engine (i18n.js + lang-nl.js). App split into separate files: lang.js, faq-data.js, vendor/qrcode-generator.js, app.css and app-*.js.
+// v25 — Buddies live: an accepted buddy request shows up right away (no restart), a request from someone can be accepted from their profile or the search list. v24 — Version 1.0 Live: release notes updated (Solo, 1vs1, faster start), Beta labels removed. v23 — Release 3d: Mollie in the privacy policy (in app and privacy.html), payment records kept 7 years. v22 — Release 3c: only / and /index.html become the offline start page, public privacy page, back button closes the sign-in sheet, hint for Instagram/Facebook browsers. v21 — Release 3a: never touch /__/ (Firebase sign-in helpers proxied to firebaseapp.com). v20 — Release 2: sign-in data loads in parallel, 8 s safety net, live listeners no longer restarted on every focus. v19 — Release 1b: spinner behind the Google window (no sign-in sheet on return), Home waits for avatar/cover, green splash. v18 — Release 1: no surprise reload on first install or mid sign-in, green login/spinner, lang-nl.js versioned, icon links fixed. v17 — 1vs1 setup Route B: opponent sheet in two steps. v16 — 1vs1 setup cleanup: no allowance, full names, strokes sentence. v15 — full 1vs1 release in one upload (fresh tags, so no stale cached files). v14 — 1vs1 Dutch texts, player name fallback. v13 — 1vs1 Match Play (app-match.js), new Choose Game order. v12 — Solo screen cleanup, What's New moved to FAQ. v11 — Solo Round (app-solo.js). v10 — NL button text size. v9 — Dutch translation engine (i18n.js + lang-nl.js). App split into separate files: lang.js, faq-data.js, vendor/qrcode-generator.js, app.css and app-*.js.
 // Bump APP_VERSION on every deploy that must invalidate caches.
 // When a ?v= tag changes in index.html, change it in APP_SHELL below too (same value).
-const APP_VERSION = 'parmate-team-hcp-v24';
+const APP_VERSION = 'parmate-team-hcp-v25';
 const APP_CACHE   = APP_VERSION;
 
 // Minimal app shell (served at the site root). Kept tiny and cached individually
@@ -10,13 +10,13 @@ const APP_CACHE   = APP_VERSION;
 const ASSET_V   = '20261013';   // must match the ?v= tags in index.html
 const APP_SHELL = [
   '/', '/index.html', '/manifest.json',
-  '/lang.js?v=20261019a',
+  '/lang.js?v=20261019b',
   '/faq-data.js?v=' + ASSET_V,
   '/vendor/qrcode-generator.js?v=' + ASSET_V,
-  '/lang-nl.js?v=20261019d',
+  '/lang-nl.js?v=20261019e',
   '/i18n.js?v=20261013d',
   '/app.css?v=20261019a',
-  '/app-main.js?v=20261019d',
+  '/app-main.js?v=20261019e',
   '/app-solo.js?v=20261015c',
   '/app-match.js?v=20261015e',
   '/app-tm-flow.js?v=20261013c',
@@ -26,7 +26,7 @@ const APP_SHELL = [
   '/app-tm-summary.js?v=20261013c',
   '/app-nav.js?v=20261013c',
   '/app-myteams.js?v=20261013c',
-  '/app-profile.js?v=20261015c',
+  '/app-profile.js?v=20261019a',
   '/app-faq.js?v=20261013d',
   '/app-menu.js?v=20261013c',
   '/app-chat.js?v=20261013c',

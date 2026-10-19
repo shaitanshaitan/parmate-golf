@@ -1256,4 +1256,5 @@ window.PM_STRINGS_NL = {
 "October 2026 · Version 1.0": "Oktober 2026 · Versie 1.0",
 "Team Rounds & Live Match Play": "Team Rondes & live Team Matches",
 "Play a solo Team Round, or challenge another team to a real-time scramble match. Generate a QR or 5-character join code, track scores hole by hole, and follow your opponent's progress live.": "Speel een Team Ronde met je eigen team, of daag een ander team uit voor een live scramble-match. Maak een QR-code of een deelcode van 5 tekens aan, voer de scores hole voor hole in en volg de voortgang van je tegenstander live.",
+"✓ Accept request": "✓ Verzoek accepteren",
 };

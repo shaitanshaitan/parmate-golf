@@ -1556,6 +1556,8 @@ function startNotifListener(uid){
           });
         }
         first=false;
+        // v25: someone accepted our buddy request -> add them now, no restart needed
+        try{ if(typeof _onBuddyAcceptedSnap==='function') _onBuddyAcceptedSnap(uid, snap.docs); }catch(e){}
         updateNotifBadge();
         var scr=document.getElementById('screen-notifications');
         if(scr && scr.classList.contains('active')) renderNotifList(scr);
