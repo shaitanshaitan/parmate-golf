@@ -1239,4 +1239,13 @@ window.PM_STRINGS_NL = {
 "Open in Chrome": "Openen in Chrome",
 "Tap the ⋯ menu and choose to open in Safari.": "Klik op het ⋯ menu en kies voor openen in Safari.",
 "Open Parmate in Chrome or Safari to continue with Google, or sign in with email.": "Open Parmate in Chrome of Safari om met Google verder te gaan, of log in met je e-mailadres.",
+/* Release 3d (19 Oct 2026): Mollie in the privacy policy. Dutch by Robbie. */
+"<strong>Subscription data</strong> — Pro status, the end date of your plan, and the reference numbers Mollie gives your payments and subscription (only if you upgrade to Pro)": "<strong>Abonnementsgegevens</strong>, Pro-status, de einddatum van je abonnement en de referentienummers die Mollie aan je betalingen en abonnement toekent (alleen als je upgrade naar Pro)",
+"To process your Pro subscription and its yearly renewal": "Om je Pro-abonnement en de jaarlijkse verlenging ervan te verwerken",
+"For Pro payments, <strong>Legal obligation</strong> also applies: we are required by law to keep payment records.": "Voor Pro-betalingen geldt ook <strong>Wettelijke verplichting</strong>: wij zijn wettelijk verplicht om betalingsgegevens te bewaren.",
+"(payments) — handles payments for Parmate Pro. When you upgrade, we share your name, email address, the amount and an internal account reference with Mollie. You enter your card or bank details on Mollie's own payment page; they never reach Parmate. See": "(betalingen), verwerkt betalingen voor Parmate Pro. Wanneer je upgradet, delen wij je naam, e-mailadres, het bedrag en een interne accountreferentie met Mollie. Je voert je kaart- of bankgegevens in op de eigen betaalpagina van Mollie; die bereiken Parmate nooit. Zie",
+"Mollie Privacy Statement": "Privacyverklaring van Mollie",
+"If you upgraded to Pro, we keep your payment records (invoices and payment details such as amount, date and Mollie reference) for 7 years, as Dutch tax law requires. This also applies after you delete your account.": "Als je bent geüpgraded naar Pro, bewaren wij je betalingsgegevens (facturen en betalingsdetails zoals bedrag, datum en Mollie-referentie) 7 jaar, zoals de Nederlandse belastingwetgeving vereist. Dit geldt ook nadat je je account hebt verwijderd.",
+"Exception: payment records of Pro subscriptions are kept for 7 years, as required by Dutch tax law.": "Uitzondering: betalingsgegevens van Pro-abonnementen worden 7 jaar bewaard, zoals vereist door de Nederlandse belastingwetgeving.",
+"October 2026 · Version 1.0 Beta": "Oktober 2026 · Versie 1.0 Bèta",
 };
