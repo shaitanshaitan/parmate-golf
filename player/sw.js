@@ -1,8 +1,8 @@
 // ─── Parmate Team HCP · Service Worker ───
-// v21 — Release 3a: never touch /__/ (Firebase sign-in helpers proxied to firebaseapp.com). v20 — Release 2: sign-in data loads in parallel, 8 s safety net, live listeners no longer restarted on every focus. v19 — Release 1b: spinner behind the Google window (no sign-in sheet on return), Home waits for avatar/cover, green splash. v18 — Release 1: no surprise reload on first install or mid sign-in, green login/spinner, lang-nl.js versioned, icon links fixed. v17 — 1vs1 setup Route B: opponent sheet in two steps. v16 — 1vs1 setup cleanup: no allowance, full names, strokes sentence. v15 — full 1vs1 release in one upload (fresh tags, so no stale cached files). v14 — 1vs1 Dutch texts, player name fallback. v13 — 1vs1 Match Play (app-match.js), new Choose Game order. v12 — Solo screen cleanup, What's New moved to FAQ. v11 — Solo Round (app-solo.js). v10 — NL button text size. v9 — Dutch translation engine (i18n.js + lang-nl.js). App split into separate files: lang.js, faq-data.js, vendor/qrcode-generator.js, app.css and app-*.js.
+// v22 — Release 3c: only / and /index.html become the offline start page, public privacy page, back button closes the sign-in sheet, hint for Instagram/Facebook browsers. v21 — Release 3a: never touch /__/ (Firebase sign-in helpers proxied to firebaseapp.com). v20 — Release 2: sign-in data loads in parallel, 8 s safety net, live listeners no longer restarted on every focus. v19 — Release 1b: spinner behind the Google window (no sign-in sheet on return), Home waits for avatar/cover, green splash. v18 — Release 1: no surprise reload on first install or mid sign-in, green login/spinner, lang-nl.js versioned, icon links fixed. v17 — 1vs1 setup Route B: opponent sheet in two steps. v16 — 1vs1 setup cleanup: no allowance, full names, strokes sentence. v15 — full 1vs1 release in one upload (fresh tags, so no stale cached files). v14 — 1vs1 Dutch texts, player name fallback. v13 — 1vs1 Match Play (app-match.js), new Choose Game order. v12 — Solo screen cleanup, What's New moved to FAQ. v11 — Solo Round (app-solo.js). v10 — NL button text size. v9 — Dutch translation engine (i18n.js + lang-nl.js). App split into separate files: lang.js, faq-data.js, vendor/qrcode-generator.js, app.css and app-*.js.
 // Bump APP_VERSION on every deploy that must invalidate caches.
 // When a ?v= tag changes in index.html, change it in APP_SHELL below too (same value).
-const APP_VERSION = 'parmate-team-hcp-v21';
+const APP_VERSION = 'parmate-team-hcp-v22';
 const APP_CACHE   = APP_VERSION;
 
 // Minimal app shell (served at the site root). Kept tiny and cached individually
@@ -13,10 +13,10 @@ const APP_SHELL = [
   '/lang.js?v=20261013e',
   '/faq-data.js?v=' + ASSET_V,
   '/vendor/qrcode-generator.js?v=' + ASSET_V,
-  '/lang-nl.js?v=20261019a',
+  '/lang-nl.js?v=20261019b',
   '/i18n.js?v=20261013d',
   '/app.css?v=20261019a',
-  '/app-main.js?v=20261019c',
+  '/app-main.js?v=20261019d',
   '/app-solo.js?v=20261015c',
   '/app-match.js?v=20261015e',
   '/app-tm-flow.js?v=20261013c',
@@ -94,8 +94,13 @@ self.addEventListener('fetch', event => {
     event.respondWith(
       fetch(req)
         .then(res => {
-          const clone = res.clone();
-          caches.open(APP_CACHE).then(c => c.put('/index.html', clone)).catch(() => {});
+          // Only the app page itself may become the offline start page. Other pages in
+          // scope (/privacy.html, error pages) must never overwrite it (Release 3c, H7).
+          const isApp = url.pathname === '/' || url.pathname === '/index.html';
+          if (isApp && res && res.ok) {
+            const clone = res.clone();
+            caches.open(APP_CACHE).then(c => c.put('/index.html', clone)).catch(() => {});
+          }
           return res;
         })
         .catch(() => caches.match(req).then(c => c || caches.match('/index.html')))

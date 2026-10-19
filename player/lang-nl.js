@@ -1232,5 +1232,11 @@ window.PM_STRINGS_NL = {
 "🗂 Import Courses to Shared DB (Admin)": "🗂 Banen importeren in gedeelde DB (Admin)",
 "🗑 DELETE": "🗑 VERWIJDEREN",
 "🗑 Remove Team?": "🗑 Team verwijderen?",
-"🗑 Request Account Deletion": "🗑 Verzoek accountverwijdering"
+"🗑 Request Account Deletion": "🗑 Verzoek accountverwijdering",
+/* Release 3c (19 Oct 2026): sign-in hint for Instagram/Facebook/TikTok browsers. Reviewed by Robbie. */
+"Open Parmate in your browser": "Open Parmate in je browser",
+"Google sign-in doesn't work in this app's built-in browser. Open Parmate in Chrome or Safari, or sign in with email below.": "Inloggen met Google werkt niet in de browser van deze app. Open Parmate in Chrome of Safari, of log hieronder in met je e-mailadres.",
+"Open in Chrome": "Openen in Chrome",
+"Tap the ⋯ menu and choose to open in Safari.": "Klik op het ⋯ menu en kies voor openen in Safari.",
+"Open Parmate in Chrome or Safari to continue with Google, or sign in with email.": "Open Parmate in Chrome of Safari om met Google verder te gaan, of log in met je e-mailadres.",
 };

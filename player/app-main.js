@@ -5396,13 +5396,41 @@ async function loadSavedData(uid) {
 // ═══════════════════════════════════
 // AUTH
 // ═══════════════════════════════════
+// Release 3c: Instagram, Facebook, TikTok etc. open links in their own built-in browser,
+// where Google blocks sign-in. Detect it so the sheet can point people to Chrome/Safari.
+function _isInAppBrowser() {
+  const ua = navigator.userAgent || '';
+  return /FBAN|FBAV|FB_IAB|Instagram|LinkedInApp|musical_ly|Bytedance|TikTok|Snapchat|Pinterest|Line\//i.test(ua) ||
+         (/Android/.test(ua) && /; wv\)/.test(ua));
+}
+function _showInAppNotice() {
+  const box = document.getElementById('authInAppNotice');
+  if (!box) return;
+  const inApp = _isInAppBrowser();
+  box.style.display = inApp ? 'block' : 'none';
+  if (!inApp) return;
+  const android = /Android/i.test(navigator.userAgent || '');
+  const btn = document.getElementById('authInAppOpen');
+  const ios = document.getElementById('authInAppIos');
+  if (btn) {
+    btn.style.display = android ? 'inline-block' : 'none';
+    btn.href = 'intent://' + location.host + location.pathname + location.search + '#Intent;scheme=https;package=com.android.chrome;end';
+  }
+  if (ios) ios.style.display = android ? 'none' : 'block';
+}
 function openAuthModal() {
   switchToSignIn();
   document.getElementById('authModal').classList.remove('hidden');
+  _showInAppNotice();
+  // Release 3c (H11): give the sheet its own history step, so Android Back closes the
+  // sheet instead of the whole app.
+  try { if (!(history.state && history.state.authSheet)) history.pushState({ screen: _activeScreenId(), authSheet: true }, ''); } catch(e){}
 }
-function closeAuthModal() {
+function closeAuthModal(fromBack) {
   document.getElementById('authModal').classList.add('hidden');
   clearAuthForms();
+  // Closed by sign-in or a tap beside the sheet: drop the sheet's history step again.
+  if (!fromBack) { try { if (history.state && history.state.authSheet) history.back(); } catch(e){} }
 }
 function clearAuthForms() {
   ['signInEmail','signInPass','regName','regEmail','regPass','regPassConfirm'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
@@ -5456,6 +5484,10 @@ function _gsiArmGuard() {
 async function doGoogleSignIn() {
   if (!window._fbAuth || _authInProgress) return;
   setAuthError('signInError','');
+  if (_isInAppBrowser()) {   // Google refuses sign-in here; don't send people into an error page
+    setAuthError('signInError', 'Open Parmate in Chrome or Safari to continue with Google, or sign in with email.');
+    return;
+  }
   _authInProgress = true;   // blocks a service-worker reload while the popup is open (Release 1)
   _gsiLeft = false;
   _gsiShowSpinner(true);
@@ -8811,6 +8843,11 @@ async function saveRound() {
 
 // Device/browser back button: close an open overlay, else go back one screen.
 window.addEventListener('popstate', (e) => {
+  // 0) Release 3c (H11): Back closes the sign-in sheet (it has its own history step).
+  const _am = document.getElementById('authModal');
+  if (_am && !_am.classList.contains('hidden')) { closeAuthModal(true); return; }
+  // Never send a signed-in user back to the login screen via Back.
+  if (e.state && e.state.screen === 'login' && window._fbAuth && window._fbAuth.currentUser) return;
   // 1) If any overlay is open, back closes it and keeps the current screen.
   var overlays = [
     ['roundViewOverlay',   function(){ if(typeof closeRoundView==='function') closeRoundView(); }],
@@ -9060,4 +9097,4 @@ if ('serviceWorker' in navigator) {
 document.addEventListener('DOMContentLoaded', applyLang);
 // BUILD STAMP — check this in the browser console to confirm which version is live.
 // If you deploy and don't see this exact string, you're being served a cached/old build.
-console.log('%cParmate build: 2026-10-19-r2-v20', 'color:#1a6b3c;font-weight:bold;font-size:14px;');
+console.log('%cParmate build: 2026-10-19-r3c-v22', 'color:#1a6b3c;font-weight:bold;font-size:14px;');
