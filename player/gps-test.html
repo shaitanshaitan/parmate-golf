@@ -59,7 +59,8 @@
   .row > * { flex:1; }
   .sim { display:none; }
   .sim.on { display:block; }
-  .sim .row button { padding:12px; border:1px solid var(--border); border-radius:10px; background:var(--surface2); font:inherit; font-weight:700; }
+  .sim .row { gap:6px; }
+  .sim .row button { white-space:nowrap; padding:12px 4px; border:1px solid var(--border); border-radius:10px; background:var(--surface2); font:inherit; font-weight:700; }
   .logform { display:none; margin-top:12px; gap:8px; }
   .logform.on { display:grid; }
   .logform input { width:100%; padding:12px; border:1px solid rgba(0,0,0,.18); border-radius:10px; font:inherit; font-size:1rem; }
@@ -67,6 +68,16 @@
   table { width:100%; border-collapse:collapse; font-size:.8rem; font-variant-numeric:tabular-nums; }
   th, td { text-align:left; padding:6px 4px; border-bottom:1px solid var(--border); }
   th { color:var(--muted); font-weight:600; }
+  .via { display:none; text-align:center; font-size:.9rem; color:var(--muted); margin-top:12px; padding-top:10px; border-top:1px solid var(--border); font-variant-numeric:tabular-nums; }
+  .via.on { display:block; }
+  .via b { color:var(--text); }
+  .flagrow { display:none; align-items:center; justify-content:space-between; margin-top:12px; padding-top:12px; border-top:1px solid var(--border); }
+  .flagrow.on { display:flex; }
+  .flagrow .lbl { font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:var(--red); font-weight:700; }
+  .flagrow .sub { font-size:.75rem; color:var(--muted); margin-top:2px; }
+  .flagrow .fval { font-size:2.6rem; font-weight:800; color:var(--red); font-variant-numeric:tabular-nums; line-height:1; }
+  .flagrow .fval small { font-size:.8rem; font-weight:600; color:var(--muted); margin-left:4px; }
+  .btn.flag { background:var(--red); }
   .maphead { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
   .maphead h2 { margin:0; }
   .maptoggle { border:0; background:var(--surface2); color:var(--green); font:inherit; font-size:.75rem; font-weight:700; padding:6px 12px; border-radius:999px; }
@@ -110,6 +121,11 @@
       <div class="mid"><div class="lbl">Centre</div><div class="val" id="dC">–</div><div class="unit" data-unit></div></div>
       <div class="side"><div class="lbl">Back</div><div class="val" id="dB">–</div><div class="unit" data-unit></div></div>
     </div>
+    <div class="via" id="via"></div>
+    <div class="flagrow" id="flagRow">
+      <div><div class="lbl">To the flag</div><div class="sub" id="flagSub"></div></div>
+      <div class="fval" id="dFlag">–</div>
+    </div>
   </section>
 
   <section class="status" id="status">
@@ -121,6 +137,15 @@
   <p class="msg" id="msg">Tap Start on the course. Your phone asks for your location once; it stays on this phone and is never sent or stored.</p>
 
   <button class="btn" id="start" type="button">Start GPS</button>
+
+  <section class="card">
+    <h2>Flag position</h2>
+    <p class="msg" id="flagHelp">Stand at the hole, hold the phone still and tap Mark flag. Then walk back to your ball to see the distance to where the flag really is today.</p>
+    <div class="row" style="margin-top:12px">
+      <button class="btn flag" id="flagMark" type="button">Mark flag here</button>
+      <button class="btn ghost" id="flagClear" type="button" hidden>Clear flag</button>
+    </div>
+  </section>
 
   <section class="card">
     <div class="maphead">
@@ -138,17 +163,20 @@
       <span><i style="background:#8fc0e6"></i>Water</span>
       <span><i style="background:#7fa86b"></i>Trees</span>
       <span><i style="background:#1565c0;border-radius:50%"></i>You</span>
+      <span><i style="background:#c0392b"></i>Flag / target</span>
     </div>
   </section>
 
 
   <section class="card sim" id="simCard">
     <h2>Simulation</h2>
-    <p class="msg" style="margin-bottom:10px">No GPS needed. You start on the tee of the current hole and walk along the line of play.</p>
+    <p class="msg" style="margin-bottom:10px">No GPS needed. You start on the tee of the current hole and walk along the line of play (steps in metres).</p>
     <div class="row">
-      <button id="simBack" type="button">− 25 m</button>
+      <button id="simBack" type="button">− 25</button>
+      <button id="simBack5" type="button">− 5</button>
       <button id="simTee" type="button">Tee</button>
-      <button id="simFwd" type="button">+ 25 m</button>
+      <button id="simFwd5" type="button">+ 5</button>
+      <button id="simFwd" type="button">+ 25</button>
     </div>
   </section>
 
@@ -207,6 +235,7 @@
   let running = false;
   let simPos = null;
   let lastDist = null;       // {f, c, b} in metres
+  let lastVia = null;        // along-the-fairway distance on doglegs, metres, or null
   let log = store.get(LOG_KEY, []);
 
   // ---- Geometry ----
@@ -266,6 +295,24 @@
     }
     return line[line.length - 1].slice();
   }
+  // Distance along the line of play (tee -> turn points -> green centre), as watches show on doglegs.
+  // Returns null when the player is far from the line (another hole) or already past the last turn.
+  function alongFairway(pos, hole) {
+    const toXY = projector(hole.centre);
+    const pts = hole.line.slice(0, -1).concat([hole.centre]).map(toXY), P = toXY(pos);
+    let best = null;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const [x1, y1] = pts[i], [x2, y2] = pts[i + 1], dx = x2 - x1, dy = y2 - y1;
+      const t = Math.max(0, Math.min(1, ((P[0] - x1) * dx + (P[1] - y1) * dy) / (dx * dx + dy * dy)));
+      const cx = x1 + t * dx, cy = y1 + t * dy, off = Math.hypot(P[0] - cx, P[1] - cy);
+      if (!best || off < best.off) best = { off, i, cx, cy };
+    }
+    if (!best || best.off > 60 || best.i >= pts.length - 2) return null;
+    let d = Math.hypot(P[0] - pts[best.i + 1][0], P[1] - pts[best.i + 1][1]);
+    for (let k = best.i + 1; k < pts.length - 1; k++) d += Math.hypot(pts[k + 1][0] - pts[k][0], pts[k + 1][1] - pts[k][1]);
+    return d;
+  }
+
   function nearestTee(pos) {
     let best = null;
     COURSE.holes.forEach((h, i) => {
@@ -312,6 +359,8 @@
       box.classList.add('stale');
       if (lastDist) { $('dF').textContent = fmt(lastDist.f); $('dC').textContent = fmt(lastDist.c); $('dB').textContent = fmt(lastDist.b); }
       $('cNear').hidden = true;
+      $('via').classList.remove('on');
+      renderFlag(null);
       drawPlayer(null);
       return;
     }
@@ -320,6 +369,12 @@
     lastDist = d;
     box.classList.remove('stale');
     $('dF').textContent = fmt(d.f); $('dC').textContent = fmt(d.c); $('dB').textContent = fmt(d.b);
+
+    const via = alongFairway(pos, h);
+    lastVia = via !== null && via - d.c > 15 ? via : null;
+    $('via').classList.toggle('on', lastVia !== null);
+    if (lastVia !== null) $('via').innerHTML = 'Along the fairway: <b>' + fmt(lastVia) + ' ' + (unit === 'yd' ? 'yd' : 'm') + '</b>';
+    renderFlag(pos);
 
     if (d.c > 1500) {
       $('msg').textContent = 'You are ' + (d.c / 1000).toFixed(1) + ' km from this green, so you are probably not on the course. Add ?sim=1 to the address to test at home.';
@@ -336,6 +391,63 @@
       btn.hidden = true;
     }
   }
+
+  // ---- Flag position ----
+  // The player stands at the hole and taps Mark flag; we average 5 s of GPS readings
+  // (accuracy 10 m or better) and keep that point for this hole, today, on this phone.
+  const FLAG_KEY = 'parmate_gps_test_flags';
+  const today = new Date().toISOString().slice(0, 10);
+  let flags = store.get(FLAG_KEY, {});
+  Object.keys(flags).forEach(k => { if (!k.startsWith(today)) delete flags[k]; });
+  store.set(FLAG_KEY, flags);
+  let lastFlagDist = null;
+  let marking = false;
+  const flagKey = () => today + ':' + COURSE.holes[holeIdx].n;
+  const currentFlag = () => flags[flagKey()] || null;
+
+  function renderFlag(pos) {
+    const f = currentFlag();
+    $('flagClear').hidden = !f;
+    if (!marking) $('flagMark').textContent = f ? 'Mark again' : 'Mark flag here';
+    if (!f) { $('flagRow').classList.remove('on'); lastFlagDist = null; return; }
+    $('flagRow').classList.add('on');
+    const t = new Date(f.t).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    $('flagSub').textContent = 'Marked ' + t + (f.acc ? ' · GPS ± ' + f.acc + ' m' : '');
+    lastFlagDist = pos ? haversine(pos, [f.lat, f.lng]) : null;
+    $('dFlag').innerHTML = (lastFlagDist === null ? '–' : fmt(lastFlagDist)) + '<small>' + (unit === 'yd' ? 'yd' : 'm') + '</small>';
+  }
+
+  $('flagMark').onclick = () => {
+    if (marking) return;
+    if (SIM) {
+      if (!simPos) return;
+      flags[flagKey()] = { lat: simPos[0], lng: simPos[1], acc: 0, t: Date.now() };
+      store.set(FLAG_KEY, flags); update(); drawPlayer(lastPos); return;
+    }
+    if (!running) { $('msg').textContent = 'Tap Start GPS first, then mark the flag.'; return; }
+    marking = true;
+    // Count the latest reading if it is under 10 s old (a phone standing still may send few new ones), plus every new one in the next 5 s.
+    const btn = $('flagMark'), started = Date.now(), seen = [];
+    const tick = () => {
+      if (lastFix && Date.now() - lastFix.t <= 10000 && lastFix.acc <= 10 && !seen.includes(lastFix)) seen.push(lastFix);
+      const left = 5 - Math.floor((Date.now() - started) / 1000);
+      if (left > 0) { btn.textContent = 'Hold still… ' + left; setTimeout(tick, 250); return; }
+      marking = false;
+      if (!seen.length) {
+        btn.textContent = currentFlag() ? 'Mark again' : 'Mark flag here';
+        $('msg').textContent = 'GPS was not accurate enough (needs ± 10 m or better). Wait a moment and try again.';
+        return;
+      }
+      let w = 0, lat = 0, lng = 0;
+      seen.forEach(r => { const k = 1 / Math.max(r.acc, 1) ** 2; w += k; lat += r.lat * k; lng += r.lng * k; });
+      flags[flagKey()] = { lat: lat / w, lng: lng / w, acc: Math.round(Math.min(...seen.map(r => r.acc))), n: seen.length, t: Date.now() };
+      store.set(FLAG_KEY, flags);
+      update(); drawPlayer(lastPos);
+      $('msg').textContent = 'Flag marked. Walk back to your ball.';
+    };
+    tick();
+  };
+  $('flagClear').onclick = () => { delete flags[flagKey()]; store.set(FLAG_KEY, flags); update(); drawPlayer(lastPos); };
 
   // ---- Hole map ----
   // Drawn from the OSM shapes in an SVG whose units are metres. The hole is turned so the
@@ -445,6 +557,14 @@
       if (P) el('line', { x1: P[0], y1: P[1], x2: T[0], y2: T[1], stroke: COLORS.target, 'stroke-width': (1.8 * u).toFixed(2), 'stroke-dasharray': dash }, g);
       el('line', { x1: T[0], y1: T[1], x2: 0, y2: 0, stroke: COLORS.target, 'stroke-width': (1.8 * u).toFixed(2), 'stroke-dasharray': dash }, g);
       el('circle', { cx: T[0], cy: T[1], r: (7 * u).toFixed(2), fill: '#ffffff', stroke: COLORS.target, 'stroke-width': (2.5 * u).toFixed(2) }, g);
+    }
+    const fl = currentFlag();
+    if (fl) {
+      const Fp = frame.toSvg([fl.lat, fl.lng]);
+      if (P) el('line', { x1: P[0], y1: P[1], x2: Fp[0], y2: Fp[1], stroke: COLORS.target, 'stroke-width': (1.5 * u).toFixed(2), 'stroke-dasharray': (2 * u).toFixed(1) + ' ' + (3 * u).toFixed(1) }, g);
+      el('line', { x1: Fp[0], y1: Fp[1], x2: Fp[0], y2: Fp[1] - 22 * u, stroke: '#24342b', 'stroke-width': (1.8 * u).toFixed(2) }, g);
+      el('path', { d: `M${Fp[0]} ${Fp[1] - 22 * u}l${12 * u} ${4 * u}l${-12 * u} ${4 * u}z`, fill: COLORS.target }, g);
+      el('circle', { cx: Fp[0], cy: Fp[1], r: (2.5 * u).toFixed(2), fill: '#24342b' }, g);
     }
     if (P) {
       const acc = SIM ? 0 : (lastFix ? Math.min(lastFix.acc, 60) : 0);
@@ -563,6 +683,8 @@
     $('simTee').onclick = () => { simMetres = 0; simPlace(); };
     $('simFwd').onclick = () => { simMetres += 25; simPlace(); };
     $('simBack').onclick = () => { simMetres = Math.max(0, simMetres - 25); simPlace(); };
+    $('simFwd5').onclick = () => { simMetres += 5; simPlace(); };
+    $('simBack5').onclick = () => { simMetres = Math.max(0, simMetres - 5); simPlace(); };
   }
 
   // ---- Test log ----
@@ -570,10 +692,10 @@
     const list = $('logList');
     if (!log.length) { list.innerHTML = '<p class="msg">No readings logged yet.</p>'; return; }
     const rows = log.slice(-8).reverse().map(r =>
-      '<tr><td>' + new Date(r.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + '</td><td>' + r.hole + '</td><td>' + r.centre + '</td><td>' +
+      '<tr><td>' + new Date(r.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + '</td><td>' + r.hole + '</td><td>' + (r.flag !== undefined && r.flag !== '' ? r.flag + ' ⚑' : r.centre) + '</td><td>' +
       (r.reference === '' ? '–' : r.reference) + '</td><td>' + (r.accuracy === '' ? 'sim' : '±' + r.accuracy) + '</td></tr>').join('');
-    list.innerHTML = '<table><thead><tr><th>Time</th><th>Hole</th><th>Centre m</th><th>Ref m</th><th>GPS</th></tr></thead><tbody>' +
-      rows + '</tbody></table><p class="msg" style="margin-top:8px">' + log.length + ' reading(s) saved on this phone. Distances in the log are always metres.</p>';
+    list.innerHTML = '<table><thead><tr><th>Time</th><th>Hole</th><th>App m</th><th>Ref m</th><th>GPS</th></tr></thead><tbody>' +
+      rows + '</tbody></table><p class="msg" style="margin-top:8px">' + log.length + ' reading(s) saved on this phone. App m is the centre, or the flag (⚑) when one is marked. The log is always in metres.</p>';
   }
   $('logOpen').onclick = () => {
     if (!lastDist || (!SIM && !smoothed())) { $('msg').textContent = 'Wait for a GPS reading before logging.'; return; }
@@ -590,6 +712,8 @@
       lat: pos[0].toFixed(6), lng: pos[1].toFixed(6),
       accuracy: SIM || !lastFix ? '' : Math.round(lastFix.acc),
       front: Math.round(lastDist.f), centre: Math.round(lastDist.c), back: Math.round(lastDist.b),
+      along: lastVia === null ? '' : Math.round(lastVia),
+      flag: lastFlagDist === null ? '' : Math.round(lastFlagDist * 10) / 10,
       reference: $('logRef').value.trim(),
       note: $('logNote').value.trim()
     });
@@ -600,7 +724,7 @@
   };
   $('logCsv').onclick = () => {
     if (!log.length) return;
-    const cols = ['time', 'hole', 'lat', 'lng', 'accuracy', 'front', 'centre', 'back', 'reference', 'note'];
+    const cols = ['time', 'hole', 'lat', 'lng', 'accuracy', 'front', 'centre', 'back', 'along', 'flag', 'reference', 'note'];
     const esc = v => '"' + String(v).replace(/"/g, '""') + '"';
     const csv = [cols.join(',')].concat(log.map(r => cols.map(c => esc(r[c] ?? '')).join(','))).join('\n');
     const a = document.createElement('a');

@@ -1307,4 +1307,7 @@ window.PM_STRINGS_NL = {
 "Complete profile": "Profiel aanvullen",
 "Profile complete. Thanks!": "Profiel compleet. Bedankt!",
 "Saved, but some details are still missing.": "Opgeslagen, maar er ontbreekt nog iets.",
+/* v29 Live 1vs1 catch-up after the phone slept (20 Oct 2026). Claude's suggestion, still to be reviewed by Robbie. */
+"Scorecard brought up to date": "Scorekaart bijgewerkt",
+"Remove this finished match without saving your copy?": "Deze afgelopen match verwijderen zonder jouw versie op te slaan?",
 };

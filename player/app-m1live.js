@@ -244,10 +244,10 @@ function m1LiveBuild(d) {   // _trFlow for this live match, seen from my side
 }
 async function m1LiveOpen(id, join) {
   var me = m1LiveMe(); if (!me || !window._fbDb) return;
-  var d = _m1L.docs[id];
-  if (!d) {
-    try { var s = await m1LiveRef(id).get(); if (s.exists) d = Object.assign({ _id: s.id }, s.data()); } catch (e) { console.warn('m1live open', e); }
-  }
+  // v29: always start from the server copy; the listener's copy can be stale after the phone slept
+  var d = await m1LiveFetch(id);
+  if (d === undefined) d = _m1L.docs[id];          // offline: fall back to the last known copy
+  if (d) _m1L.docs[id] = d;
   if (!d) { m1Toast('This live match no longer exists.', 'error'); m1LiveRefreshBell(); return; }
   _m1L.prompted[id] = true;
   m1LiveClosePrompt();
@@ -267,10 +267,14 @@ async function m1LiveOpen(id, join) {
 async function m1LiveDecline(id) {
   var d = _m1L.docs[id]; if (!d) return;
   var joined = !!d.joinedB;
-  if (joined && typeof confirm === 'function' && !confirm('Leave this live match? ' + m1LiveFirst(d.nameA) + ' keeps scoring on their phone.')) return;
+  if (d.status === 'complete') { if (typeof confirm === 'function' && !confirm('Remove this finished match without saving your copy?')) return; }
+  else if (joined && typeof confirm === 'function' && !confirm('Leave this live match? ' + m1LiveFirst(d.nameA) + ' keeps scoring on their phone.')) return;
   _m1L.prompted[id] = true;
   m1LiveClosePrompt();
-  try { await m1LiveRef(id).update({ declinedB: true, joinedB: false, updatedAt: Date.now(), lastBy: m1LiveMe() }); }
+  try {
+    if (d.status === 'complete') await m1LiveRef(id).delete();   // v29: host already saved: nothing left to keep
+    else await m1LiveRef(id).update({ declinedB: true, joinedB: false, updatedAt: Date.now(), lastBy: m1LiveMe() });
+  }
   catch (e) { console.warn('m1live decline', e); m1Toast('Could not update. Check your connection.', 'error'); return; }
   m1LiveDetachIfOpen(id);
   m1Toast(joined ? 'You left the live match.' : 'Invite declined.', 'info');
@@ -297,13 +301,15 @@ function m1LiveSaved() {
   var m = m1M(); if (!m || !m.liveId) return;
   var id = m.liveId, role = m.liveRole, d = _m1L.docs[id] || {};
   var otherSaved = role === 'A' ? !!d.savedB : !!d.savedA;
-  var ref = m1LiveRef(id);
-  // Nobody else will ever save this one (the buddy never joined or declined), or both are saved: clean up.
-  var done = otherSaved || (role === 'A' && (!d.joinedB || d.declinedB));
-  var p = (done && (role === 'A' || d.status === 'complete'))
-    ? ref.delete()
-    : ref.update(role === 'A' ? { savedA: true, status: 'complete', updatedAt: Date.now(), lastBy: m1LiveMe() }
-                              : { savedB: true, updatedAt: Date.now(), lastBy: m1LiveMe() });
+  var ref = m1LiveRef(id), me = m1LiveMe();
+  var mark = function () {
+    return ref.update(role === 'A' ? { savedA: true, status: 'complete', updatedAt: Date.now(), lastBy: me }
+                                   : { savedB: true, updatedAt: Date.now(), lastBy: me });
+  };
+  // v29: clean up only when both copies are saved, or the buddy explicitly declined. A buddy whose phone
+  // was locked (or who never opened the invite) can still open the finished match and save their copy.
+  var del = (otherSaved && (role === 'A' || d.status === 'complete')) || (role === 'A' && d.declinedB);
+  var p = del ? ref.delete().catch(function () { return mark(); }) : mark();
   p.catch(function (e) { console.warn('m1live saved', e); });
 }
 
@@ -337,6 +343,7 @@ function startM1LiveListener(uid) {
   try {
     _m1L.unsub = window._fbDb.collection('m1live').where('players', 'array-contains', uid)
       .onSnapshot(function (snap) {
+        _m1L.lastSnapAt = Date.now();
         var prev = _m1L.docs, docs = {};
         snap.forEach(function (doc) { docs[doc.id] = Object.assign({ _id: doc.id }, doc.data()); });
         _m1L.docs = docs;
@@ -377,6 +384,61 @@ function m1LiveRemoved(p) {
   m1LiveDetachIfOpen(p._id);
 }
 
+// ── v29: catching up after the phone slept ─────────────────────────────
+// A locked phone freezes the page; the live connection can come back stale, so listener updates stop.
+// Three safety nets: (1) on wake-up, reconnect Firestore and fetch the open match from the server,
+// (2) Continue / Join always start from the server copy, (3) while the live scorecard is on screen,
+// fetch the server copy when nothing came in for 30 s (one small read).
+function m1LiveFetch(id) {   // doc | null (gone) | undefined (no connection)
+  var ref = m1LiveRef(id);
+  var wrap = function (s) { return s.exists ? Object.assign({ _id: s.id }, s.data()) : null; };
+  return ref.get({ source: 'server' }).then(wrap).catch(function (e) {
+    if (e && e.code === 'permission-denied') return null;   // deleted (rules can't see a missing doc)
+    return undefined;
+  });
+}
+function m1LiveFilled(m) {
+  var k = 0; (m.scoresA || []).forEach(function (v, i) { if (v != null) k++; if (m.scoresB[i] != null) k++; });
+  return k;
+}
+async function m1LiveRefreshOpen() {
+  if (typeof m1On !== 'function' || !m1On()) return;
+  var m = m1M(); if (!m || !m.liveId || !m.calc || _m1L.refreshing) return;
+  var id = m.liveId;
+  _m1L.refreshing = true;
+  try {
+    if (m._dirty && Object.keys(m._dirty).length) m1LiveFlush();   // send my own pending change first
+    var before = m1LiveFilled(m);
+    var d = await m1LiveFetch(id);
+    if (d === undefined) return;                                    // offline: try again later
+    _m1L.lastSnapAt = Date.now();
+    if (d === null) { var prev = _m1L.docs[id]; delete _m1L.docs[id]; if (prev) m1LiveRemoved(prev); else m1LiveDetachIfOpen(id); m1LiveRefreshBell(); return; }
+    _m1L.docs[id] = d;
+    m1LiveApplyDoc(d);
+    if (m1On() && m1M().liveId === id && m1LiveFilled(m1M()) > before) m1Toast('Scorecard brought up to date', 'info');
+    m1LiveRefreshBell();
+  } finally { _m1L.refreshing = false; }
+}
+var _m1HiddenAt = 0;
+document.addEventListener('visibilitychange', function () {
+  if (document.visibilityState === 'hidden') { _m1HiddenAt = Date.now(); return; }
+  var away = _m1HiddenAt ? Date.now() - _m1HiddenAt : 0; _m1HiddenAt = 0;
+  if (away < 2000 || !m1LiveMe() || !window._fbDb) return;
+  var open = typeof m1On === 'function' && m1On() && m1M() && m1M().liveId;
+  if (!open && !Object.keys(_m1L.docs).length) return;
+  var db = window._fbDb, p = Promise.resolve();
+  if (away >= 20000 && typeof db.disableNetwork === 'function' && typeof db.enableNetwork === 'function')
+    p = db.disableNetwork().then(function () { return db.enableNetwork(); }).catch(function () {});
+  p.then(function () { m1LiveRefreshOpen(); });
+});
+setInterval(function () {
+  if (document.visibilityState !== 'visible' || typeof m1On !== 'function' || !m1On()) return;
+  var m = m1M(); if (!m || !m.liveId) return;
+  var sid = ((document.querySelector('.screen.active') || {}).id) || '';
+  if (sid !== 'screen-m1score' && sid !== 'screen-m1full') return;
+  if (Date.now() - (_m1L.lastSnapAt || 0) >= 30000) m1LiveRefreshOpen();
+}, 10000);
+
 // ── Bell: cards + badge ────────────────────────────────────────────────
 function m1LiveOpenDocs() {
   var me = m1LiveMe();
@@ -400,7 +462,7 @@ function m1LiveBellHtml() {
   var e = (typeof esc === 'function') ? esc : function (x) { return x; };
   var _t = (typeof t === 'function') ? t : function (k) { return k === 'og_cancel' ? 'Cancel' : (k === 'og_continue' ? 'Continue' : k); };
   return '<div class="og-section-label">Live 1vs1</div>' + list.map(function (d) {
-    var role = m1LiveRole(d), other = m1LiveOther(d), invite = role === 'B' && !d.joinedB;
+    var role = m1LiveRole(d), other = m1LiveOther(d), invite = role === 'B' && !d.joinedB && d.status === 'live';
     var bits = []; if (d.holes) bits.push(d.holes + ' holes');
     var title, badge = '<span class="og-badge active">1VS1 LIVE</span>', btns;
     if (invite) {
@@ -432,6 +494,7 @@ function m1LiveRefreshBell() {
 // ── Invite prompt ──────────────────────────────────────────────────────
 function m1LiveShowPrompt(d) {
   m1LiveClosePrompt();
+  var nudge = document.getElementById('pmNudge'); if (nudge && nudge.parentNode) nudge.parentNode.removeChild(nudge);   // the invite wins; the profile reminder returns next sign-in
   var e = (typeof esc === 'function') ? esc : function (x) { return x; };
   var su = d.setup || {}, bits = [];
   if (d.holes) bits.push(d.holes + ' holes');
