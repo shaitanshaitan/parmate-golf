@@ -5414,6 +5414,18 @@ async function loadSavedData(uid) {
     const snap = _got(_rR);
     _savedRounds = [];
     snap.forEach(doc => _savedRounds.push(doc.data()));
+    // v35: repair a 1vs1 copy that was stored from the opponent's side (this player is
+    // playerB). Each player must be playerA in their own history, or a win reads as a loss.
+    _savedRounds.forEach((r, i) => {
+      if (!r || r.mode !== 'match1v1' || typeof m1FlipRound !== 'function') return;
+      const A = r.playerA || {}, B = r.playerB || {};
+      if (B.uid !== uid || A.uid === uid) return;
+      const fixed = m1FlipRound(r); fixed.repairedSide = true;
+      _savedRounds[i] = fixed;
+      const rid = (snap.docs && snap.docs[i]) ? snap.docs[i].id : r.id;   // same order as _savedRounds
+      if (rid) _db.collection('users').doc(uid).collection('rounds').doc(String(rid)).set(fixed)
+        .catch(e => console.warn('1vs1 side repair', e && e.code));
+    });
   } catch(e) { console.warn('Could not load rounds:', e); }
 
   // Load shared course database

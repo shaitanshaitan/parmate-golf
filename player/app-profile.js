@@ -209,7 +209,7 @@ async function _loadBuddyStatsInto(buddyUid, ROOT){
     ]);
     var roundsS=res[0], teamsS=res[1], buddiesS=res[2];
     var all=roundsS?roundsS.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); }):[];
-    var _st=pmRoundStats(all), rounds=_st.rounds, matches=_st.matches, wins=_st.wins;
+    var _st=pmRoundStats(all, buddyUid), rounds=_st.rounds, matches=_st.matches, wins=_st.wins;
     var teams=teamsS?teamsS.size:0;
     var buddies=buddiesS?buddiesS.size:0;
     var winRate=matches.length? Math.round(wins/matches.length*100)+'%' : '\u2014';
@@ -228,7 +228,7 @@ async function _loadBuddyStatsInto(buddyUid, ROOT){
         bc.style.display='';
       } else { bc.style.display='none'; }
     }
-    if(typeof pmRenderBestMatch==='function') pmRenderBestMatch(ROOT, matches);   // v35: Best Result · Match Play
+    if(typeof pmRenderBestMatch==='function') pmRenderBestMatch(ROOT, matches, buddyUid);   // v35: Best Result · Match Play
   }catch(e){ console.warn('_loadBuddyStatsInto', e); }
 }
 
@@ -1303,7 +1303,7 @@ function renderCreateTeam(ROOT){
 function renderProfile(ROOT){
   ROOT = ROOT || document.getElementById('screen-profile'); if(!ROOT) return;
   var prof=_profile||{}; var AV=(typeof AVATARS!=='undefined')?AVATARS:{};
-  var all=_savedRounds||[]; var _st=pmRoundStats(all), rounds=_st.rounds, matches=_st.matches, wins=_st.wins;
+  var _myUid=(window._fbAuth&&window._fbAuth.currentUser)?window._fbAuth.currentUser.uid:null; var all=_savedRounds||[]; var _st=pmRoundStats(all, _myUid), rounds=_st.rounds, matches=_st.matches, wins=_st.wins;
   var set=function(sel,val){ var e=ROOT.querySelector(sel); if(e) e.textContent=val; };
   var av=ROOT.querySelector('.avatar-wrap img'); if(av) av.src = prof.avatarUrl || (prof.avatarId&&AV[prof.avatarId]) || 'icons/home-crown.png';
   var hero=ROOT.querySelector('.profile-hero');
@@ -1335,7 +1335,7 @@ function renderProfile(ROOT){
       bc.style.display='';
     } else { bc.style.display='none'; }
   }
-  if(typeof pmRenderBestMatch==='function') pmRenderBestMatch(ROOT, matches);   // v35: Best Result · Match Play
+  if(typeof pmRenderBestMatch==='function') pmRenderBestMatch(ROOT, matches, _myUid);   // v35: Best Result · Match Play
   var editBtn=ROOT.querySelector('.action-btn.primary'); if(editBtn) editBtn.onclick=function(){ if(document.getElementById('screen-editprofile')) showScreen('editprofile'); else if(typeof showToast==='function') showToast('Coming soon'); };
   var shareBtn=ROOT.querySelector('.action-btn.secondary'); if(shareBtn) shareBtn.onclick=function(){
     var nm=prof.displayName||'My'; var hcp=(prof.hcpIndex!=null&&!isNaN(prof.hcpIndex))?Number(prof.hcpIndex).toFixed(1):null;
@@ -1932,12 +1932,19 @@ async function pmFindUidByEmail(email){
    A 1vs1 is saved with isMatch:false + mode:'match1v1' and has no team `scores`,
    so it used to land in Rounds and show as e.g. -34 (0 strokes minus par 34). */
 function pmIs1v1(r){ return !!r && r.mode === 'match1v1'; }
-function pmRoundStats(all){
+/* Which side of a 1vs1 copy is the owner? Normally 'A' (the app stores each player's copy
+   from their own side), but older copies may still be from the opponent's side, so go by uid. */
+function pmM1Side(m, uid){
+  var A = m.playerA || {}, B = m.playerB || {};
+  if (uid){ if (A.uid === uid) return 'A'; if (B.uid === uid) return 'B'; }
+  return (B.isMe && !A.isMe) ? 'B' : 'A';
+}
+function pmRoundStats(all, uid){
   all = all || [];
   var rounds = all.filter(function(r){ return !r.isMatch && !pmIs1v1(r); });
   var matches = all.filter(function(r){ return r.isMatch || pmIs1v1(r); });
   var wins = matches.filter(function(m){
-    if (pmIs1v1(m)) return !!(m.result && m.result.winner === 'A');          // A = the player who owns this copy
+    if (pmIs1v1(m)) return !!(m.result && m.result.winner && m.result.winner === pmM1Side(m, uid));
     var mm = (typeof _ensureMatchFields === 'function') ? _ensureMatchFields(m) : m;
     return !!(mm && mm.result && mm.result.teamAWon > mm.result.teamBWon);
   }).length;
@@ -1962,20 +1969,21 @@ function pmBestRound(rounds){
    (5&4 > 3&2 > 2 up > 1 up); a win on an extra hole ranks lowest. Team matches rank by holes won
    minus holes lost. Ties: the most recent. Hidden when there is no win. Also hides the
    Stroke Play section when its card is hidden. */
-function pmBestMatchWin(matches){
+function pmBestMatchWin(matches, uid){
   var best = null;
   (matches || []).forEach(function(m){
     var key, big, opp, fmt;
     var n = m.holes || ((m.par || []).length) || 9;
     if (pmIs1v1(m)){
       var r = m.result || {};
-      if (r.winner !== 'A') return;
+      var side = pmM1Side(m, uid);
+      if (!r.winner || r.winner !== side) return;
       if (r.extraHoles > 0){ key = 0; big = (r.text || '').replace(/^at the\s+/i, ''); }
       else {
         var up = Math.abs(Number(r.up) || 0), rem = r.decidedAt ? Math.max(0, n - Number(r.decidedAt)) : 0;
         key = up * 100 + rem; big = r.text || (up + ' up');
       }
-      opp = m.playerB && m.playerB.name; fmt = '1vs1';
+      var o = side === 'A' ? m.playerB : m.playerA; opp = o && o.name; fmt = '1vs1';
     } else {
       var mm = (typeof _ensureMatchFields === 'function') ? _ensureMatchFields(m) : m;
       var res = (mm && mm.result) || {};
@@ -1989,12 +1997,12 @@ function pmBestMatchWin(matches){
   });
   return best;
 }
-function pmRenderBestMatch(ROOT, matches){
+function pmRenderBestMatch(ROOT, matches, uid){
   if (!ROOT) return;
   var ss = ROOT.querySelector('.pm-best-stroke-sec'), sc = ss && ss.querySelector('.best-card');
   if (ss) ss.style.display = (sc && sc.style.display === 'none') ? 'none' : '';
   var sec = ROOT.querySelector('.pm-best-match-sec'); if (!sec) return;
-  var b = pmBestMatchWin(matches);
+  var b = pmBestMatchWin(matches, uid);
   if (!b){ sec.style.display = 'none'; return; }
   var set = function(sel, v){ var e = sec.querySelector(sel); if (e) e.textContent = v; };
   set('.best-course', b.m.courseName || 'Course');
