@@ -1356,4 +1356,8 @@ window.PM_STRINGS_NL = {
 "Type a name, or the full email address of a player": "Typ een naam, of het volledige e-mailadres van een speler",
 "Type the full email address to find a player by email": "Typ het volledige e-mailadres om een speler op e-mail te vinden",
 "No player found with this email address.": "Geen speler gevonden met dit e-mailadres.",
+/* v35 Best Result split into Stroke Play and Match Play (21 Oct 2026). Claude's suggestion, still to be reviewed by Robbie. */
+"Best Result · Stroke Play": "Beste resultaat · Strokeplay",
+"Best Result · Match Play": "Beste resultaat · Matchplay",
+"⭐ Best win": "⭐ Grootste overwinning",
 };

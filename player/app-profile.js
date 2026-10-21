@@ -228,6 +228,7 @@ async function _loadBuddyStatsInto(buddyUid, ROOT){
         bc.style.display='';
       } else { bc.style.display='none'; }
     }
+    if(typeof pmRenderBestMatch==='function') pmRenderBestMatch(ROOT, matches);   // v35: Best Result · Match Play
   }catch(e){ console.warn('_loadBuddyStatsInto', e); }
 }
 
@@ -1334,6 +1335,7 @@ function renderProfile(ROOT){
       bc.style.display='';
     } else { bc.style.display='none'; }
   }
+  if(typeof pmRenderBestMatch==='function') pmRenderBestMatch(ROOT, matches);   // v35: Best Result · Match Play
   var editBtn=ROOT.querySelector('.action-btn.primary'); if(editBtn) editBtn.onclick=function(){ if(document.getElementById('screen-editprofile')) showScreen('editprofile'); else if(typeof showToast==='function') showToast('Coming soon'); };
   var shareBtn=ROOT.querySelector('.action-btn.secondary'); if(shareBtn) shareBtn.onclick=function(){
     var nm=prof.displayName||'My'; var hcp=(prof.hcpIndex!=null&&!isNaN(prof.hcpIndex))?Number(prof.hcpIndex).toFixed(1):null;
@@ -1953,4 +1955,53 @@ function pmBestRound(rounds){
   if (!list.length) return null;
   list.sort(function(a, b){ return a._vs - b._vs; });
   return list[0];
+}
+
+/* ── v35 Best Result · Match Play ──
+   Biggest win over 1vs1 matches and team matches. A 1vs1 closed out earlier ranks higher
+   (5&4 > 3&2 > 2 up > 1 up); a win on an extra hole ranks lowest. Team matches rank by holes won
+   minus holes lost. Ties: the most recent. Hidden when there is no win. Also hides the
+   Stroke Play section when its card is hidden. */
+function pmBestMatchWin(matches){
+  var best = null;
+  (matches || []).forEach(function(m){
+    var key, big, opp, fmt;
+    var n = m.holes || ((m.par || []).length) || 9;
+    if (pmIs1v1(m)){
+      var r = m.result || {};
+      if (r.winner !== 'A') return;
+      if (r.extraHoles > 0){ key = 0; big = (r.text || '').replace(/^at the\s+/i, ''); }
+      else {
+        var up = Math.abs(Number(r.up) || 0), rem = r.decidedAt ? Math.max(0, n - Number(r.decidedAt)) : 0;
+        key = up * 100 + rem; big = r.text || (up + ' up');
+      }
+      opp = m.playerB && m.playerB.name; fmt = '1vs1';
+    } else {
+      var mm = (typeof _ensureMatchFields === 'function') ? _ensureMatchFields(m) : m;
+      var res = (mm && mm.result) || {};
+      var diff = (res.teamAWon || 0) - (res.teamBWon || 0);
+      if (diff <= 0) return;
+      key = diff * 100; big = diff + ' up';
+      opp = mm.teamB && mm.teamB.name; fmt = 'Team Match';
+    }
+    var t = new Date(m.playedAt || m.date || 0).getTime() || 0;
+    if (!best || key > best.key || (key === best.key && t > best.t)) best = { m: m, key: key, big: big, opp: opp, fmt: fmt, t: t, n: n };
+  });
+  return best;
+}
+function pmRenderBestMatch(ROOT, matches){
+  if (!ROOT) return;
+  var ss = ROOT.querySelector('.pm-best-stroke-sec'), sc = ss && ss.querySelector('.best-card');
+  if (ss) ss.style.display = (sc && sc.style.display === 'none') ? 'none' : '';
+  var sec = ROOT.querySelector('.pm-best-match-sec'); if (!sec) return;
+  var b = pmBestMatchWin(matches);
+  if (!b){ sec.style.display = 'none'; return; }
+  var set = function(sel, v){ var e = sec.querySelector(sel); if (e) e.textContent = v; };
+  set('.best-course', b.m.courseName || 'Course');
+  var parts = [b.n + 'H', b.fmt];
+  if (b.opp) parts.push('vs ' + b.opp);
+  if (b.t) parts.push(new Date(b.t).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }));
+  set('.best-meta', parts.join(' \u00b7 '));
+  set('.best-score', String(b.big || '').toUpperCase());
+  sec.style.display = '';
 }
