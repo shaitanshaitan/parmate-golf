@@ -1351,4 +1351,9 @@ window.PM_STRINGS_NL = {
 "This address cannot be used. Please try another one.": "Dit adres kan niet gebruikt worden. Probeer een ander adres.",
 "Could not send the link. Please try again later, or email support@theninthtee.eu.": "De link kon niet verstuurd worden. Probeer het later opnieuw, of mail naar support@theninthtee.eu.",
 "Enter new email address": "Vul je nieuwe e-mailadres in",
+/* v33 Privacy: buddy search by name or full email address (21 Oct 2026). Claude's suggestion, still to be reviewed by Robbie. */
+"name or full email address": "naam of volledig e-mailadres",
+"Type a name, or the full email address of a player": "Typ een naam, of het volledige e-mailadres van een speler",
+"Type the full email address to find a player by email": "Typ het volledige e-mailadres om een speler op e-mail te vinden",
+"No player found with this email address.": "Geen speler gevonden met dit e-mailadres.",
 };

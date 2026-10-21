@@ -5772,7 +5772,6 @@ async function saveProfile() {
     hcpIndex:    isNaN(hcp) ? null : hcp,
     homeCourse:  course || null,
     avatarId,
-    email:       window._fbAuth?.currentUser?.email || null,
     updatedAt:   new Date().toISOString()
   };
 
@@ -5786,8 +5785,8 @@ async function saveProfile() {
       displayName: data.displayName,
       hcpIndex:    data.hcpIndex,
       homeCourse:  data.homeCourse,
-      avatarId:    data.avatarId,
-      email:       data.email
+      avatarId:    data.avatarId
+      // v33 privacy: never put the email address in public_profiles
     }, { merge: true });
     // Merge into the in-memory profile too — do NOT replace it, or cover/avatar/
     // tier fields already loaded would be dropped until the next reload.
@@ -5863,8 +5862,9 @@ function onBuddySearchInput() {
   const q = document.getElementById('buddySearchInput')?.value.trim();
   const stat = document.getElementById('buddySearchStatus');
   if (!q || q.length < 2) {
+    if (stat && q && q.length) { stat.textContent = t('ab_status_short'); stat.style.display = ''; }
     document.getElementById('buddySearchResults').innerHTML = '';
-    if (stat) { stat.textContent = 'Type at least 2 characters to search'; stat.style.display = ''; }
+    if (stat && !q) { stat.textContent = t('ab_status_default'); stat.style.display = ''; }
     return;
   }
   if (stat) { stat.textContent = 'Searching…'; stat.style.display = ''; }
@@ -5879,17 +5879,34 @@ async function _doBuddySearch(q) {
   try {
     const ql      = q.toLowerCase().trim();
     const results = [];
-    // Fetch all public profiles — small dataset, JS filter is reliable
-    const snap = await window._fbDb.collection('public_profiles').get();
-    snap.forEach(doc => {
-      if (doc.id === uid) return; // skip self
-      const d = doc.data();
-      const nameMatch  = (d.displayName || '').toLowerCase().includes(ql);
-      const emailMatch = (d.email || '').toLowerCase().includes(ql); // partial email match too
-      if (nameMatch || emailMatch) results.push({ uid: doc.id, ...d });
-    });
+    // v33 privacy: email addresses are not in public profiles any more.
+    // A FULL email address is looked up exactly (email_index); anything else searches names.
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ql);
+    if (ql.indexOf('@') >= 0 && !isEmail) {
+      if (stat) { stat.textContent = t('ab_status_full_email'); stat.style.display = ''; }
+      res.innerHTML = '';
+      return;
+    }
+    if (isEmail) {
+      const fuid = (typeof pmFindUidByEmail === 'function') ? await pmFindUidByEmail(ql) : null;
+      if (fuid && fuid !== uid) {
+        let d = {};
+        try { const ps = await window._fbDb.collection('public_profiles').doc(fuid).get(); if (ps.exists) d = ps.data() || {}; } catch (_) {}
+        delete d.email;
+        results.push({ uid: fuid, ...d });
+      }
+    } else {
+      // Fetch all public profiles — small dataset, JS filter is reliable
+      const snap = await window._fbDb.collection('public_profiles').get();
+      snap.forEach(doc => {
+        if (doc.id === uid) return; // skip self
+        const d = doc.data();
+        delete d.email;
+        if ((d.displayName || '').toLowerCase().includes(ql)) results.push({ uid: doc.id, ...d });
+      });
+    }
     if (results.length === 0) {
-      if (stat) { stat.textContent = `No players found for "${q}". Make sure they've saved their profile first.`; stat.style.display = ''; }
+      if (stat) { stat.textContent = isEmail ? t('ab_status_no_email') : `No players found for "${q}". Make sure they've saved their profile first.`; stat.style.display = ''; }
       res.innerHTML = '';
       return;
     }
@@ -7177,6 +7194,8 @@ async function onSignedIn(user) {
   _appReady = true;   // Release 2: focus/visibility refresh may run from now on
   // v28: remind about a missing name / username / gender (only when the profile really loaded)
   if (!_loadTimedOut && typeof pmProfileNudge === 'function') setTimeout(function(){ pmProfileNudge(user.uid); }, 2500);
+  // v33 privacy: email out of the public profile + exact-match email lookup kept current
+  if (typeof pmPrivacySync === 'function') setTimeout(function(){ pmPrivacySync(user); }, 4000);
   // QR-invite entry: open the join flow using the URL param OR a code stashed before a
   // sign-in redirect (Google redirect can strip query params). Stash expires after 10 min.
   try {

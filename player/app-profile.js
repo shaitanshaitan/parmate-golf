@@ -1878,3 +1878,52 @@ async function pmSendEmailChange(){
     _pmEmailBusy = false; if (btn) btn.disabled = false;
   }
 }
+
+/* ── v33 PRIVACY: email addresses never in public profiles ──────────────────
+   1. pmPrivacySync(user) runs after every sign-in:
+      - removes a leftover `email` field from the user's own public_profiles doc
+        (older app versions wrote it there, readable by every signed-in user);
+      - keeps a private lookup entry email_index/{sha256(lowercase email)} = {uid}
+        so buddies can find this player by typing the FULL email address.
+        The rules only allow reading one entry by its exact hash (no listing), and
+        only the owner of that email (per their sign-in token) can write it.
+   2. pmFindUidByEmail(email) does that exact lookup for the buddy search.        */
+async function pmEmailHash(email){
+  try{
+    var e = String(email||'').trim().toLowerCase();
+    if (!e || !window.crypto || !crypto.subtle || typeof TextEncoder==='undefined') return null;
+    var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(e));
+    return Array.prototype.map.call(new Uint8Array(buf), function(b){ return ('0'+b.toString(16)).slice(-2); }).join('');
+  }catch(_){ return null; }
+}
+async function pmPrivacySync(user){
+  if (!user || !user.uid || !window._fbDb || typeof firebase==='undefined') return;
+  var db = window._fbDb, uid = user.uid, del = firebase.firestore.FieldValue.delete();
+  // 1. Strip the email from the public profile (only when it is actually there)
+  try{
+    var pub = await db.collection('public_profiles').doc(uid).get();
+    if (pub.exists && pub.data() && ('email' in pub.data())) await db.collection('public_profiles').doc(uid).update({ email: del });
+  }catch(e){ console.warn('privacy: public profile cleanup', e && e.code); }
+  // 2. Keep the exact-match email lookup current (old entry removed after an email change)
+  try{
+    var h = await pmEmailHash(user.email);
+    // Private bookkeeping (owner-only): which lookup entry belongs to this account
+    var prRef = db.collection('users').doc(uid).collection('private').doc('emailIndex');
+    var pr = await prRef.get();
+    var prev = pr.exists && pr.data() ? pr.data().hash : null;
+    if (prev === h) return;
+    if (prev){ try{ await db.collection('email_index').doc(prev).delete(); }catch(_){} }
+    if (h){
+      await db.collection('email_index').doc(h).set({ uid: uid });
+      await prRef.set({ hash: h });
+    } else if (prev){
+      await prRef.delete();
+    }
+  }catch(e){ console.warn('privacy: email lookup', e && e.code); }
+}
+async function pmFindUidByEmail(email){
+  var h = await pmEmailHash(email);
+  if (!h || !window._fbDb) return null;
+  var s = await window._fbDb.collection('email_index').doc(h).get();
+  return (s.exists && s.data() && s.data().uid) ? s.data().uid : null;
+}

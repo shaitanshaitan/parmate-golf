@@ -1,8 +1,8 @@
 // ─── Parmate Team HCP · Service Worker ───
-// v32 — WHS allowances as default (3 players 30/20/10, 4 players 25/20/15/10), new Scramble Format screen (pills, i, custom pop-up), real email change (re-authentication + confirmation link), FAQ updated. v31 — FAQ rebuilt: 25 articles (old ones corrected, 1vs1, live scoring, Solo, buddies, profile), full EN + NL, same set as the Firestore import. v30 — Game History: the four type buttons size to their label, so Team Round / Team Match never run over the edge. v29 — Live 1vs1: a phone that was locked catches up on wake-up (reconnect + server copy), Continue/Join start from the server copy, a 30 s safety check on the live scorecard, and the shared match is kept until both copies are saved. v28 — Profile reminder: pop-up after sign-in while name, username, gender or the public profile is missing; no Male pre-selected when no gender is saved. v27 — lang.js restored (an upload had replaced it with the Dutch texts) under a new version tag. v26 — Live 1vs1 between buddies: shared scorecard on both phones, invite in the bell, both can enter scores, each saves their own copy (app-m1live.js). v25 — Buddies live: an accepted buddy request shows up right away (no restart), a request from someone can be accepted from their profile or the search list. v24 — Version 1.0 Live: release notes updated (Solo, 1vs1, faster start), Beta labels removed. v23 — Release 3d: Mollie in the privacy policy (in app and privacy.html), payment records kept 7 years. v22 — Release 3c: only / and /index.html become the offline start page, public privacy page, back button closes the sign-in sheet, hint for Instagram/Facebook browsers. v21 — Release 3a: never touch /__/ (Firebase sign-in helpers proxied to firebaseapp.com). v20 — Release 2: sign-in data loads in parallel, 8 s safety net, live listeners no longer restarted on every focus. v19 — Release 1b: spinner behind the Google window (no sign-in sheet on return), Home waits for avatar/cover, green splash. v18 — Release 1: no surprise reload on first install or mid sign-in, green login/spinner, lang-nl.js versioned, icon links fixed. v17 — 1vs1 setup Route B: opponent sheet in two steps. v16 — 1vs1 setup cleanup: no allowance, full names, strokes sentence. v15 — full 1vs1 release in one upload (fresh tags, so no stale cached files). v14 — 1vs1 Dutch texts, player name fallback. v13 — 1vs1 Match Play (app-match.js), new Choose Game order. v12 — Solo screen cleanup, What's New moved to FAQ. v11 — Solo Round (app-solo.js). v10 — NL button text size. v9 — Dutch translation engine (i18n.js + lang-nl.js). App split into separate files: lang.js, faq-data.js, vendor/qrcode-generator.js, app.css and app-*.js.
+// v33 — Privacy: email addresses removed from public profiles (cleaned on sign-in), buddy search finds a player by name or by their FULL email address through a private hashed lookup (email_index), never by partial email. v32 — WHS allowances as default (3 players 30/20/10, 4 players 25/20/15/10), new Scramble Format screen (pills, i, custom pop-up), real email change (re-authentication + confirmation link), FAQ updated. v31 — FAQ rebuilt: 25 articles (old ones corrected, 1vs1, live scoring, Solo, buddies, profile), full EN + NL, same set as the Firestore import. v30 — Game History: the four type buttons size to their label, so Team Round / Team Match never run over the edge. v29 — Live 1vs1: a phone that was locked catches up on wake-up (reconnect + server copy), Continue/Join start from the server copy, a 30 s safety check on the live scorecard, and the shared match is kept until both copies are saved. v28 — Profile reminder: pop-up after sign-in while name, username, gender or the public profile is missing; no Male pre-selected when no gender is saved. v27 — lang.js restored (an upload had replaced it with the Dutch texts) under a new version tag. v26 — Live 1vs1 between buddies: shared scorecard on both phones, invite in the bell, both can enter scores, each saves their own copy (app-m1live.js). v25 — Buddies live: an accepted buddy request shows up right away (no restart), a request from someone can be accepted from their profile or the search list. v24 — Version 1.0 Live: release notes updated (Solo, 1vs1, faster start), Beta labels removed. v23 — Release 3d: Mollie in the privacy policy (in app and privacy.html), payment records kept 7 years. v22 — Release 3c: only / and /index.html become the offline start page, public privacy page, back button closes the sign-in sheet, hint for Instagram/Facebook browsers. v21 — Release 3a: never touch /__/ (Firebase sign-in helpers proxied to firebaseapp.com). v20 — Release 2: sign-in data loads in parallel, 8 s safety net, live listeners no longer restarted on every focus. v19 — Release 1b: spinner behind the Google window (no sign-in sheet on return), Home waits for avatar/cover, green splash. v18 — Release 1: no surprise reload on first install or mid sign-in, green login/spinner, lang-nl.js versioned, icon links fixed. v17 — 1vs1 setup Route B: opponent sheet in two steps. v16 — 1vs1 setup cleanup: no allowance, full names, strokes sentence. v15 — full 1vs1 release in one upload (fresh tags, so no stale cached files). v14 — 1vs1 Dutch texts, player name fallback. v13 — 1vs1 Match Play (app-match.js), new Choose Game order. v12 — Solo screen cleanup, What's New moved to FAQ. v11 — Solo Round (app-solo.js). v10 — NL button text size. v9 — Dutch translation engine (i18n.js + lang-nl.js). App split into separate files: lang.js, faq-data.js, vendor/qrcode-generator.js, app.css and app-*.js.
 // Bump APP_VERSION on every deploy that must invalidate caches.
 // When a ?v= tag changes in index.html, change it in APP_SHELL below too (same value).
-const APP_VERSION = 'parmate-team-hcp-v32';
+const APP_VERSION = 'parmate-team-hcp-v33';
 const APP_CACHE   = APP_VERSION;
 
 // Minimal app shell (served at the site root). Kept tiny and cached individually
@@ -10,13 +10,13 @@ const APP_CACHE   = APP_VERSION;
 const ASSET_V   = '20261013';   // must match the ?v= tags in index.html
 const APP_SHELL = [
   '/', '/index.html', '/manifest.json',
-  '/lang.js?v=20261019c',
-  '/faq-data.js?v=20261021b',
+  '/lang.js?v=20261021c',
+  '/faq-data.js?v=20261021c',
   '/vendor/qrcode-generator.js?v=' + ASSET_V,
-  '/lang-nl.js?v=20261021b',
+  '/lang-nl.js?v=20261021c',
   '/i18n.js?v=20261013d',
   '/app.css?v=20261021b',
-  '/app-main.js?v=20261021b',
+  '/app-main.js?v=20261021c',
   '/app-solo.js?v=20261015c',
   '/app-match.js?v=20261019a',
   '/app-m1live.js?v=20261020a',
@@ -27,7 +27,7 @@ const APP_SHELL = [
   '/app-tm-summary.js?v=20261013c',
   '/app-nav.js?v=20261013c',
   '/app-myteams.js?v=20261013c',
-  '/app-profile.js?v=20261021b',
+  '/app-profile.js?v=20261021c',
   '/app-faq.js?v=20261013d',
   '/app-menu.js?v=20261013c',
   '/app-chat.js?v=20261013c',

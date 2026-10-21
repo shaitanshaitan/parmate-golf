@@ -1032,7 +1032,7 @@ var _FAQ_ARTICLES = [
         "type": "steps",
         "items": [
           "Open the menu and tap Find Buddies.",
-          "Search by nickname or email address.",
+          "Search by name, or type their full email address. Email addresses are never shown to other players.",
           "Tap + buddy next to the right player. They get a buddy request.",
           "Once they accept, you appear in each other's buddy list."
         ]
@@ -1055,7 +1055,7 @@ var _FAQ_ARTICLES = [
         "type": "steps",
         "items": [
           "Open het menu en klik op Buddies zoeken.",
-          "Zoek op bijnaam of e-mailadres.",
+          "Zoek op naam, of typ het volledige e-mailadres. E-mailadressen zijn nooit zichtbaar voor andere spelers.",
           "Klik op + buddy bij de juiste speler. Die krijgt een buddyverzoek.",
           "Zodra het verzoek is geaccepteerd, staan jullie in elkaars buddylijst."
         ]
