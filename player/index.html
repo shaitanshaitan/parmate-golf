@@ -65,7 +65,7 @@
   });
 </script>
 <link rel="preload" as="image" href="icons/login-bg.jpg">
-<link rel="stylesheet" href="app.css?v=20261021b">
+<link rel="stylesheet" href="app.css?v=20261021c">
 
 <!-- styles moved to app.css (block 2) -->
 </head>
@@ -1004,8 +1004,9 @@
     <div class="ab-body">
       <div class="ab-search-label"><span>👥</span><span data-i18n="ab_search_label">search buddy</span></div>
       <div class="ab-search-wrap">
+        <span class="ab-search-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
         <input type="text" id="buddySearchInput" placeholder="name or full email address" oninput="onBuddySearchInput()" autocomplete="off">
-        <span class="ab-chevron">⌄</span>
+        
       </div>
       <div id="buddySearchStatus" style="display:none;">Type a name, or the full email address of a player</div>
       <div id="buddySearchResults"></div>
@@ -1017,9 +1018,9 @@
     </div>
     <div class="ab-dock">
       <button class="ab-tab" onclick="closeBuddySearch();showScreen('home')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"></path><path d="M5 10v10h14V10"></path></svg><span>Home</span></button>
-      <button class="ab-tab" onclick="closeBuddySearch();showScreen('myteams')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"></circle><path d="M3.5 19c.5-3 2.8-4.5 5.5-4.5s5 1.5 5.5 4.5"></path></svg><span>Teams</span></button>
+      <button class="ab-tab" onclick="closeBuddySearch();showScreen('myteams')"><img class="nav-icon" src="icons/nav-teams.svg" alt="" width="24" height="24"><span>Teams</span></button>
       <div class="ab-play"><button class="ab-play-btn" onclick="closeBuddySearch();showScreen('choosegame')"><span>PLAY</span><span>GOLF</span></button></div>
-      <button class="ab-tab" onclick="closeBuddySearch();showScreen('matches')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"></rect><line x1="3" y1="11" x2="21" y2="11"></line></svg><span>Matches</span></button>
+      <button class="ab-tab" onclick="closeBuddySearch();showScreen('matches')"><img class="nav-icon" src="icons/nav-matches.svg" alt="" width="24" height="24"><span>Matches</span></button>
       <button class="ab-tab" onclick="closeBuddySearch();showScreen('faq')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="11" x2="12" y2="17"></line><circle cx="12" cy="7.5" r="0.6" fill="currentColor"></circle></svg><span>Info</span></button>
     </div>
   </div>
@@ -1060,9 +1061,9 @@
     </div>
     <div class="pp-dock">
       <button class="pp-tab" onclick="closePublicProfile();showScreen('home')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"></path><path d="M5 10v10h14V10"></path></svg><span>Home</span></button>
-      <button class="pp-tab" onclick="closePublicProfile();showScreen('myteams')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"></circle><path d="M3.5 19c.5-3 2.8-4.5 5.5-4.5s5 1.5 5.5 4.5"></path></svg><span>Teams</span></button>
+      <button class="pp-tab" onclick="closePublicProfile();showScreen('myteams')"><img class="nav-icon" src="icons/nav-teams.svg" alt="" width="24" height="24"><span>Teams</span></button>
       <div class="pp-play"><button class="pp-play-btn" onclick="closePublicProfile();showScreen('choosegame')"><span>PLAY</span><span>GOLF</span></button></div>
-      <button class="pp-tab" onclick="closePublicProfile();showScreen('matches')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"></rect><line x1="3" y1="11" x2="21" y2="11"></line></svg><span>Matches</span></button>
+      <button class="pp-tab" onclick="closePublicProfile();showScreen('matches')"><img class="nav-icon" src="icons/nav-matches.svg" alt="" width="24" height="24"><span>Matches</span></button>
       <button class="pp-tab" onclick="closePublicProfile();showScreen('faq')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="11" x2="12" y2="17"></line><circle cx="12" cy="7.5" r="0.6" fill="currentColor"></circle></svg><span>Info</span></button>
     </div>
   </div>

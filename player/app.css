@@ -6369,3 +6369,26 @@ html[lang="nl"] .play-btn span:only-child {font-size: 11px !important; letter-sp
 #screen-settings .email-edit-msg.err {color: #c85a4a;}
 #screen-settings .email-edit-msg.ok {color: var(--green); background: #eef6f1; border-radius: 8px; padding: 8px 10px;}
 #screen-settings .edit-save-btn:disabled {opacity: 0.55; cursor: default;}
+
+
+/* ── v33 Add Buddy + Buddy Profile overlays: same header, title bar, dock and
+   PLAY button as every other screen (values taken from #screen-profile) ── */
+#buddySearchOverlay .ab-appheader, #publicProfileOverlay .pp-appheader { background: #1a6b3c; }
+#buddySearchOverlay .ab-logo span, #publicProfileOverlay .pp-logo span { letter-spacing: -0.2px; line-height: 1; }
+#buddySearchOverlay .ab-icons, #publicProfileOverlay .pp-icons { gap: 12px; }
+#buddySearchOverlay .ab-ic, #publicProfileOverlay .pp-ic { border-color: rgba(255,255,255,0.9); }
+#buddySearchOverlay .ab-subheader, #publicProfileOverlay .pp-subheader { background: #F5A623; }
+#buddySearchOverlay .ab-title, #publicProfileOverlay .pp-title { font-size: 16px; color: #1a6b3c; }
+#buddySearchOverlay .ab-back, #publicProfileOverlay .pp-back { padding: 6px 14px; background: #1a6b3c; }
+#buddySearchOverlay .ab-dock, #publicProfileOverlay .pp-dock { background: rgb(19,77,43); padding-bottom: 6px; box-sizing: border-box; }
+#buddySearchOverlay .ab-tab, #publicProfileOverlay .pp-tab { gap: 4px; opacity: 0.65; padding: 0; }
+#buddySearchOverlay .ab-tab span, #publicProfileOverlay .pp-tab span { font-family: 'Inter', sans-serif; font-weight: 500; font-size: 10px; letter-spacing: 0.02em; color: #fff; }
+#buddySearchOverlay .ab-tab img.nav-icon, #publicProfileOverlay .pp-tab img.nav-icon { display: block; width: 24px; height: 24px; object-fit: contain; filter: brightness(0) invert(1); }
+#buddySearchOverlay .ab-play-btn, #publicProfileOverlay .pp-play-btn {
+  bottom: 12px; background: #1a6b3c; border: 4px solid #fff;
+  font-family: 'Roboto', sans-serif; font-weight: 700; font-size: 14px; line-height: 1.05; letter-spacing: 0.04em; text-transform: uppercase;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.25), 0 0 0 6px rgba(26,107,60,0.15); }
+/* search field like Help & FAQ */
+#buddySearchOverlay .ab-search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-3, #888); pointer-events: none; display: flex; }
+#buddySearchOverlay #buddySearchInput { height: 48px; border-radius: 24px; border: 1.5px solid rgba(0,0,0,0.1); padding: 0 16px 0 44px; font-size: 14px; }
+#buddySearchOverlay #buddySearchInput:focus { border-color: #1a6b3c; box-shadow: 0 0 0 3px rgba(26,107,60,0.08); }
