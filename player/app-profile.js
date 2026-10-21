@@ -248,7 +248,7 @@ async function _loadBuddyStatsInto(buddyUid, ROOT){
       const open = emailEdit.classList.contains('visible');
       emailEdit.classList.toggle('visible', !open);
       nameEdit.classList.remove('visible');
-      if (!open) document.getElementById('input-email').value = '';
+      if (!open && typeof pmEmailEditPrep === 'function') pmEmailEditPrep();
     }
   };
 
@@ -268,61 +268,16 @@ async function _loadBuddyStatsInto(buddyUid, ROOT){
     document.getElementById('name-edit').classList.remove('visible');
   };
 
-  // ── Send verification code ──
-  window.sendVerification = function() {
-    const email = document.getElementById('input-email').value.trim();
-    if (!email || !email.includes('@')) {
-      document.getElementById('input-email').focus();
-      document.getElementById('input-email').style.borderColor = 'var(--red)';
-      return;
-    }
-    document.getElementById('input-email').style.borderColor = '';
-    // Show the verify overlay
-    document.getElementById('verify-email-target').textContent = email;
-    document.getElementById('verifyOverlay').classList.add('visible');
-    // Clear digits
-    for (let i = 0; i < 6; i++) {
-      const d = document.getElementById('d' + i);
-      d.value = ''; d.classList.remove('filled');
-    }
-    document.getElementById('verify-confirm-btn').disabled = true;
-    document.getElementById('d0').focus();
-  };
-
-  // ── Digit input handling ──
-  window.onDigit = function(index) {
-    const d = document.getElementById('d' + index);
-    const val = d.value.replace(/\D/g,'');
-    d.value = val ? val[0] : '';
-    if (val && index < 5) document.getElementById('d' + (index+1)).focus();
-    d.classList.toggle('filled', !!d.value);
-    // Enable confirm when all 6 filled
-    const allFilled = Array.from({length:6}, (_,i) => document.getElementById('d'+i).value).every(v => v);
-    document.getElementById('verify-confirm-btn').disabled = !allFilled;
-  };
-
-  // ── Confirm code ──
-  window.confirmCode = function() {
-    const code = Array.from({length:6}, (_,i) => document.getElementById('d'+i).value).join('');
-    const newEmail = document.getElementById('input-email').value.trim();
-    // In production: validate code server-side. Here we simulate success.
-    document.getElementById('email-display').textContent = newEmail;
-    document.querySelector('.acct-email').textContent = newEmail;
-    closeVerify();
-    document.getElementById('email-edit').classList.remove('visible');
-  };
-
-  // ── Resend ──
-  window.resendCode = function() {
-    const link = document.querySelector('.verify-resend a');
-    link.textContent = 'Code resent!';
-    link.style.color = 'var(--text-3)';
-    setTimeout(() => { link.textContent = 'Resend code'; link.style.color = ''; }, 3000);
-  };
+  // ── v32: the old 6-digit "verification" was only on screen (no code was ever sent and any code
+  // was accepted). Replaced by pmSendEmailChange() below: a real Firebase confirmation link.
+  window.sendVerification = function() { if (typeof pmSendEmailChange === 'function') pmSendEmailChange(); };
+  window.onDigit = function() {};
+  window.confirmCode = function() { if (typeof window.closeVerify === 'function') window.closeVerify(); };   // never changes anything
+  window.resendCode = function() {};
 
   // ── Close overlay ──
   window.closeVerify = function() {
-    document.getElementById('verifyOverlay').classList.remove('visible');
+    var ov = document.getElementById('verifyOverlay'); if (ov) ov.classList.remove('visible');
   };
 })();
 
@@ -1858,5 +1813,68 @@ async function pmProfileAfterSave(){
     if (was && typeof showToast === 'function') showToast('Profile complete. Thanks!', 'success');
   } else if (was && typeof showToast === 'function') {
     showToast('Saved, but some details are still missing.', 'info');
+  }
+}
+
+
+// ── v32 · Change email address (secure) ────────────────────────────────
+// 1. Password accounts re-enter their current password every time (re-authentication), even when
+//    they signed in a minute ago.
+// 2. Firebase sends a confirmation link to the NEW address (verifyBeforeUpdateEmail). The address only
+//    changes when that link is clicked, so a typo or someone else's address can never take over the account.
+// 3. After the change Firebase emails the OLD address with a link to undo it (Firebase template
+//    "Email address change").
+// Google-only accounts: the address belongs to the Google account, so the app explains instead.
+// Errors are shown in general terms (no hint whether an address is already registered).
+var _pmEmailBusy = false;
+function _pmProviders(cu){ return ((cu && cu.providerData) || []).map(function(p){ return p && p.providerId; }); }
+function _pmEmailMsg(txt, kind){
+  var m = document.getElementById('email-edit-msg'); if (!m) return;
+  m.textContent = txt || ''; m.className = 'email-edit-msg' + (kind ? ' ' + kind : '');
+}
+function pmEmailEditPrep(){
+  var cu = window._fbAuth && window._fbAuth.currentUser;
+  var hasPwd = _pmProviders(cu).indexOf('password') >= 0;
+  var form = document.getElementById('email-form'), g = document.getElementById('email-google-note'), btn = document.getElementById('email-send-btn');
+  if (form) form.style.display = hasPwd ? '' : 'none';
+  if (g) g.style.display = hasPwd ? 'none' : '';
+  if (btn) { btn.style.display = hasPwd ? '' : 'none'; btn.disabled = false; }
+  var e = document.getElementById('input-email'), p = document.getElementById('input-email-pwd');
+  if (e) e.value = ''; if (p) p.value = '';
+  _pmEmailMsg('');
+  if (hasPwd && e) setTimeout(function(){ e.focus(); }, 50);
+}
+function _pmEmailOk(v){ return v.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v); }
+async function pmSendEmailChange(){
+  if (_pmEmailBusy) return;
+  var cu = window._fbAuth && window._fbAuth.currentUser;
+  if (!cu) { _pmEmailMsg('Please sign in first.', 'err'); return; }
+  if (_pmProviders(cu).indexOf('password') < 0) { pmEmailEditPrep(); return; }
+  var eEl = document.getElementById('input-email'), pEl = document.getElementById('input-email-pwd'), btn = document.getElementById('email-send-btn');
+  var email = (eEl && eEl.value || '').trim().toLowerCase(), pwd = (pEl && pEl.value) || '';
+  if (!_pmEmailOk(email)) { _pmEmailMsg('Enter a valid email address.', 'err'); if (eEl) eEl.focus(); return; }
+  if (cu.email && email === String(cu.email).toLowerCase()) { _pmEmailMsg('This is already your email address.', 'err'); return; }
+  if (!pwd) { _pmEmailMsg('Enter your current password to confirm it is you.', 'err'); if (pEl) pEl.focus(); return; }
+  _pmEmailBusy = true; if (btn) btn.disabled = true;
+  _pmEmailMsg('Sending…');
+  try {
+    var cred = firebase.auth.EmailAuthProvider.credential(cu.email, pwd);
+    await cu.reauthenticateWithCredential(cred);
+    await cu.verifyBeforeUpdateEmail(email);
+    if (eEl) eEl.value = '';
+    _pmEmailMsg('Check your inbox at ' + email + ' and click the link to confirm. Until then your current address stays active. Afterwards you may need to sign in again with the new address.', 'ok');
+  } catch (e) {
+    var c = (e && e.code) || '';
+    var txt = (c === 'auth/wrong-password' || c === 'auth/invalid-credential' || c === 'auth/invalid-login-credentials') ? 'That password is not correct.'
+            : (c === 'auth/too-many-requests') ? 'Too many attempts. Please try again later.'
+            : (c === 'auth/invalid-email' || c === 'auth/invalid-new-email') ? 'Enter a valid email address.'
+            : (c === 'auth/network-request-failed') ? 'No connection. Please try again.'
+            : (c === 'auth/email-already-in-use') ? 'This address cannot be used. Please try another one.'
+            : 'Could not send the link. Please try again later, or email support@theninthtee.eu.';
+    console.warn('email change', c);
+    _pmEmailMsg(txt, 'err');
+  } finally {
+    if (pEl) pEl.value = '';      // never keep the password on screen
+    _pmEmailBusy = false; if (btn) btn.disabled = false;
   }
 }

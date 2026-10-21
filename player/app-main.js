@@ -55,8 +55,8 @@ function applyLang() {
 // STATE
 // ═══════════════════════════════════
 const FORMATS = { '35_15':[0.35,0.15], '25_20':[0.25,0.20], '20_15':[0.20,0.15], '50_50':[0.50,0.50],
-                  '20_15_10':[0.20,0.15,0.10], '15_12_10':[0.15,0.12,0.10],
-                  '20_15_10_5':[0.20,0.15,0.10,0.05], '15_12_10_7':[0.15,0.12,0.10,0.07] };
+                  '30_20_10':[0.30,0.20,0.10], '20_15_10':[0.20,0.15,0.10], '15_12_10':[0.15,0.12,0.10],
+                  '25_20_15_10':[0.25,0.20,0.15,0.10], '20_15_10_5':[0.20,0.15,0.10,0.05], '15_12_10_7':[0.15,0.12,0.10,0.07] };   // v32: + WHS 30/20/10 and 25/20/15/10
 const MAX_COURSES = 20; // personal saved-courses cap — same for Free and Pro
 const MAX_TEAMS_FREE         = 2;
 const MAX_BUDDIES_FREE       = 5;
@@ -1812,7 +1812,7 @@ function trCalcTeam() {
 function trFormatLabel() {
   const f = _trFlow;
   if (f.format === 'custom' && Array.isArray(f.customPcts) && f.customPcts.length) {
-    return f.customPcts.map(p => Math.round(p*100)+'%').join('/');
+    return f.customPcts.map(p => (Math.round(p*1000)/10)+'%').join('/');   // v32: 0.5% steps stay visible
   }
   const pcts = (typeof FORMATS !== 'undefined' && FORMATS[f.format]) ? FORMATS[f.format] : null;
   if (pcts) return pcts.map(p => Math.round(p*100)+'%').join('/');
@@ -2194,8 +2194,32 @@ function trRenderTees(scr) {
 }
 
 // ── Screen 09: Scramble Format ──
+// v32: WHS recommended allowances first (Rules of Handicapping, Appendix C):
+//   2 players 35/15 · 3 players 30/20/10 · 4 players 25/20/15/10. Older options stay selectable.
+// The pills are drawn from this list; explanations sit behind the "i"; Custom opens a pop-up.
+const TR_FORMAT_OPTIONS = {
+  2: [ { key:'35_15', whs:true, info:'WHS recommendation for 2 players.' },
+       { key:'25_20', info:'More weight on the higher handicap.' },
+       { key:'20_15', info:'Lower allowance: fewer strokes for the team.' } ],
+  3: [ { key:'30_20_10', whs:true, info:'WHS recommendation for 3 players.' },
+       { key:'20_15_10', info:'Lower allowance: fewer strokes for the team.' },
+       { key:'15_12_10', info:'Lower allowance: fewer strokes for the team.' } ],
+  4: [ { key:'25_20_15_10', whs:true, info:'WHS recommendation for 4 players.' },
+       { key:'20_15_10_5', info:'Lower allowance: fewer strokes for the team.' },
+       { key:'15_12_10_7', info:'Lower allowance: fewer strokes for the team.' } ]
+};
+function trFmtSize() { return Math.min(4, Math.max(2, (_trFlow && (_trFlow.team.size || (_trFlow.team.players||[]).length)) || 2)); }
+function trFmtPctText(arr) { return arr.map(function(p){ return (Math.round(p*1000)/10) + '%'; }).join(' / '); }
+function trFmtEsc(x) { return String(x == null ? '' : x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+// Make sure _trFlow.format fits the team size (a 2-player format can't be used for 3 players).
+function trFmtNormalize() {
+  const size = trFmtSize(), opts = TR_FORMAT_OPTIONS[size];
+  const customOk = _trFlow.format === 'custom' && Array.isArray(_trFlow.customPcts) && _trFlow.customPcts.length === size;
+  if (!customOk && !opts.some(function(o){ return o.key === _trFlow.format; })) { _trFlow.format = opts[0].key; _trFlow.customPcts = null; }
+}
 function trRenderFormats(scr) {
-  const size=(_trFlow.team.size||(_trFlow.team.players||[]).length||2);
+  scr = scr || document.getElementById('screen-trformat'); if (!scr) return;
+  const size = trFmtSize();
   const nameBadge=document.getElementById('trb_teamNameBadge'), sizeBadge=document.getElementById('trb_teamSizeBadge');
   const isMatch = (typeof _gameMode !== 'undefined' && _gameMode === 'match');
   if (nameBadge) {
@@ -2206,50 +2230,73 @@ function trRenderFormats(scr) {
     if (lbl && lbl.classList.contains('badge-label')) lbl.style.display = isMatch ? 'none' : '';
   }
   if (sizeBadge) sizeBadge.textContent = size+' Players';
-  scr.querySelectorAll('.formats-panel').forEach(p=>p.style.display='none');
-  const panel=document.getElementById('trb_formats-'+size);
-  if (panel) panel.style.display='block';
-  if (panel && !panel.querySelector('.format-pill.active')) {
-    const first=panel.querySelector('.format-pill'); if(first) first.classList.add('active');
+  const title = document.getElementById('trb_fmtTitle'); if (title) title.textContent = size + '-Player Formats';
+  trFmtNormalize();
+  const grid = document.getElementById('trb_fmtGrid');
+  if (grid) {
+    const isCustom = _trFlow.format === 'custom';
+    let html = TR_FORMAT_OPTIONS[size].map(function(o){
+      const on = !isCustom && _trFlow.format === o.key;
+      return '<button class="tf-pill' + (on ? ' active' : '') + '" type="button" data-key="' + o.key + '">' +
+             '<span class="tf-pct" data-no-i18n>' + trFmtPctText(FORMATS[o.key]) + '</span>' +
+             (o.whs ? '<span class="tf-sub">WHS recommended</span>' : '') + '</button>';
+    }).join('');
+    html += '<button class="tf-pill tf-custom' + (isCustom ? ' active' : '') + '" type="button" data-key="custom">' +
+            (isCustom ? '<span class="tf-pct" data-no-i18n>' + trFmtPctText(_trFlow.customPcts) + '</span><span class="tf-sub">Custom · tap to change</span>'
+                      : '<span class="tf-pct">Custom</span><span class="tf-sub">Your own percentages</span>') + '</button>';
+    grid.innerHTML = html;
   }
-  const isCustomPill = (pill) => /[-?]%/.test(pill.textContent) || pill.closest('.custom-row');
-  const readCustom = (pill) => {
-    const row = pill.closest('.custom-row'); if (!row) return null;
-    const inputs = [...row.querySelectorAll('input')];
-    const vals = inputs.map(inp => {
-      const n = parseFloat(inp.value); return isNaN(n) ? null : n/100;
-    });
-    return (vals.length && vals.every(v => v!=null)) ? vals : null;
-  };
-  const applyActive = () => {
-    const active = panel && panel.querySelector('.format-pill.active');
-    if (!active) return;
-    if (isCustomPill(active)) {
-      const pcts = readCustom(active);
-      if (pcts) { _trFlow.format = 'custom'; _trFlow.customPcts = pcts; }
-    } else {
-      _trFlow.format = trFormatKeyFromLabel(active.textContent);
-      _trFlow.customPcts = null;
-    }
-  };
-  applyActive();
+  const info = document.getElementById('trb_fmtInfo');
+  if (info) info.innerHTML = TR_FORMAT_OPTIONS[size].map(function(o){
+      return '<div class="tf-info-row"><b data-no-i18n>' + trFmtPctText(FORMATS[o.key]) + '</b> <span>' + o.info + '</span></div>';
+    }).join('') +
+    '<div class="tf-info-row"><b>Custom</b> <span>Your own percentages, for example from your competition rules.</span></div>' +
+    '<div class="tf-info-row tf-info-foot">The first percentage is for the player with the lowest Course Handicap, the last for the highest.</div>';
   if (!scr._fmtWired) {
-    scr.addEventListener('click',(e)=>{
-      const pill=e.target.closest('.format-pill'); if(!pill) return;
-      const group=pill.dataset.group;
-      scr.querySelectorAll('.format-pill[data-group="'+group+'"]').forEach(p=>p.classList.remove('active'));
-      pill.classList.add('active');
-      applyActive();
+    scr.addEventListener('click', function(e){
+      const pill = e.target.closest('.tf-pill'); if (!pill) return;
+      const key = pill.dataset.key;
+      if (key === 'custom') { trFmtCustomOpen(); return; }
+      _trFlow.format = key; _trFlow.customPcts = null;
+      trRenderFormats(scr);
     });
-    // live-update when typing in custom inputs (if their pill is active)
-    scr.addEventListener('input',(e)=>{
-      if (e.target.tagName !== 'INPUT' || !e.target.closest('.custom-row')) return;
-      const row=e.target.closest('.custom-row');
-      const pill=row && row.querySelector('.format-pill');
-      if (pill && pill.classList.contains('active')) applyActive();
+    scr.addEventListener('keydown', function(e){
+      if (e.key === 'Enter' && e.target.closest && e.target.closest('#trb_fmtFields')) { e.preventDefault(); trFmtCustomSave(); }
+      if (e.key === 'Escape') trFmtCustomClose();
     });
-    scr._fmtWired=true;
+    scr._fmtWired = true;
   }
+}
+function trFmtInfo() {
+  const box = document.getElementById('trb_fmtInfo'), btn = document.getElementById('trb_fmtInfoBtn'); if (!box) return;
+  const open = box.style.display === 'none';
+  box.style.display = open ? '' : 'none';
+  if (btn) btn.classList.toggle('on', open);
+}
+// ── Custom allowance pop-up ──
+const TR_FMT_PLACES = { 2:['Lowest HCP','Highest HCP'], 3:['Lowest HCP','Middle HCP','Highest HCP'], 4:['Lowest HCP','2nd lowest HCP','3rd lowest HCP','Highest HCP'] };
+function trFmtCustomOpen() {
+  const size = trFmtSize(), cur = (_trFlow.format === 'custom' && Array.isArray(_trFlow.customPcts) && _trFlow.customPcts.length === size) ? _trFlow.customPcts : null;
+  const wrap = document.getElementById('trb_fmtFields'); if (!wrap) return;
+  wrap.innerHTML = TR_FMT_PLACES[size].map(function(lbl, i){
+    const v = cur ? (Math.round(cur[i]*1000)/10) : '';
+    return '<label class="tf-field"><span>' + lbl + '</span><span class="tf-in"><input type="number" inputmode="decimal" min="0" max="100" step="0.5" value="' + v + '" placeholder="0" aria-label="' + lbl + '"><i>%</i></span></label>';
+  }).join('');
+  const err = document.getElementById('trb_fmtErr'); if (err) err.textContent = '';
+  const sh = document.getElementById('trb_fmtSheet'); if (sh) sh.classList.add('open');
+  const first = wrap.querySelector('input'); if (first) setTimeout(function(){ first.focus(); }, 60);
+}
+function trFmtCustomClose() { const sh = document.getElementById('trb_fmtSheet'); if (sh) sh.classList.remove('open'); }
+function trFmtCustomSave() {
+  const size = trFmtSize(), err = document.getElementById('trb_fmtErr');
+  const vals = Array.prototype.map.call(document.querySelectorAll('#trb_fmtFields input'), function(i){ return i.value.trim() === '' ? NaN : Number(i.value); });
+  const bad = vals.length !== size || vals.some(function(v){ return !isFinite(v) || v < 0 || v > 100; });
+  if (bad) { if (err) err.textContent = 'Enter a percentage from 0 to 100 for every player.'; return; }
+  if (!vals.some(function(v){ return v > 0; })) { if (err) err.textContent = 'At least one percentage must be more than 0.'; return; }
+  _trFlow.format = 'custom';
+  _trFlow.customPcts = vals.map(function(v){ return Math.round(v*10)/1000; });   // 0.5% steps
+  trFmtCustomClose();
+  trRenderFormats();
 }
 
 // ── Screen 10: Game Summary ──
@@ -2890,8 +2937,8 @@ function joinShowConfirm(data) {
   // Format label
   const fmtMap = {
     '35_15':'35% / 15%', '25_20':'25% / 20%', '20_15':'20% / 15%', '50_50':'50% / 50%',
-    '20_15_10':'20% / 15% / 10%', '15_12_10':'15% / 12% / 10%',
-    '20_15_10_5':'20% / 15% / 10% / 5%', '15_12_10_7':'15% / 12% / 10% / 7%'
+    '30_20_10':'30% / 20% / 10%', '20_15_10':'20% / 15% / 10%', '15_12_10':'15% / 12% / 10%',
+    '25_20_15_10':'25% / 20% / 15% / 10%', '20_15_10_5':'20% / 15% / 10% / 5%', '15_12_10_7':'15% / 12% / 10% / 7%'
   };
   const fmtLabel = data.format ? (fmtMap[data.format] || data.format) : '—';
 
@@ -4964,8 +5011,8 @@ function updateFormatVisibility() {
   // Auto-select appropriate default format when switching
   const curFmt = radio('fmt');
   const is2p = ['35_15','25_20','20_15','50_50'].includes(curFmt);
-  const is3p = ['20_15_10','15_12_10'].includes(curFmt);
-  const is4p = ['20_15_10_5','15_12_10_7'].includes(curFmt);
+  const is3p = ['30_20_10','20_15_10','15_12_10'].includes(curFmt);
+  const is4p = ['25_20_15_10','20_15_10_5','15_12_10_7'].includes(curFmt);
   if (max <= 2 && !is2p) document.getElementById('fA').checked = true;
   if (max === 3 && !is3p) { const el = document.getElementById('fE'); if(el) el.checked = true; }
   if (max >= 4 && !is4p) { const el = document.getElementById('fG'); if(el) el.checked = true; }
