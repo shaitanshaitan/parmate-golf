@@ -6227,6 +6227,10 @@ html[lang="nl"] .play-btn span:only-child {font-size: 11px !important; letter-sp
 #screen-m1full .m1-extra td:first-child, #screen-rounddetail .m1-extra td:first-child {color: #b07d12; font-weight: 700;}
 #screen-rounddetail .sc-table.m1-mode th, #screen-rounddetail .sc-table.m1-mode td {padding-left: 3px; padding-right: 3px;}
 #screen-matches .type-toggle.m1-four .type-btn {font-size: 12px; letter-spacing: 0;}
+/* v30: four buttons size to their label (short 1vs1 / Solo give room to Team Round / Team Match), so text never runs over the edge */
+#screen-matches .type-toggle.m1-four {gap: 6px;}
+#screen-matches .type-toggle.m1-four .type-btn {flex: 1 1 auto; min-width: 0; padding: 0 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center;}
+@media (max-width: 350px) { #screen-matches .type-toggle.m1-four .type-btn {font-size: 11px; padding: 0 6px;} }
 
 /* 1vs1 setup, 15 Oct round 2: one type scale (names 15px, controls 13px, labels 11px), aligned opponent row, no allowance */
 #screen-m1setup .m1-p-head {align-items: center; gap: 10px; min-height: 44px;}
