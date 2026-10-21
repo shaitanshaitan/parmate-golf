@@ -209,9 +209,7 @@ async function _loadBuddyStatsInto(buddyUid, ROOT){
     ]);
     var roundsS=res[0], teamsS=res[1], buddiesS=res[2];
     var all=roundsS?roundsS.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); }):[];
-    var rounds=all.filter(function(r){return !r.isMatch;});
-    var matches=all.filter(function(r){return r.isMatch;});
-    var wins=matches.filter(function(m){ var mm=(typeof _ensureMatchFields==='function')?_ensureMatchFields(m):m; return mm.result && mm.result.teamAWon>mm.result.teamBWon; }).length;
+    var _st=pmRoundStats(all), rounds=_st.rounds, matches=_st.matches, wins=_st.wins;
     var teams=teamsS?teamsS.size:0;
     var buddies=buddiesS?buddiesS.size:0;
     var winRate=matches.length? Math.round(wins/matches.length*100)+'%' : '\u2014';
@@ -221,8 +219,8 @@ async function _loadBuddyStatsInto(buddyUid, ROOT){
     // Best result (best round by vs par)
     var bc=ROOT.querySelector('.best-card');
     if(bc){
-      if(rounds.length){
-        var best=rounds.map(function(r){ var g=(r.scores||[]).reduce(function(a,b){return a+(b||0);},0); var pp=(r.par||[]).reduce(function(a,b){return a+(b||0);},0); return Object.assign({_g:g,_vs:g-pp},r); }).sort(function(a,b){return a._vs-b._vs;})[0];
+      var best=pmBestRound(rounds);
+      if(best){
         var course=bc.querySelector('.best-course, .best-name'); if(course) course.textContent=best.courseName||'Course';
         var meta=bc.querySelector('.best-meta');
         if(meta){ var hh=best.holes||((best.par||[]).length||9); var parts=[hh+'H']; if(best.format) parts.push(best.format); if(best.teamName) parts.push(best.teamName); if(best.playedAt) parts.push(new Date(best.playedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})); meta.textContent=parts.join(' \u00b7 '); }
@@ -1024,8 +1022,8 @@ function renderTeamOverview(ROOT){
   var rg2=games.filter(function(r){return !r.isMatch;});
   var bc=ROOT.querySelector('.best-card');
   if(bc){
-    if(rg2.length){
-      var best=rg2.map(function(r){var g=(r.scores||[]).reduce(function(a,b){return a+(b||0);},0);var pp=(r.par||[]).reduce(function(a,b){return a+(b||0);},0);return Object.assign({_g:g,_vs:g-pp},r);}).sort(function(a,b){return a._vs-b._vs;})[0];
+    var best=pmBestRound(rg2.filter(function(r){ return r.mode!=='match1v1'; }));
+    if(best){
       var bcc=bc.querySelector('.best-course'); if(bcc) bcc.textContent=best.courseName||'Course';
       var bcm=bc.querySelector('.best-meta'); if(bcm){ var hh=best.holes||((best.par||[]).length||9); bcm.textContent=hh+'H \u00b7 '+(best.format||'')+(best.playedAt?(' \u00b7 '+new Date(best.playedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})):''); }
       var bcs=bc.querySelector('.best-score'); if(bcs) bcs.textContent=(best._vs>0?'+'+best._vs:best._vs);
@@ -1304,8 +1302,7 @@ function renderCreateTeam(ROOT){
 function renderProfile(ROOT){
   ROOT = ROOT || document.getElementById('screen-profile'); if(!ROOT) return;
   var prof=_profile||{}; var AV=(typeof AVATARS!=='undefined')?AVATARS:{};
-  var all=_savedRounds||[]; var rounds=all.filter(function(r){return !r.isMatch;}); var matches=all.filter(function(r){return r.isMatch;});
-  var wins=matches.filter(function(m){return m.result&&m.result.teamAWon>m.result.teamBWon;}).length;
+  var all=_savedRounds||[]; var _st=pmRoundStats(all), rounds=_st.rounds, matches=_st.matches, wins=_st.wins;
   var set=function(sel,val){ var e=ROOT.querySelector(sel); if(e) e.textContent=val; };
   var av=ROOT.querySelector('.avatar-wrap img'); if(av) av.src = prof.avatarUrl || (prof.avatarId&&AV[prof.avatarId]) || 'icons/home-crown.png';
   var hero=ROOT.querySelector('.profile-hero');
@@ -1326,8 +1323,8 @@ function renderProfile(ROOT){
   // best result card (best round by vs par) — tap to open Round Detail
   var bc=ROOT.querySelector('.best-card');
   if(bc){
-    if(rounds.length){
-      var best=rounds.map(function(r){var g=(r.scores||[]).reduce(function(a,b){return a+(b||0);},0);var pp=(r.par||[]).reduce(function(a,b){return a+(b||0);},0);return Object.assign({_g:g,_vs:g-pp},r);}).sort(function(a,b){return a._vs-b._vs;})[0];
+    var best=pmBestRound(rounds);
+    if(best){
       var course=bc.querySelector('.best-course, .best-name'); if(course) course.textContent=best.courseName||'Course';
       var meta=bc.querySelector('.best-meta');
       if(meta){ var hh=best.holes||((best.par||[]).length||9); var parts=[hh+'H']; if(best.format) parts.push(best.format); if(best.teamName) parts.push(best.teamName); if(best.playedAt) parts.push(new Date(best.playedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})); meta.textContent=parts.join(' \u00b7 '); }
@@ -1926,4 +1923,34 @@ async function pmFindUidByEmail(email){
   if (!h || !window._fbDb) return null;
   var s = await window._fbDb.collection('email_index').doc(h).get();
   return (s.exists && s.data() && s.data().uid) ? s.data().uid : null;
+}
+
+
+/* ── v34 Profile stats: 1vs1 matches count as matches, never as a "best round" ──
+   A 1vs1 is saved with isMatch:false + mode:'match1v1' and has no team `scores`,
+   so it used to land in Rounds and show as e.g. -34 (0 strokes minus par 34). */
+function pmIs1v1(r){ return !!r && r.mode === 'match1v1'; }
+function pmRoundStats(all){
+  all = all || [];
+  var rounds = all.filter(function(r){ return !r.isMatch && !pmIs1v1(r); });
+  var matches = all.filter(function(r){ return r.isMatch || pmIs1v1(r); });
+  var wins = matches.filter(function(m){
+    if (pmIs1v1(m)) return !!(m.result && m.result.winner === 'A');          // A = the player who owns this copy
+    var mm = (typeof _ensureMatchFields === 'function') ? _ensureMatchFields(m) : m;
+    return !!(mm && mm.result && mm.result.teamAWon > mm.result.teamBWon);
+  }).length;
+  return { rounds: rounds, matches: matches, wins: wins };
+}
+/* Best stroke round by score vs par, over the holes actually played (score > 0).
+   Rounds without any hole score are skipped. Returns null when there is nothing to show. */
+function pmBestRound(rounds){
+  var list = (rounds || []).filter(function(r){ return r && !r.isMatch && !pmIs1v1(r); }).map(function(r){
+    var sc = r.scores || [], par = r.par || [], g = 0, pp = 0, n = 0;
+    for (var i = 0; i < sc.length; i++){ var v = Number(sc[i]); if (v > 0 && par[i] != null){ g += v; pp += Number(par[i]) || 0; n++; } }
+    if (!n) return null;
+    return Object.assign({ _g: g, _vs: g - pp }, r);
+  }).filter(Boolean);
+  if (!list.length) return null;
+  list.sort(function(a, b){ return a._vs - b._vs; });
+  return list[0];
 }

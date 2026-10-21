@@ -6089,7 +6089,7 @@ async function _loadPublicStats(buddyUid) {
     ]);
     if (teamsS)   stats.teams   = teamsS.size || 0;
     if (buddiesS) stats.buddies = buddiesS.size || 0;
-    if (roundsS)  roundsS.forEach(doc => { const r = doc.data() || {}; if (r.isMatch) stats.match++; else stats.duo++; });
+    if (roundsS)  roundsS.forEach(doc => { const r = doc.data() || {}; if (r.isMatch || r.mode === 'match1v1') stats.match++; else stats.duo++; });   // v34: 1vs1 is a match
   } catch(e) { console.warn('_loadPublicStats', e); }
   return stats;
 }

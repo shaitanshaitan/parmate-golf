@@ -278,8 +278,8 @@ const LANG = {
     ab_accept:                'Accept',
     pp_title:                 'Buddy Profile',
     pp_buddies:               'Buddies',
-    pp_duo:                   'Duo rounds',
-    pp_match:                 'Team Match',
+    pp_duo:                   'Rounds',
+    pp_match:                 'Matches',
     pp_teams:                 'Teams',
     // ── Keys used by data-i18n HTML attributes ──────────────────
     btn_calculate:       'Calculate Team Handicap',
@@ -609,8 +609,8 @@ const LANG = {
     ab_accept:                'Accepteren',
     pp_title:                 'Buddy-profiel',
     pp_buddies:               'Buddies',
-    pp_duo:                   'Duo-rondes',
-    pp_match:                 'Team Match',
+    pp_duo:                   'Rondes',
+    pp_match:                 'Matches',
     pp_teams:                 'Teams',
     // ── Keys used by data-i18n HTML attributes ──────────────────
     btn_calculate:       'Teamhandicap berekenen',
