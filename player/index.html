@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="application-name" content="Parmate Team HCP">
 <meta name="theme-color" content="#0a1a10">
+<script>/* v38: apply the saved theme before the first paint (no green flash) */(function(){try{if(localStorage.getItem('pmTheme')==='black'){document.documentElement.setAttribute('data-theme','black');var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content','#0a0a0a');}}catch(e){}})();</script>
 <link rel="manifest" href="/manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -65,7 +66,7 @@
   });
 </script>
 <link rel="preload" as="image" href="icons/login-bg.jpg">
-<link rel="stylesheet" href="app.css?v=20261022a">
+<link rel="stylesheet" href="app.css?v=20261023a">
 
 <!-- styles moved to app.css (block 2) -->
 </head>
@@ -1284,9 +1285,9 @@
 <div class="toast" id="toast"></div>
 
 <script src="lang.js?v=20261021d"></script>
-<script src="lang-nl.js?v=20261021e"></script>
+<script src="lang-nl.js?v=20261023a"></script>
 <script src="i18n.js?v=20261013d"></script>
-<script src="app-main.js?v=20261022a"></script>
+<script src="app-main.js?v=20261023a"></script>
 <script src="app-solo.js?v=20261015c"></script>
 <script src="app-match.js?v=20261019a"></script>
 <script src="app-m1live.js?v=20261020a"></script>
@@ -2818,6 +2819,27 @@
                 <div><div class="row-label">Email Notifications</div></div>
               </div>
               <div class="row-right"><div class="toggle"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- v38: Appearance (theme picker) -->
+        <div class="section">
+          <div class="section-title">Appearance</div>
+          <div class="settings-group">
+            <div class="pm-theme-head">
+              <div class="row-label">App theme</div>
+              <div class="row-sublabel">Choose the colour of the header, buttons and menu bar.</div>
+            </div>
+            <div class="pm-theme-grid">
+            <button type="button" class="pm-theme-opt" data-theme-opt="green" onclick="pmSetTheme('green')" aria-pressed="false">
+              <div class="pm-theme-prev" aria-hidden="true"><div class="tp-bar"></div><div class="tp-hero"></div><div class="tp-body"><div class="tp-card"></div><div class="tp-card"></div><div class="tp-card"></div></div><div class="tp-dock"></div></div>
+              <div class="pm-theme-foot"><span class="pm-theme-name">Green</span><span class="pm-theme-radio"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></span></div>
+            </button>
+            <button type="button" class="pm-theme-opt" data-theme-opt="black" onclick="pmSetTheme('black')" aria-pressed="false">
+              <div class="pm-theme-prev" aria-hidden="true"><div class="tp-bar"></div><div class="tp-hero"></div><div class="tp-body"><div class="tp-card"></div><div class="tp-card"></div><div class="tp-card"></div></div><div class="tp-dock"></div></div>
+              <div class="pm-theme-foot"><span class="pm-theme-name">Black</span><span class="pm-theme-radio"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></span></div>
+            </button>
             </div>
           </div>
         </div>
@@ -6608,7 +6630,7 @@
 
 <script src="app-nav.js?v=20261013c"></script>
 <script src="app-myteams.js?v=20261013c"></script>
-<script src="app-profile.js?v=20261022a"></script>
+<script src="app-profile.js?v=20261023a"></script>
 <script src="faq-data.js?v=20261021c"></script>
 <script src="app-faq.js?v=20261013d"></script>
 <script src="app-menu.js?v=20261013c"></script>
@@ -6663,7 +6685,7 @@
     <button class="sc-share-close" onclick="scCloseShare()" data-i18n="share_close">Close</button>
   </div>
 </div>
-<script src="app-sharecard.js?v=20261015c"></script>
+<script src="app-sharecard.js?v=20261023a"></script>
 
 </body>
 </html>

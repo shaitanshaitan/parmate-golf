@@ -1360,4 +1360,10 @@ window.PM_STRINGS_NL = {
 "Best Result · Stroke Play": "Beste resultaat · Strokeplay",
 "Best Result · Match Play": "Beste resultaat · Matchplay",
 "⭐ Best win": "⭐ Grootste overwinning",
+/* v38 App theme (23 Oct 2026). Claude's suggestion, still to be reviewed by Robbie. */
+"Appearance": "Weergave",
+"App theme": "Thema",
+"Choose the colour of the header, buttons and menu bar.": "Kies de kleur van de kopbalk, de knoppen en de menubalk.",
+"Green": "Groen",
+"Black": "Zwart",
 };

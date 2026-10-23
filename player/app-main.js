@@ -6824,6 +6824,8 @@ async function loadProfileData(uid) {
     if (snap.exists) { _profile = snap.data(); }
     try { const _u = await _pU; if (_u.exists) { const _ud = _u.data() || {}; _profile = _profile || {}; if (_ud.avatarUrl && !_profile.avatarUrl) _profile.avatarUrl = _ud.avatarUrl; if (_ud.coverUrl && !_profile.coverUrl) _profile.coverUrl = _ud.coverUrl; } } catch(e){}
     if (_profile) { updateUserPill(); prefillFromProfile(); }
+    // v38: the theme saved on the account wins over this phone's last choice
+    if (_profile && (_profile.theme === 'black' || _profile.theme === 'green') && typeof pmApplyTheme === 'function') pmApplyTheme(_profile.theme);
   } catch(e) { console.warn('Could not load profile:', e); }
 
   // Load buddies
@@ -9265,4 +9267,4 @@ if ('serviceWorker' in navigator) {
 document.addEventListener('DOMContentLoaded', applyLang);
 // BUILD STAMP — check this in the browser console to confirm which version is live.
 // If you deploy and don't see this exact string, you're being served a cached/old build.
-console.log('%cParmate build: 2026-10-22-v37-themevars', 'color:#1a6b3c;font-weight:bold;font-size:14px;');
+console.log('%cParmate build: 2026-10-23-v38-blacktheme', 'color:#1a6b3c;font-weight:bold;font-size:14px;');

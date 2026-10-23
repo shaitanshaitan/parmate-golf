@@ -232,6 +232,35 @@ async function _loadBuddyStatsInto(buddyUid, ROOT){
   }catch(e){ console.warn('_loadBuddyStatsInto', e); }
 }
 
+/* ===== v38 App theme: Green (default) or Black =====
+   The choice lives in localStorage 'pmTheme' (read by the inline <head> script before the
+   first paint) and in users/{uid}/profile/data.theme (merge), so it follows the account. */
+function pmGetTheme(){ return document.documentElement.getAttribute('data-theme')==='black' ? 'black' : 'green'; }
+function pmApplyTheme(t){
+  t = (t==='black') ? 'black' : 'green';
+  if(t==='black') document.documentElement.setAttribute('data-theme','black');
+  else document.documentElement.removeAttribute('data-theme');
+  var m=document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute('content', t==='black' ? '#0a0a0a' : '#0a1a10');
+  try{ localStorage.setItem('pmTheme', t); }catch(e){}
+  pmSyncThemePicker();
+  return t;
+}
+function pmSyncThemePicker(){
+  var cur=pmGetTheme();
+  document.querySelectorAll('.pm-theme-opt').forEach(function(b){
+    var on=(b.getAttribute('data-theme-opt')===cur);
+    b.classList.toggle('active', on); b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+}
+function pmSetTheme(t){
+  t=pmApplyTheme(t);
+  if(typeof _profile!=='undefined'){ _profile=_profile||{}; _profile.theme=t; }
+  try{
+    var u=window._fbAuth&&window._fbAuth.currentUser;
+    if(u&&window._fbDb) window._fbDb.collection('users').doc(u.uid).collection('profile').doc('data').set({theme:t},{merge:true}).catch(function(e){ console.warn('theme save failed', e); });
+  }catch(e){ console.warn('theme save failed', e); }
+}
+
 // -- Profile cluster: Account Settings (screen-settings) --
 
 (function(){
@@ -283,6 +312,7 @@ async function _loadBuddyStatsInto(buddyUid, ROOT){
 (function(){ var _o=window.saveName; window.saveName=function(){ if(_o)_o(); var nd=document.getElementById('name-display'); if(nd){ _profile=_profile||{}; _profile.displayName=nd.textContent; try{ var uid=window._fbAuth&&window._fbAuth.currentUser&&window._fbAuth.currentUser.uid; if(uid&&window._fbDb) window._fbDb.collection('users').doc(uid).collection('profile').doc('data').set({displayName:_profile.displayName},{merge:true}); }catch(e){} if(typeof renderHomeScreen==='function') renderHomeScreen(); } }; })();
 function renderAccountSettings(ROOT){
   ROOT=ROOT||document.getElementById('screen-settings'); if(!ROOT) return;
+  pmSyncThemePicker();   // v38
   var prof=_profile||{}; var AV=(typeof AVATARS!=='undefined')?AVATARS:{}; var cu=window._fbAuth&&window._fbAuth.currentUser;
   var q=function(s){return ROOT.querySelector(s);};
   if(q('.acct-name')) q('.acct-name').textContent=prof.displayName||'Player';

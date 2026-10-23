@@ -6444,3 +6444,80 @@ html[lang="nl"] .play-btn span:only-child {font-size: 11px !important; letter-sp
 #buddySearchOverlay .ab-search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-3, #888); pointer-events: none; display: flex; }
 #buddySearchOverlay #buddySearchInput { height: 48px; border-radius: 24px; border: 1.5px solid rgba(0,0,0,0.1); padding: 0 16px 0 44px; font-size: 14px; }
 #buddySearchOverlay #buddySearchInput:focus { border-color: var(--pm-brand); box-shadow: 0 0 0 3px rgba(var(--pm-brand-rgb),0.08); }
+
+/* ===== v38 Black theme (23 Oct 2026) =====
+   Set by <html data-theme="black">. Only the --pm-* brand colours change; --pm-good
+   (scores, wins, success), gold and the orange title bar stay the same in both themes. */
+html[data-theme="black"] {
+  --pm-brand: #161616;
+  --pm-brand-dark: #050505;
+  --pm-brand-deep: #111111;
+  --pm-brand-hover: #2a2a2a;
+  --pm-brand-press: #2a2a2a;
+  --pm-brand-mid: #3a3a3a;
+  --pm-brand-alt: #1f1f1f;
+  --pm-photo-bg: #333333;
+  --pm-ink: #111111;
+  --pm-ink-2: #222222;
+  --pm-legacy-dark: #111111;
+  --pm-legacy-dark-2: #2a2a2a;
+  --pm-legacy-panel: #1f1f1f;
+  --pm-legacy-panel-line: #151515;
+  --pm-legacy-accent: #e1c245;
+  --pm-team-bg: #1c1c1c;
+  --pm-stat-bg: #222222;
+  --pm-badge: #333333;
+  --pm-cover-1: #e4e4e4;
+  --pm-cover-2: #a9a9a9;
+  --pm-cover-3: #3a3a3a;
+  --pm-line-soft: #e0e0e0;
+  --pm-line-info: #dddddd;
+  --pm-wash-f4f9f6: #f7f7f7;
+  --pm-wash-f0f7f3: #f4f4f4;
+  --pm-wash-f5fdf8: #fafafa;
+  --pm-wash-f0f9f4: #f6f6f6;
+  --pm-wash-eef5f0: #f2f2f2;
+  --pm-wash-e6f0ea: #ececec;
+  --pm-wash-e7ece9: #eaeaea;
+  --pm-wash-f3faf5: #f7f7f7;
+  --pm-wash-eef4f0: #f2f2f2;
+  --pm-wash-e9f0ec: #ededed;
+  --pm-wash-f0faf5: #f6f6f6;
+  --pm-wash-f0f7f2: #f4f4f4;
+  --pm-wash-eef7f1: #f4f4f4;
+  --pm-wash-e8f0eb: #ededed;
+  --pm-wash-e3f1e8: #ececec;
+  --pm-wash-f3f8f5: #f6f6f6;
+  --pm-wash-d6dfd9: #dcdcdc;
+  --pm-wash-cfd8d3: #d5d5d5;
+  --pm-wash-e8f5e9: #f0f0f0;
+  --pm-brand-rgb: 22,22,22;
+  --pm-brand-dark-rgb: 5,5,5;
+  --pm-brand-deep-rgb: 17,17,17;
+  --pm-shade-rgb: 0,0,0;
+  --pm-shade-2-rgb: 0,0,0;
+  --pm-tint-rgb: 10,10,10;
+  --pm-glow-rgb: 110,110,110;
+  --pm-brand-alt-rgb: 31,31,31;
+}
+/* Theme picker (Settings > Appearance) */
+#screen-settings .pm-theme-head { padding: 12px 14px 4px; }
+#screen-settings .pm-theme-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 8px 14px 14px; }
+#screen-settings .pm-theme-opt { background: #fff; border: 1.5px solid #e3e3e3; border-radius: 14px; padding: 8px 8px 10px; display: flex; flex-direction: column; gap: 8px; cursor: pointer; text-align: left; font: inherit; }
+#screen-settings .pm-theme-opt.active { border: 2.5px solid #e1c245; padding: 7px 7px 9px; }
+#screen-settings .pm-theme-prev { height: 96px; border-radius: 8px; overflow: hidden; border: 1px solid #e3e3e3; display: flex; flex-direction: column; background: #fff; }
+#screen-settings .pm-theme-prev .tp-bar { height: 12px; }
+#screen-settings .pm-theme-prev .tp-hero { height: 24px; }
+#screen-settings .pm-theme-prev .tp-body { flex: 1; padding: 5px; display: flex; flex-direction: column; gap: 4px; }
+#screen-settings .pm-theme-prev .tp-card { height: 9px; border: 1px solid #ececec; border-radius: 3px; }
+#screen-settings .pm-theme-prev .tp-dock { height: 13px; }
+#screen-settings .pm-theme-opt[data-theme-opt="green"] .tp-bar, #screen-settings .pm-theme-opt[data-theme-opt="green"] .tp-dock { background: #1a6b3c; }
+#screen-settings .pm-theme-opt[data-theme-opt="green"] .tp-hero { background: linear-gradient(180deg, #cfe3d6, #0e3d22); }
+#screen-settings .pm-theme-opt[data-theme-opt="black"] .tp-bar, #screen-settings .pm-theme-opt[data-theme-opt="black"] .tp-dock { background: #161616; }
+#screen-settings .pm-theme-opt[data-theme-opt="black"] .tp-hero { background: linear-gradient(180deg, #dcdcdc, #0a0a0a); }
+#screen-settings .pm-theme-foot { display: flex; align-items: center; justify-content: space-between; }
+#screen-settings .pm-theme-name { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); }
+#screen-settings .pm-theme-radio { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #c9c9c9; box-sizing: border-box; display: flex; align-items: center; justify-content: center; }
+#screen-settings .pm-theme-opt.active .pm-theme-radio { border-color: #e1c245; background: #e1c245; }
+#screen-settings .pm-theme-radio svg { display: none; }
+#screen-settings .pm-theme-opt.active .pm-theme-radio svg { display: block; }

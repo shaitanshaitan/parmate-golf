@@ -69,12 +69,13 @@ function _renderScorecardCanvas(rRaw){
   var W=1080,H=1920,cx=W/2;
   var cv=document.createElement('canvas'); cv.width=W; cv.height=H;
   var ctx=cv.getContext('2d');
-  var g=ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#17492c'); g.addColorStop(0.5,'#103a23'); g.addColorStop(1,'#0a2c1a');
+  var _blk=(document.documentElement.getAttribute('data-theme')==='black');   // v38: black theme = black card
+  var g=ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,_blk?'#1c1c1c':'#17492c'); g.addColorStop(0.5,_blk?'#121212':'#103a23'); g.addColorStop(1,_blk?'#070707':'#0a2c1a');
   ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
-  var rg=ctx.createRadialGradient(cx,H*0.16,60,cx,H*0.16,W*0.85); rg.addColorStop(0,'rgba(70,140,92,0.30)'); rg.addColorStop(1,'rgba(0,0,0,0)'); ctx.fillStyle=rg; ctx.fillRect(0,0,W,H);
+  var rg=ctx.createRadialGradient(cx,H*0.16,60,cx,H*0.16,W*0.85); rg.addColorStop(0,_blk?'rgba(150,150,150,0.20)':'rgba(70,140,92,0.30)'); rg.addColorStop(1,'rgba(0,0,0,0)'); ctx.fillStyle=rg; ctx.fillRect(0,0,W,H);
   ctx.strokeStyle='rgba(212,165,75,0.30)'; ctx.lineWidth=2; ctx.strokeRect(30,30,W-60,H-60);
 
-  var cream='#F3ECCF',muted='#8FA694',gold='#E3B454',lineL='rgba(255,255,255,0.14)',vlineL='rgba(243,236,207,0.28)';
+  var cream='#F3ECCF',muted=_blk?'#9a9a9a':'#8FA694',gold='#E3B454',lineL='rgba(255,255,255,0.14)',vlineL='rgba(243,236,207,0.28)';
 
   _scCrownDraw(ctx,cx,108,150);
   _scLS(ctx,'PARMATE',cx,318,'800 92px Inter, sans-serif',_scGold(ctx,250,330),14);
