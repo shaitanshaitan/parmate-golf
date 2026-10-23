@@ -234,7 +234,7 @@ async function tmoppRenderDD(ROOT, dd) {
   let html = '', lastGroup = null;
   teams.forEach(tm => {
     if (tm.group !== lastGroup) {
-      html += '<div class="saved-dd-item" style="cursor:default;background:#f0f9f4;color:#1a6b3c;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.05em;">' + esc(tm.group) + '</div>';
+      html += '<div class="saved-dd-item" style="cursor:default;background:var(--pm-wash-f0f9f4);color:var(--pm-brand);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.05em;">' + esc(tm.group) + '</div>';
       lastGroup = tm.group;
     }
     const meta = tm.size + ' players \u00b7 ' + tm.players.map(p => p.name).filter(Boolean).join(', ');
@@ -269,14 +269,14 @@ function tmoppRenderPlayerDD() {
   let html = '';
   const buds = Array.isArray(_buddies) ? _buddies : [];
   if (buds.length) {
-    html += '<div style="padding:10px 14px;background:#f0f9f4;color:#1a6b3c;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.05em;">Your buddies</div>';
+    html += '<div style="padding:10px 14px;background:var(--pm-wash-f0f9f4);color:var(--pm-brand);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.05em;">Your buddies</div>';
     buds.forEach(b => {
       html += '<div class="tmopp-pd-item" data-name="' + esc(b.name || '') + '" data-hcp="' + (b.hcp != null ? esc(b.hcp) : '') + '" data-gender="' + esc(b.gender || 'M') + '" style="padding:11px 14px;border-bottom:1px solid #eee;cursor:pointer;font-family:Inter,sans-serif;font-size:13px;"><b>' + esc(b.name || 'Buddy') + '</b>' + (b.hcp != null ? ' \u00b7 HCP ' + esc(b.hcp) : '') + '</div>';
     });
   } else {
     html += '<div style="padding:11px 14px;color:#777;font-size:12px;">No buddies yet \u2014 add a guest below.</div>';
   }
-  html += '<div class="tmopp-pd-item" data-guest="1" style="padding:11px 14px;cursor:pointer;font-family:Inter,sans-serif;font-size:13px;color:#1a6b3c;font-weight:600;">\uFF0B Guest \u2014 enter manually</div>';
+  html += '<div class="tmopp-pd-item" data-guest="1" style="padding:11px 14px;cursor:pointer;font-family:Inter,sans-serif;font-size:13px;color:var(--pm-brand);font-weight:600;">\uFF0B Guest \u2014 enter manually</div>';
   dd.innerHTML = html;
 }
 

@@ -26,9 +26,9 @@ function updateLangBtn() {
   if (!btn) return;
   // Show EN / NL with active one bold
   if (_lang === 'nl') {
-    btn.innerHTML = 'EN / <strong style="color:#1a6b3c">NL</strong>';
+    btn.innerHTML = 'EN / <strong style="color:var(--pm-brand)">NL</strong>';
   } else {
-    btn.innerHTML = '<strong style="color:#1a6b3c">EN</strong> / NL';
+    btn.innerHTML = '<strong style="color:var(--pm-brand)">EN</strong> / NL';
   }
 }
 
@@ -560,7 +560,7 @@ function acRenderLoopList() {
   const add = document.createElement('button');
   add.type = 'button'; add.id = 'ac_addLoopBtn';
   add.textContent = '+ Add another loop';
-  add.style.cssText = 'margin-top:14px;width:100%;padding:12px;border:1.5px dashed var(--green);border-radius:10px;background:#f4f9f6;color:var(--green);font-weight:600;cursor:pointer;font-family:Inter,sans-serif;';
+  add.style.cssText = 'margin-top:14px;width:100%;padding:12px;border:1.5px dashed var(--green);border-radius:10px;background:var(--pm-wash-f4f9f6);color:var(--green);font-weight:600;cursor:pointer;font-family:Inter,sans-serif;';
   host.appendChild(add);
 
   // wire (delegation on host, attached once)
@@ -2351,7 +2351,7 @@ function trRenderResult(scr) {
   }
   if (metas[1]) {
     metas[1].innerHTML = '<span>'+(c._playedLoopName||c.name||'')+'</span>|<span>'+trFormatLabel()+' allowance</span>'+
-      (((c.holes||18)<=9) ? '|<span style="color:#1a6b3c;font-weight:700;">'+t('nine_hole_tag')+'</span>' : '');
+      (((c.holes||18)<=9) ? '|<span style="color:var(--pm-brand);font-weight:700;">'+t('nine_hole_tag')+'</span>' : '');
   }
   if (!res) { if(valEl) valEl.textContent='—'; return; }
   if (valEl) valEl.textContent = res.teamHcp;
@@ -8303,7 +8303,7 @@ function renderCarouselHole(i) {
   if (siContainer) {
     if (si) {
       const difficulty = si <= 6 ? t('sc_hardest') : si <= 12 ? t('sc_average') : t('sc_easiest');
-      siContainer.innerHTML = `<span style="color:#1a6b3c;font-size:0.8rem;font-weight:700;">SI ${si} · ${difficulty}</span>`;
+      siContainer.innerHTML = `<span style="color:var(--pm-brand);font-size:0.8rem;font-weight:700;">SI ${si} · ${difficulty}</span>`;
       siContainer.style.display = '';
     } else {
       siContainer.style.display = 'none';
@@ -8450,7 +8450,7 @@ function showAllHoles() {
     if (!isMatch) {
       // Single mode row — 4 columns: H, Par, Score, SI
       const mySC = myDone ? scoreColorClass(myS, p, true) : 'empty';
-      const siColor = si ? (si <= 6 ? 'var(--red)' : si <= 12 ? '#c87a3a' : 'var(--green)') : 'var(--muted)';
+      const siColor = si ? (si <= 6 ? 'var(--red)' : si <= 12 ? '#c87a3a' : 'var(--pm-good)') : 'var(--muted)';
       return `
         <div class="ah-hole-row${isCurrent}" style="grid-template-columns:28px 32px 1fr 28px;" onclick="closeAllHoles();carouselGoTo(${i})">
           <div class="ah-hole-num${myDone ? ' done' : ''}">${i+1}</div>
@@ -8480,7 +8480,7 @@ function showAllHoles() {
       <div class="ah-hole-row${isCurrent}" style="grid-template-columns:26px 28px 24px 1fr 1fr 26px;gap:6px;" onclick="closeAllHoles();carouselGoTo(${i})">
         <div class="ah-hole-num${myDone || oppDone ? ' done' : ''}">${i+1}${strokeDot}</div>
         <div class="ah-par">${p}</div>
-        <div style="text-align:center;font-size:0.72rem;font-weight:700;color:${si ? (si <= 6 ? 'var(--red)' : si <= 12 ? '#c87a3a' : 'var(--green)') : 'var(--muted)'};">${si || '–'}</div>
+        <div style="text-align:center;font-size:0.72rem;font-weight:700;color:${si ? (si <= 6 ? 'var(--red)' : si <= 12 ? '#c87a3a' : 'var(--pm-good)') : 'var(--muted)'};">${si || '–'}</div>
         <div class="ah-score ${mySC}">${myDone  ? myS  : '–'}</div>
         <div class="ah-score ${oppSC}">${oppDone ? oppS : '–'}</div>
         <div class="ah-result ${resultClass}">${resultLabel}</div>
@@ -9265,4 +9265,4 @@ if ('serviceWorker' in navigator) {
 document.addEventListener('DOMContentLoaded', applyLang);
 // BUILD STAMP — check this in the browser console to confirm which version is live.
 // If you deploy and don't see this exact string, you're being served a cached/old build.
-console.log('%cParmate build: 2026-10-19-r3c-v22', 'color:#1a6b3c;font-weight:bold;font-size:14px;');
+console.log('%cParmate build: 2026-10-22-v37-themevars', 'color:#1a6b3c;font-weight:bold;font-size:14px;');
