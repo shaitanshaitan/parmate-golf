@@ -313,6 +313,7 @@ function pmSetTheme(t){
 function renderAccountSettings(ROOT){
   ROOT=ROOT||document.getElementById('screen-settings'); if(!ROOT) return;
   pmSyncThemePicker();   // v38
+  if (typeof pmSyncUnitsPicker === 'function') pmSyncUnitsPicker();   // v40
   var prof=_profile||{}; var AV=(typeof AVATARS!=='undefined')?AVATARS:{}; var cu=window._fbAuth&&window._fbAuth.currentUser;
   var q=function(s){return ROOT.querySelector(s);};
   if(q('.acct-name')) q('.acct-name').textContent=prof.displayName||'Player';

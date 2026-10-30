@@ -562,6 +562,7 @@ function m1RenderScore() {
   var sv = document.getElementById('m1s_save'); if (sv) { sv.classList.toggle('ready', out.done); sv.textContent = m.saved ? '✓ SAVED' : 'SAVE MATCH'; }
   if (typeof m1LiveDecorate === 'function') m1LiveDecorate(h);   // live pill + "changed by"
   m1WireScore(scr);
+  if (typeof pmGpsUpdate === 'function') pmGpsUpdate('m1score', ch);   // v40: GPS distances card (extra holes use their course hole)
 }
 
 function m1WireScore(scr) {

@@ -1366,4 +1366,11 @@ window.PM_STRINGS_NL = {
 "Choose the colour of the header, buttons and menu bar.": "Kies de kleur van de kopbalk, de knoppen en de menubalk.",
 "Green": "Groen",
 "Black": "Zwart",
+"Distances": "Afstanden",
+"Distance unit": "Afstandseenheid",
+"Show distances to the green in metres or yards.": "Toon afstanden tot de green in meters of yards.",
+"Metres": "Meters",
+"Yards": "Yards",
+"During a round, Parmate uses your phone's location to show distances to the green. Your location stays on your phone: it is not stored or sent to us. You can turn location off in your browser at any time.": "Tijdens een ronde gebruikt Parmate de locatie van je telefoon om afstanden tot de green te tonen. Je locatie blijft op je telefoon: we slaan hem niet op en hij wordt niet naar ons verstuurd. Je kunt locatie altijd uitzetten in je browser.",
+"We do <strong>not</strong> store location data or payment card data, and we do not sell your data to third parties.": "We slaan <strong>geen</strong> locatiegegevens of betaalkaartgegevens op en verkopen je gegevens niet aan derden.",
 };

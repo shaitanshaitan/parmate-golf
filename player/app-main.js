@@ -1348,7 +1348,7 @@ function trComposeCourse(base, holes, loopSel, twice) {
 
   if (holes === 9 || (holes === 18 && false)) {
     const d = nineData(loopSel[0] != null ? loopSel[0] : 0);
-    return { ...base, name: base.name, holes: 9, par: d.par, parPerHole: d.parByHole, indexPerHole: d.siByHole, tees: d.tees, women: d.women, _playedLoopName: d.name };
+    return { ...base, name: base.name, holes: 9, par: d.par, parPerHole: d.parByHole, indexPerHole: d.siByHole, tees: d.tees, women: d.women, _playedLoopName: d.name, _geoLoops: [loopSel[0] != null ? loopSel[0] : 0] };
   }
 
   // ── 18 holes ──
@@ -1373,6 +1373,7 @@ function trComposeCourse(base, holes, loopSel, twice) {
       tees: lTees,
       women: (firstLoop.women && firstLoop.women.length) ? firstLoop.women : (base.women || []),
       _playedLoopName: firstLoop.name || base.name,
+      _geoLoops: [selIdx],
     };
   }
   // Otherwise: same 9 twice, or two different 9-hole loops.
@@ -1460,6 +1461,7 @@ function trComposeCourse(base, holes, loopSel, twice) {
     tees: tees18.length ? tees18 : base.tees,
     women: women18.length ? women18 : (base.women || []),
     _playedLoopName: sameLoopTwice ? front.name + ' (\u00d72)' : front.name + ' + ' + back.name,
+    _geoLoops: sameLoopTwice ? [0, 0] : [loopSel[0], loopSel[1]],
   };
 }
 
@@ -2444,6 +2446,7 @@ function trcUpdateView() {
   });
   trcUpdateStats();
   if (typeof soloUpdateHole === 'function') soloUpdateHole();   // Solo: strokes + net/points (hidden for team rounds)
+  if (typeof pmGpsUpdate === 'function') pmGpsUpdate('trscore', h);   // v40: GPS distances card
 }
 
 function trcUpdateStats() {
@@ -6826,6 +6829,8 @@ async function loadProfileData(uid) {
     if (_profile) { updateUserPill(); prefillFromProfile(); }
     // v38: the theme saved on the account wins over this phone's last choice
     if (_profile && (_profile.theme === 'black' || _profile.theme === 'green') && typeof pmApplyTheme === 'function') pmApplyTheme(_profile.theme);
+    // v40: distance units (metres / yards) saved on the account
+    if (_profile && (_profile.units === 'm' || _profile.units === 'yd') && typeof pmApplyUnits === 'function') pmApplyUnits(_profile.units);
   } catch(e) { console.warn('Could not load profile:', e); }
 
   // Load buddies

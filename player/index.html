@@ -66,7 +66,7 @@
   });
 </script>
 <link rel="preload" as="image" href="icons/login-bg.jpg">
-<link rel="stylesheet" href="app.css?v=20261023a">
+<link rel="stylesheet" href="app.css?v=20261030a">
 
 <!-- styles moved to app.css (block 2) -->
 </head>
@@ -831,7 +831,8 @@
           <li><strong>Technical data</strong> — device type, browser, Firebase session tokens (automatically collected by Firebase)</li>
           <li><strong>Subscription data</strong> — Pro status, the end date of your plan, and the reference numbers Mollie gives your payments and subscription (only if you upgrade to Pro)</li>
         </ul>
-        <p>We do <strong>not</strong> collect location data, payment card data, or sell your data to third parties.</p>
+        <p>During a round, Parmate uses your phone's location to show distances to the green. Your location stays on your phone: it is not stored or sent to us. You can turn location off in your browser at any time.</p>
+        <p>We do <strong>not</strong> store location data or payment card data, and we do not sell your data to third parties.</p>
       </div>
 
       <div class="legal-section">
@@ -1285,11 +1286,12 @@
 <div class="toast" id="toast"></div>
 
 <script src="lang.js?v=20261021d"></script>
-<script src="lang-nl.js?v=20261023a"></script>
+<script src="lang-nl.js?v=20261030a"></script>
 <script src="i18n.js?v=20261013d"></script>
-<script src="app-main.js?v=20261023a"></script>
+<script src="app-main.js?v=20261030a"></script>
 <script src="app-solo.js?v=20261015c"></script>
-<script src="app-match.js?v=20261019a"></script>
+<script src="app-match.js?v=20261030a"></script>
+<script src="app-gps.js?v=20261030a"></script>
 <script src="app-m1live.js?v=20261020a"></script>
 
 <!-- ── MATCH GATE OVERLAY ── -->
@@ -2840,6 +2842,21 @@
               <div class="pm-theme-prev" aria-hidden="true"><div class="tp-bar"></div><div class="tp-hero"></div><div class="tp-body"><div class="tp-card"></div><div class="tp-card"></div><div class="tp-card"></div></div><div class="tp-dock"></div></div>
               <div class="pm-theme-foot"><span class="pm-theme-name">Black</span><span class="pm-theme-radio"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></span></div>
             </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- v40: Distances (GPS units) -->
+        <div class="section">
+          <div class="section-title">Distances</div>
+          <div class="settings-group">
+            <div class="pm-theme-head">
+              <div class="row-label">Distance unit</div>
+              <div class="row-sublabel">Show distances to the green in metres or yards.</div>
+            </div>
+            <div class="pm-units-grid">
+              <button type="button" class="pm-units-opt" data-units-opt="m" onclick="pmSetUnits('m')" aria-pressed="false">Metres</button>
+              <button type="button" class="pm-units-opt" data-units-opt="yd" onclick="pmSetUnits('yd')" aria-pressed="false">Yards</button>
             </div>
           </div>
         </div>
@@ -6630,7 +6647,7 @@
 
 <script src="app-nav.js?v=20261013c"></script>
 <script src="app-myteams.js?v=20261013c"></script>
-<script src="app-profile.js?v=20261023a"></script>
+<script src="app-profile.js?v=20261030a"></script>
 <script src="faq-data.js?v=20261021c"></script>
 <script src="app-faq.js?v=20261013d"></script>
 <script src="app-menu.js?v=20261013c"></script>
