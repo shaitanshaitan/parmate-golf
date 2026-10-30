@@ -6548,3 +6548,9 @@ html[data-theme="black"] {
 #screen-settings .pm-units-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 8px 14px 14px; }
 #screen-settings .pm-units-opt { background: #fff; border: 1.5px solid #e3e3e3; border-radius: 12px; min-height: 44px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); cursor: pointer; }
 #screen-settings .pm-units-opt.active { border: 2.5px solid #e1c245; }
+
+/* ===== v41: tapping the app never shows a blinking text cursor or selects text (app-like) =====
+   Text fields, the chat and FAQ articles stay selectable; their cursor shows as normal. */
+body { -webkit-user-select: none; user-select: none; caret-color: transparent; -webkit-touch-callout: none; }
+input, textarea, select, [contenteditable="true"] { -webkit-user-select: text; user-select: text; caret-color: auto; -webkit-touch-callout: default; }
+.chat-msgs, #screen-faqtopic .body-area { -webkit-user-select: text; user-select: text; }
