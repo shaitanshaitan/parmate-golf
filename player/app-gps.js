@@ -1,5 +1,6 @@
 /* Parmate · GPS distances (free): front / centre / back of the green on the score screens.
    v40 (30 Oct 2026). Team Round + Solo (screen-trscore) and 1vs1 (screen-m1score).
+   v42: the screen is no longer kept on (battery); GPS pauses while the phone sleeps.
    - Course data: OpenStreetMap hole lines and greens, one JSON file per course in gps/.
    - Location stays on the phone: never stored, never sent.
    - GPS only runs while a score screen is visible and the player has tapped "Show distances".
@@ -66,7 +67,6 @@
     watchId: null,
     readings: [],
     lastFix: null,
-    wake: null,
     on: lsGet('pmGpsOn') === '1',
     blocked: false,
     timer: null
@@ -236,16 +236,13 @@
   function startWatch() {
     if (S.watchId !== null) return;
     S.watchId = navigator.geolocation.watchPosition(onFix, onErr, { enableHighAccuracy: true, maximumAge: 0, timeout: 20000 });
-    if ('wakeLock' in navigator && !S.wake) {
-      navigator.wakeLock.request('screen').then(function (l) {
-        S.wake = l; l.addEventListener('release', function () { S.wake = null; });
-      }).catch(function () {});
-    }
+    // v42: no Wake Lock. The phone sleeps after its own timeout (the screen was most of the battery
+    // use in the 30 Oct round); GPS stops with it and picks up again when the phone wakes.
   }
   function stopWatch() {
     if (S.watchId !== null) { try { navigator.geolocation.clearWatch(S.watchId); } catch (e) {} }
     S.watchId = null; S.readings = [];
-    if (S.wake) { try { S.wake.release(); } catch (e) {} S.wake = null; }
+    S.lastFix = null;   // after a pause, show "Searching for GPS…" until a fresh position arrives (never an old spot)
   }
   function sync() { if (shouldRun()) startWatch(); else if (S.watchId !== null) stopWatch(); }
 
