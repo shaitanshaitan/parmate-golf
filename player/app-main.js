@@ -9032,6 +9032,7 @@ window.addEventListener('popstate', (e) => {
     ['legalOverlay',       function(){ if(typeof closeLegal==='function') closeLegal(); }],
     ['buddySearchOverlay', function(){ if(typeof closeBuddySearch==='function') closeBuddySearch(); }],
     ['joinMatchOverlay',   function(){ if(typeof closeJoinMatch==='function') closeJoinMatch(); }],
+    ['pmGpsMap',           function(){ if(typeof pmGpsMapClose==='function') pmGpsMapClose(); }],   // v43: GPS hole map
   ];
   for (var i = 0; i < overlays.length; i++) {
     var el = document.getElementById(overlays[i][0]);
