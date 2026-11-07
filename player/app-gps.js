@@ -1,6 +1,7 @@
 /* Parmate · GPS distances (free): front / centre / back of the green on the score screens.
    v40 (30 Oct 2026). Team Round + Solo (screen-trscore) and 1vs1 (screen-m1score).
    v42: the screen is no longer kept on (battery); GPS pauses while the phone sleeps.
+   v43: hole map for Pro (Map button on the card; free users see a short Pro note). Map data per course in gps/<course>-map.json.
    - Course data: OpenStreetMap hole lines and greens, one JSON file per course in gps/.
    - Location stays on the phone: never stored, never sent.
    - GPS only runs while a score screen is visible and the player has tapped "Show distances".
@@ -13,6 +14,11 @@
   var GPS_FILES = {
     golfamsteldijk: 'gps/golf-amsteldijk.json?v=20261030a',
     amsteldijk:     'gps/golf-amsteldijk.json?v=20261030a'
+  };
+  // v43: hole map (Pro). Fairways, greens, tees, bunkers, water and trees; loaded when a Pro user opens the map.
+  var MAP_FILES = {
+    golfamsteldijk: 'gps/golf-amsteldijk-map.json?v=20261107a',
+    amsteldijk:     'gps/golf-amsteldijk-map.json?v=20261107a'
   };
 
   var MAX_ACC = 20;        // m; worse readings are ignored
@@ -33,7 +39,13 @@
       privacy: 'Your location stays on this phone.',
       osm: 'Course data © OpenStreetMap contributors',
       iphone: 'GPS is built and tested on Android. iPhone should work, but has not been tested yet.',
-      nohole: 'No GPS data for this hole'
+      nohole: 'No GPS data for this hole',
+      map: 'Map', proMap: 'The hole map is part of Parmate Pro.', seePro: 'See Pro',
+      hole: 'Hole', par: 'Par', scorecard: 'SCORECARD', clear: 'Clear target', backScores: 'Back to scores',
+      youTarget: 'You → target', targetCentre: 'Target → centre',
+      tapHint: 'Tap the map to measure to a point.', mapLoading: 'Loading the hole map…',
+      mapError: 'The hole map could not be loaded. Check your connection.',
+      prevHole: 'Previous hole', nextHole: 'Next hole'
     },
     nl: {
       title: 'Naar de green', front: 'Voor', centre: 'Midden', back: 'Achter',
@@ -45,7 +57,13 @@
       privacy: 'Je locatie blijft op deze telefoon.',
       osm: 'Baangegevens © OpenStreetMap-bijdragers',
       iphone: 'GPS is gebouwd en getest op Android. Op een iPhone zou het moeten werken, maar dat is nog niet getest.',
-      nohole: 'Geen GPS-gegevens voor deze hole'
+      nohole: 'Geen GPS-gegevens voor deze hole',
+      map: 'Kaart', proMap: 'De holekaart hoort bij Parmate Pro.', seePro: 'Bekijk Pro',
+      hole: 'Hole', par: 'Par', scorecard: 'SCOREKAART', clear: 'Doel wissen', backScores: 'Terug naar scores',
+      youTarget: 'Jij → doel', targetCentre: 'Doel → midden',
+      tapHint: 'Klik op de kaart om tot een punt te meten.', mapLoading: 'Holekaart laden…',
+      mapError: 'De holekaart kon niet worden geladen. Controleer je verbinding.',
+      prevHole: 'Vorige hole', nextHole: 'Volgende hole'
     }
   };
   function W(k) {
@@ -249,6 +267,8 @@
   /* ── card ─────────────────────────────────────────────────────────── */
   var PIN = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg>';
 
+  var MAPICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"></path><line x1="9" y1="4" x2="9" y2="18"></line><line x1="15" y1="6" x2="15" y2="20"></line></svg>';
+
   function ensureCard() {
     var scr = screenEl(); if (!scr) return null;
     var card = scr.querySelector('.pmgps-card');
@@ -259,14 +279,16 @@
     wrap.className = 'section pmgps-section';
     wrap.innerHTML =
       '<div class="pmgps-card" data-no-i18n>' +
-        '<div class="pmgps-head"><span class="pmgps-title">' + PIN + '<span class="pmgps-t"></span></span><span class="pmgps-acc"></span></div>' +
+        '<div class="pmgps-head"><span class="pmgps-title">' + PIN + '<span class="pmgps-t"></span></span>' +
+          '<button type="button" class="pmgps-mapbtn">' + MAPICON + '<span class="pmgps-mapbtn-t"></span><span class="pmgps-pro">PRO</span></button></div>' +
         '<div class="pmgps-grid">' +
           '<div class="pmgps-cell"><div class="pmgps-lbl" data-k="front"></div><div class="pmgps-val pmgps-side" data-v="f">–</div></div>' +
           '<div class="pmgps-cell"><div class="pmgps-lbl" data-k="centre"></div><div class="pmgps-val pmgps-mid" data-v="c">–</div></div>' +
           '<div class="pmgps-cell"><div class="pmgps-lbl" data-k="back"></div><div class="pmgps-val pmgps-side" data-v="b">–</div></div>' +
         '</div>' +
-        '<div class="pmgps-along"><span class="pmgps-along-t"></span> <b class="pmgps-along-v"></b></div>' +
+        '<div class="pmgps-foot"><span class="pmgps-along"><span class="pmgps-along-t"></span> <b class="pmgps-along-v"></b></span><span class="pmgps-acc"></span></div>' +
         '<div class="pmgps-msg"></div>' +
+        '<div class="pmgps-upsell"><span class="pmgps-upsell-t"></span><button type="button" class="pmgps-upsell-btn"></button></div>' +
         '<button type="button" class="pmgps-start"></button>' +
         '<div class="pmgps-note"></div>' +
         '<div class="pmgps-osm"></div>' +
@@ -276,6 +298,14 @@
       if (!('geolocation' in navigator)) { S.blocked = true; render(); return; }
       S.on = true; lsSet('pmGpsOn', '1'); S.blocked = false;
       sync(); render();
+    });
+    wrap.querySelector('.pmgps-mapbtn').addEventListener('click', function () {
+      if (isPro()) { openMap(); return; }
+      var up = wrap.querySelector('.pmgps-upsell');
+      up.classList.toggle('open');
+    });
+    wrap.querySelector('.pmgps-upsell-btn').addEventListener('click', function () {
+      if (typeof pmOpenPlan === 'function') pmOpenPlan(); else if (typeof showScreen === 'function') showScreen('subscription');
     });
     scr.classList.add('pmgps-on');
     return wrap.querySelector('.pmgps-card');
@@ -293,16 +323,26 @@
     q('.pmgps-start').textContent = W('show');
     q('.pmgps-osm').textContent = W('osm');
     q('.pmgps-along-t').textContent = W('along');
+    q('.pmgps-mapbtn-t').textContent = W('map');
+    q('.pmgps-upsell-t').textContent = W('proMap');
+    q('.pmgps-upsell-btn').textContent = W('seePro');
 
     var grid = q('.pmgps-grid'), msg = q('.pmgps-msg'), start = q('.pmgps-start'), note = q('.pmgps-note');
-    var acc = q('.pmgps-acc'), along = q('.pmgps-along'), osm = q('.pmgps-osm');
+    var acc = q('.pmgps-acc'), along = q('.pmgps-along'), osm = q('.pmgps-osm'), foot = q('.pmgps-foot');
+    var mapBtn = q('.pmgps-mapbtn'), upsell = q('.pmgps-upsell');
     var setMsg = function (t) { msg.textContent = t || ''; show(msg, !!t); };
     card.classList.remove('stale', 'quiet');
-    show(along, false); acc.textContent = ''; note.textContent = '';
+    show(along, false); acc.textContent = ''; note.textContent = ''; show(foot, false);
+    var pro = isPro();
+    show(q('.pmgps-pro'), !pro);
+    if (pro) upsell.classList.remove('open');
+    var hasMap = !!MAP_FILES[S.key];
+    show(mapBtn, false);
+    if (M.open) drawMap();   // redraws only when the hole or unit changed, then updates the live part
 
     if (S.geoState === 'nodata' || S.geoState === 'none') {
       card.classList.add('quiet');
-      show(grid, false); show(start, false); show(osm, false); show(note, false);
+      show(grid, false); show(start, false); show(osm, false); show(note, false); upsell.classList.remove('open');
       setMsg(W('nodata')); return;
     }
     show(osm, true);
@@ -311,6 +351,7 @@
 
     var hole = holeData(S.hole);
     if (!hole) { show(grid, false); show(start, false); show(note, false); setMsg(W('nohole')); return; }
+    show(mapBtn, hasMap);
 
     if (!S.on || !('geolocation' in navigator)) {
       show(grid, false); show(start, ('geolocation' in navigator)); show(note, true);
@@ -322,7 +363,7 @@
     if (S.blocked) { card.classList.add('stale'); setMsg(W('blocked')); fill(null); return; }
 
     var pos = smoothed();
-    if (S.lastFix) acc.textContent = 'GPS ± ' + fmt(S.lastFix.acc) + ' ' + uLbl;
+    if (S.lastFix) { acc.textContent = 'GPS ± ' + fmt(S.lastFix.acc) + ' ' + uLbl; show(foot, true); }
     if (!pos) { card.classList.add('stale'); setMsg(W('searching')); fill(null); return; }
 
     var d = greenDistances(pos, hole);
@@ -330,12 +371,272 @@
     setMsg('');
     fill(d);
     var a = alongFairway(pos, hole);
-    if (a !== null && a - d.c > ALONG_MIN) { show(along, true); q('.pmgps-along-v').textContent = fmt(a) + ' ' + uLbl; }
+    if (a !== null && a - d.c > ALONG_MIN) { show(along, true); show(foot, true); q('.pmgps-along-v').textContent = fmt(a) + ' ' + uLbl; }
 
     function fill(dd) {
       q('[data-v="f"]').textContent = dd ? fmt(dd.f) : '–';
       q('[data-v="c"]').textContent = dd ? fmt(dd.c) : '–';
       q('[data-v="b"]').textContent = dd ? fmt(dd.b) : '–';
+    }
+  }
+
+  /* ── hole map (Pro, v43) ──────────────────────────────────────────── */
+  // Full-screen layer over the score screen (the score screen stays active, so GPS keeps running).
+  // The hole is turned so the back tee is at the bottom and the green at the top; 1 SVG unit = 1 metre.
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  var COL = { rough: '#dbe8d1', outline: '#c8ddb9', trees: '#7fa86b', fairway: '#a9d18e', water: '#8fc0e6',
+              bunker: '#e9dcae', tee: '#86b874', green: '#4caf50', greenEdge: '#2e7d32', line: '#24342b',
+              you: '#1565c0', target: '#c0392b' };
+  var M = { open: false, key: null, data: null, state: 'none', frame: null, target: null, hole: -1, el: null };
+
+  function isPro() { try { return typeof isProUser === 'function' && isProUser(); } catch (e) { return false; } }
+
+  function svgEl(name, attrs, parent) {
+    var n = document.createElementNS(SVGNS, name);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+
+  function ensureMapEl() {
+    if (M.el) return M.el;
+    var el = document.createElement('div');
+    el.id = 'pmGpsMap';
+    el.className = 'pmgm';
+    el.setAttribute('data-no-i18n', '');
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-modal', 'true');
+    el.innerHTML =
+      '<div class="pmgm-bar"><span class="pmgm-title"><span class="pmgm-hole"></span><span class="pmgm-pro">PRO</span></span>' +
+        '<button type="button" class="pmgm-close"></button></div>' +
+      '<div class="pmgm-dist">' +
+        '<button type="button" class="pmgm-arrow" data-dir="prev">&lt;</button>' +
+        '<div class="pmgm-grid">' +
+          '<div><div class="pmgps-lbl" data-k="front"></div><div class="pmgps-val pmgps-side" data-m="f">–</div></div>' +
+          '<div><div class="pmgps-lbl" data-k="centre"></div><div class="pmgps-val pmgps-mid" data-m="c">–</div></div>' +
+          '<div><div class="pmgps-lbl" data-k="back"></div><div class="pmgps-val pmgps-side" data-m="b">–</div></div>' +
+        '</div>' +
+        '<button type="button" class="pmgm-arrow" data-dir="next">&gt;</button>' +
+      '</div>' +
+      '<div class="pmgm-area">' +
+        '<svg class="pmgm-svg" xmlns="' + SVGNS + '" preserveAspectRatio="xMidYMid meet" role="img"></svg>' +
+        '<div class="pmgm-chips"><span class="pmgm-chip pmgm-along"></span><span class="pmgm-chip pmgm-acc"></span></div>' +
+        '<div class="pmgm-msg"></div>' +
+        '<div class="pmgm-readout"></div>' +
+      '</div>' +
+      '<div class="pmgm-foot"><button type="button" class="pmgm-clear"></button><button type="button" class="pmgm-back"></button></div>' +
+      '<div class="pmgm-osm"></div>';
+    document.body.appendChild(el);
+    el.querySelector('.pmgm-close').addEventListener('click', function () { closeMap(); });
+    el.querySelector('.pmgm-back').addEventListener('click', function () { closeMap(); });
+    el.querySelector('.pmgm-clear').addEventListener('click', function () { M.target = null; drawMapLive(); });
+    el.querySelectorAll('.pmgm-arrow').forEach(function (b) {
+      b.addEventListener('click', function () {
+        // Use the score screen's own hole buttons, so the round and the map stay on the same hole.
+        var btns = screenEl() ? screenEl().querySelectorAll('.hole-nav button') : [];
+        var btn = b.getAttribute('data-dir') === 'prev' ? btns[0] : btns[btns.length - 1];
+        if (btn && !btn.disabled) btn.click();
+      });
+    });
+    el.querySelector('.pmgm-svg').addEventListener('click', function (ev) {
+      if (!M.frame) return;
+      var svg = ev.currentTarget, pt = svg.createSVGPoint();
+      pt.x = ev.clientX; pt.y = ev.clientY;
+      var ctm = svg.getScreenCTM(); if (!ctm) return;
+      var s = pt.matrixTransform(ctm.inverse());
+      M.target = M.frame.toLatLng([s.x, s.y]);
+      drawMapLive();
+    });
+    window.addEventListener('resize', function () { if (M.open) { M.hole = -1; drawMap(); } });
+    M.el = el;
+    return el;
+  }
+
+  function loadMapData(key) {
+    var file = MAP_FILES[key];
+    if (!file) { M.state = 'none'; M.data = null; return; }
+    if (M.key === key && (M.state === 'ready' || M.state === 'loading')) return;
+    M.key = key; M.state = 'loading'; M.data = null;
+    fetch(file).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (d) { if (M.key !== key) return; M.data = d; M.state = 'ready'; M.hole = -1; drawMap(); })
+      .catch(function (e) { console.warn('GPS map', e); if (M.key !== key) return; M.state = 'error'; drawMap(); });
+  }
+
+  function openMap() {
+    if (!isPro() || !MAP_FILES[S.key]) return;
+    ensureMapEl();
+    M.open = true; M.target = null; M.hole = -1;
+    M.el.classList.add('open');
+    document.documentElement.classList.add('pmgm-lock');
+    if (!S.on && ('geolocation' in navigator)) { S.on = true; lsSet('pmGpsOn', '1'); S.blocked = false; }
+    loadMapData(S.key);
+    sync();
+    drawMap();
+    render();
+  }
+  function closeMap() {
+    M.open = false; M.target = null;
+    if (M.el) M.el.classList.remove('open');
+    document.documentElement.classList.remove('pmgm-lock');
+  }
+  window.pmGpsMapOpen = openMap;
+  window.pmGpsMapClose = closeMap;
+
+  function makeFrame(h) {
+    var o = h.centre;
+    var kx = 111320 * Math.cos(o[0] * Math.PI / 180), ky = 110574;
+    var t = h.line[0], tx = (t[1] - o[1]) * kx, ty = (t[0] - o[0]) * ky;
+    var rot = Math.PI / 2 - Math.atan2(-ty, -tx);          // tee → green points up
+    var cr = Math.cos(rot), sr = Math.sin(rot);
+    return {
+      toSvg: function (p) { var x = (p[1] - o[1]) * kx, y = (p[0] - o[0]) * ky; return [x * cr - y * sr, -(x * sr + y * cr)]; },
+      toLatLng: function (s) { var xr = s[0], yr = -s[1]; var x = xr * cr + yr * sr, y = -xr * sr + yr * cr; return [o[0] + y / ky, o[1] + x / kx]; }
+    };
+  }
+
+  // Static part: the hole and its surroundings. Redrawn when the hole, the unit or the size changes.
+  function drawMap() {
+    if (!M.open || !M.el) return;
+    var el = M.el, svg = el.querySelector('.pmgm-svg');
+    var hole = holeData(S.hole);
+    var par = (S.course && S.course.parPerHole) ? S.course.parPerHole[S.hole] : null;
+    el.querySelector('.pmgm-hole').textContent = W('hole') + ' ' + (S.hole + 1) + (par ? ' · ' + W('par') + ' ' + par : '');
+    el.querySelector('.pmgm-close').textContent = W('scorecard');
+    el.querySelector('.pmgm-clear').textContent = W('clear');
+    el.querySelector('.pmgm-back').textContent = W('backScores');
+    el.querySelector('.pmgm-osm').textContent = W('osm');
+    el.querySelectorAll('.pmgps-lbl').forEach(function (e) { e.textContent = W(e.getAttribute('data-k')); });
+    el.querySelectorAll('.pmgm-arrow').forEach(function (b) {
+      b.setAttribute('aria-label', W(b.getAttribute('data-dir') === 'prev' ? 'prevHole' : 'nextHole'));
+    });
+    var btns = screenEl() ? screenEl().querySelectorAll('.hole-nav button') : [];
+    if (btns.length) {
+      el.querySelector('[data-dir="prev"]').disabled = !!btns[0].disabled;
+      el.querySelector('[data-dir="next"]').disabled = !!btns[btns.length - 1].disabled;
+    }
+    svg.setAttribute('aria-label', el.querySelector('.pmgm-hole').textContent);
+    var msg = el.querySelector('.pmgm-msg');
+    if (M.state !== 'ready' || !hole) {
+      svg.textContent = ''; M.frame = null;
+      msg.textContent = M.state === 'error' ? W('mapError') : (!hole && M.state === 'ready' ? W('nohole') : W('mapLoading'));
+      msg.style.display = '';
+      drawMapLive();
+      return;
+    }
+    msg.style.display = 'none';
+    var unit = pmGetUnits();
+    var sig = S.hole + '|' + unit;
+    if (M.hole === sig && M.frame) { drawMapLive(); return; }
+    if (String(M.hole).split('|')[0] !== String(S.hole)) M.target = null;   // new hole: forget the target
+    M.hole = sig;
+
+    var f = makeFrame(hole);
+    var pts = hole.line.concat(hole.green).map(f.toSvg);
+    var xs = pts.map(function (p) { return p[0]; }), ys = pts.map(function (p) { return p[1]; });
+    var x0 = Math.min.apply(null, xs) - 45, x1 = Math.max.apply(null, xs) + 45;
+    var y0 = Math.min.apply(null, ys) - 30, y1 = Math.max.apply(null, ys) + 25;
+    var box = svg.getBoundingClientRect();
+    var bw = box.width || 360, bh = box.height || 440;
+    var w = x1 - x0, hh = y1 - y0, aspect = bw / bh;
+    if (w / hh < aspect) { var nw = hh * aspect; x0 -= (nw - w) / 2; w = nw; }
+    else { var nh = w / aspect; y0 -= (nh - hh) / 2; hh = nh; }
+    svg.setAttribute('viewBox', [x0, y0, w, hh].map(function (v) { return v.toFixed(1); }).join(' '));
+    var u = hh / bh;                                            // metres per screen pixel
+    M.frame = { toSvg: f.toSvg, toLatLng: f.toLatLng, u: u, view: [x0, y0, w, hh] };
+
+    var path = function (polys) {
+      return polys.map(function (poly) {
+        return 'M' + poly.map(function (p) { var s = f.toSvg(p); return s[0].toFixed(1) + ' ' + s[1].toFixed(1); }).join('L') + 'Z';
+      }).join('');
+    };
+    var F = M.data.features || {};
+    svg.textContent = '';
+    svgEl('rect', { x: x0, y: y0, width: w, height: hh, fill: COL.rough }, svg);
+    if (F.outline) svgEl('path', { d: path(F.outline), fill: COL.outline }, svg);
+    if (F.trees) svgEl('path', { d: path(F.trees), fill: COL.trees, 'fill-opacity': 0.75 }, svg);
+    if (F.fairway) svgEl('path', { d: path(F.fairway), fill: COL.fairway }, svg);
+    if (F.water) svgEl('path', { d: path(F.water), fill: COL.water }, svg);
+    if (F.bunker) svgEl('path', { d: path(F.bunker), fill: COL.bunker, stroke: '#cdbb84', 'stroke-width': (0.8 * u).toFixed(2) }, svg);
+    if (F.tee) svgEl('path', { d: path(F.tee), fill: COL.tee, stroke: '#4f7f3f', 'stroke-width': (0.8 * u).toFixed(2) }, svg);
+    if (F.green) svgEl('path', { d: path(F.green), fill: COL.green, stroke: COL.greenEdge, 'stroke-width': (1.2 * u).toFixed(2) }, svg);
+
+    // Rings around the green centre in the chosen unit.
+    var step = unit === 'yd' ? YARD : 1;
+    [100, 150, 200].forEach(function (r) {
+      var R = r * step;
+      svgEl('circle', { cx: 0, cy: 0, r: R.toFixed(1), fill: 'none', stroke: '#ffffff', 'stroke-opacity': 0.85,
+        'stroke-width': (1.2 * u).toFixed(2), 'stroke-dasharray': (5 * u).toFixed(1) + ' ' + (5 * u).toFixed(1) }, svg);
+      var tx = svgEl('text', { x: (6 * u).toFixed(1), y: (R - 4 * u).toFixed(1), 'font-size': (11 * u).toFixed(1),
+        'font-family': 'Roboto, sans-serif', 'font-weight': 700, fill: '#ffffff', stroke: 'rgba(0,0,0,.35)',
+        'stroke-width': (2.5 * u).toFixed(2), 'paint-order': 'stroke' }, svg);
+      tx.textContent = r;
+    });
+    // Line of play and green centre.
+    svgEl('polyline', { points: hole.line.map(function (p) { return f.toSvg(p).map(function (v) { return v.toFixed(1); }).join(','); }).join(' '),
+      fill: 'none', stroke: COL.line, 'stroke-opacity': 0.55, 'stroke-width': (1.5 * u).toFixed(2),
+      'stroke-dasharray': (6 * u).toFixed(1) + ' ' + (5 * u).toFixed(1) }, svg);
+    svgEl('circle', { cx: 0, cy: 0, r: (3.5 * u).toFixed(2), fill: '#ffffff', stroke: COL.greenEdge, 'stroke-width': (1.5 * u).toFixed(2) }, svg);
+    svgEl('g', { 'class': 'pmgm-live' }, svg);
+    drawMapLive();
+  }
+
+  // Live part: your position, the target and the numbers. Called on every GPS update.
+  function drawMapLive() {
+    if (!M.open || !M.el) return;
+    if (!screenActive()) { closeMap(); return; }               // left the score screen some other way
+    var el = M.el, unit = pmGetUnits(), uLbl = unit === 'yd' ? 'yd' : 'm';
+    var fmt = function (m) { return m == null ? '–' : String(Math.round(unit === 'yd' ? m / YARD : m)); };
+    var hole = holeData(S.hole);
+    var pos = (S.on && !S.blocked) ? smoothed() : null;
+    var d = (pos && hole) ? greenDistances(pos, hole) : null;
+    if (d && d.c > FAR_M) d = null;
+    el.querySelector('[data-m="f"]').textContent = d ? fmt(d.f) : '–';
+    el.querySelector('[data-m="c"]').textContent = d ? fmt(d.c) : '–';
+    el.querySelector('[data-m="b"]').textContent = d ? fmt(d.b) : '–';
+    var a = (d && hole) ? alongFairway(pos, hole) : null;
+    var alongEl = el.querySelector('.pmgm-along'), accEl = el.querySelector('.pmgm-acc');
+    if (a !== null && d && a - d.c > ALONG_MIN) { alongEl.textContent = W('along') + ' ' + fmt(a) + ' ' + uLbl; alongEl.style.display = ''; }
+    else alongEl.style.display = 'none';
+    if (S.lastFix && S.on) { accEl.textContent = 'GPS ± ' + fmt(S.lastFix.acc) + ' ' + uLbl; accEl.style.display = ''; }
+    else accEl.style.display = 'none';
+    el.querySelector('.pmgm-clear').disabled = !M.target;
+
+    var ro = el.querySelector('.pmgm-readout');
+    if (M.target && hole) {
+      ro.innerHTML = '';
+      if (pos && d) {
+        var a1 = document.createElement('div');
+        a1.innerHTML = '<span class="pmgm-ro-l"></span><span class="pmgm-ro-v pmgm-ro-red"></span>';
+        a1.firstChild.textContent = W('youTarget'); a1.lastChild.textContent = fmt(haversine(pos, M.target)) + ' ' + uLbl;
+        ro.appendChild(a1);
+      }
+      var a2 = document.createElement('div');
+      a2.className = 'pmgm-ro-right';
+      a2.innerHTML = '<span class="pmgm-ro-l"></span><span class="pmgm-ro-v"></span>';
+      a2.firstChild.textContent = W('targetCentre'); a2.lastChild.textContent = fmt(haversine(M.target, hole.centre)) + ' ' + uLbl;
+      ro.appendChild(a2);
+      ro.classList.remove('hint');
+    } else {
+      ro.textContent = M.frame ? W('tapHint') : '';
+      ro.classList.add('hint');
+    }
+    ro.style.display = ro.textContent ? '' : 'none';
+
+    var g = el.querySelector('.pmgm-live');
+    if (!g || !M.frame) return;
+    g.textContent = '';
+    var u = M.frame.u;
+    var P = (pos && d) ? M.frame.toSvg(pos) : null;
+    if (M.target) {
+      var T = M.frame.toSvg(M.target), dash = (4 * u).toFixed(1) + ' ' + (3 * u).toFixed(1);
+      if (P) svgEl('line', { x1: P[0], y1: P[1], x2: T[0], y2: T[1], stroke: COL.target, 'stroke-width': (1.8 * u).toFixed(2), 'stroke-dasharray': dash }, g);
+      svgEl('line', { x1: T[0], y1: T[1], x2: 0, y2: 0, stroke: COL.target, 'stroke-width': (1.8 * u).toFixed(2), 'stroke-dasharray': dash }, g);
+      svgEl('circle', { cx: T[0], cy: T[1], r: (7 * u).toFixed(2), fill: '#ffffff', stroke: COL.target, 'stroke-width': (2.5 * u).toFixed(2) }, g);
+    }
+    if (P) {
+      var accR = S.lastFix ? Math.min(S.lastFix.acc, 60) : 0;
+      if (accR > 0) svgEl('circle', { cx: P[0], cy: P[1], r: accR.toFixed(1), fill: COL.you, 'fill-opacity': 0.15, stroke: COL.you, 'stroke-opacity': 0.4, 'stroke-width': u.toFixed(2) }, g);
+      svgEl('circle', { cx: P[0], cy: P[1], r: (7 * u).toFixed(2), fill: COL.you, stroke: '#ffffff', 'stroke-width': (2.5 * u).toFixed(2) }, g);
     }
   }
 
