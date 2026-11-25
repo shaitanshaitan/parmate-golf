@@ -212,14 +212,8 @@ form.req .muted{font-size:15px;margin-bottom:22px}
 .install-phone{justify-self:center;width:min(320px,78vw)}
 @media (max-width:560px){.os{grid-template-columns:1fr}.qr{display:none}}
 
-/* organisers */
-.org{background:var(--chalk)}
-.org .wrap{display:grid;grid-template-columns:1fr auto;gap:40px;align-items:center;border-top:2px solid var(--ink);border-bottom:1px solid var(--line);padding-top:48px;padding-bottom:48px}
-.org h2{font-size:clamp(28px,3.4vw,40px);margin-bottom:12px}
-.org p{margin:0;max-width:40em;color:var(--ink-2)}
-
 /* faq */
-.faq{background:var(--chalk);padding-top:80px}
+.faq{background:var(--paper)}
 .faq .wrap{max-width:860px}
 .faq details{border-bottom:1px solid var(--line)}
 .faq summary{list-style:none;cursor:pointer;padding:22px 40px 22px 0;font:700 20px/1.3 var(--display);font-stretch:106%;position:relative}
@@ -246,7 +240,6 @@ footer a:hover{text-decoration:underline}
   .nl-note{margin-bottom:24px}
   .hero-phone{transform:translateY(30px);width:min(300px,78vw)}
   .why-photo{aspect-ratio:4/3}
-  .org .wrap{grid-template-columns:1fr}
   footer .wrap{grid-template-columns:1fr 1fr}
   footer .wrap>div:first-child{grid-column:1/-1}
   .sec{padding:88px 0}
@@ -494,22 +487,11 @@ footer a:hover{text-decoration:underline}
   </div>
 </section>
 
-<!-- ORGANISERS -->
-<section class="org" aria-labelledby="org-title" style="padding:88px 0">
-  <div class="wrap">
-    <div>
-      <h2 id="org-title">Organising a society day or club scramble?</h2>
-      <p>Parmate has tools for organisers too: unlimited teams, CSV import and live team submissions. They are getting a new home soon. Until then you can find them here.</p>
-    </div>
-    <a class="btn btn-green" href="/organizers/">Organiser tools</a>
-  </div>
-</section>
-
 <!-- FAQ -->
 <section class="sec faq" id="faq" aria-labelledby="faq-title">
   <div class="wrap">
     <h2 id="faq-title" style="margin-bottom:28px">Questions golfers ask</h2>
-    <details><summary>Is Parmate free?</summary><p>Yes. Setting up rounds, the team handicap, scoring and saving your rounds are free. A few extras, like the hole map, are part of Parmate Pro.</p></details>
+    <details><summary>Is Parmate free?</summary><p>Yes. Setting up rounds, the team handicap, scoring and saving your rounds are free. A few extras, like the hole map, are part of Parmate Pro, which you can upgrade to inside the app.</p></details>
     <details><summary>How does Parmate work out a scramble team handicap?</summary><p>It calculates each player's course handicap from their handicap index and the rating, slope and par of the tee they play. Then it sorts the players from low to high and applies the scramble allowance, 35/15 for a team of two by default as the WHS recommends. You can also set your own percentages.</p></details>
     <details><summary>Which courses are in Parmate?</summary><p>Golf courses in the Netherlands for now, with more on the way. Missing yours? <a href="#courses">Ask for your course</a> or add it yourself in the app.</p></details>
     <details><summary>Do I need an account?</summary><p>You sign in with Google or with your email address. That way your rounds, teams and buddies are saved and you can play live matches with friends.</p></details>
@@ -531,7 +513,6 @@ footer a:hover{text-decoration:underline}
       <ul>
         <li><a href="https://play.parmate.golf/">Open the app</a></li>
         <li><a href="#courses">Ask for your course</a></li>
-        <li><a href="/organizers/">Organiser tools</a></li>
       </ul>
     </div>
     <div>

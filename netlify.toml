@@ -1,7 +1,7 @@
 # ─── Parmate · Netlify Configuration ───
 # One repo, two apps:
 #   parmate.golf              → public website (index.html + assets/)
-#   parmate.golf/organizers/  → organiser / admin tool (organizers/index.html)
+#   parmate.golf/organizers/  → organiser / admin tool, parked and not linked from the site
 #                               (moves to organizations.parmate.golf later)
 #   play.parmate.golf  → player app (player/index.html)
 
@@ -40,8 +40,9 @@
   status = 200
   force  = true
 
-# ── Mollie returns here after a Pro upgrade (redirectUrl = <site>/?upgrade=complete).
-#    The upgrade starts in the player app, so send the player back there.
+# ── Pro is only bought inside the player app (play.parmate.golf). Mollie's redirectUrl is
+#    <site>/?upgrade=complete, and <site> is parmate.golf, now the website. Send the player
+#    straight back to the app.
 [[redirects]]
   from   = "/"
   to     = "https://play.parmate.golf/?upgrade=:upgrade"
