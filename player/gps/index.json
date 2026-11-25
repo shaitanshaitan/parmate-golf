@@ -4,11 +4,13 @@
   "courses": {
     "golf-amsteldijk": {
       "name": "Golf Amsteldijk",
-      "aliases": ["Amsteldijk"],
+      "aliases": [
+        "Amsteldijk"
+      ],
       "gps": "golf-amsteldijk.json",
-      "v": "20261125b",
+      "v": "f24d2849",
       "map": "golf-amsteldijk-map.json",
-      "mapV": "20261107a"
+      "mapV": "fb936498"
     }
   }
 }
