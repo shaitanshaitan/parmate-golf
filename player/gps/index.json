@@ -11,6 +11,18 @@
       "v": "f24d2849",
       "map": "golf-amsteldijk-map.json",
       "mapV": "fb936498"
+    },
+    "golfcentrum-de-hoge-dijk": {
+      "name": "Golfcentrum De Hoge Dijk",
+      "aliases": [
+        "De Hoge Dijk",
+        "Golfbaan De Hoge Dijk",
+        "Hoge Dijk"
+      ],
+      "gps": "golfcentrum-de-hoge-dijk.json",
+      "v": "bf6f91b9",
+      "map": "golfcentrum-de-hoge-dijk-map.json",
+      "mapV": "7c5088fa"
     }
   }
 }
