@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "updated": "2026-11-25",
+  "courses": {
+    "golf-amsteldijk": {
+      "name": "Golf Amsteldijk",
+      "aliases": ["Amsteldijk"],
+      "gps": "golf-amsteldijk.json",
+      "v": "20261030a",
+      "map": "golf-amsteldijk-map.json",
+      "mapV": "20261107a"
+    }
+  }
+}
