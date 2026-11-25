@@ -2,6 +2,7 @@
    v40 (30 Oct 2026). Team Round + Solo (screen-trscore) and 1vs1 (screen-m1score).
    v42: the screen is no longer kept on (battery); GPS pauses while the phone sleeps.
    v43: hole map for Pro (Map button on the card; free users see a short Pro note). Map data per course in gps/<course>-map.json.
+   v44: the courses with GPS data come from gps/index.json (Course Builder), not from a list in this file.
    - Course data: OpenStreetMap hole lines and greens, one JSON file per course in gps/.
    - Location stays on the phone: never stored, never sent.
    - GPS only runs while a score screen is visible and the player has tapped "Show distances".
@@ -10,16 +11,46 @@
 (function () {
   'use strict';
 
-  // Normalised course name (lowercase letters and digits only) → data file.
-  var GPS_FILES = {
-    golfamsteldijk: 'gps/golf-amsteldijk.json?v=20261030a',
-    amsteldijk:     'gps/golf-amsteldijk.json?v=20261030a'
-  };
-  // v43: hole map (Pro). Fairways, greens, tees, bunkers, water and trees; loaded when a Pro user opens the map.
-  var MAP_FILES = {
-    golfamsteldijk: 'gps/golf-amsteldijk-map.json?v=20261107a',
-    amsteldijk:     'gps/golf-amsteldijk-map.json?v=20261107a'
-  };
+  // v44: courses with GPS data are listed in gps/index.json (written by Course Builder), so a new
+  // course is data only: two files in gps/ plus one line in the index, no app release.
+  // Index format: {version, courses:{<slug>:{name, aliases[], gps, v, map?, mapV?}}}.
+  // Lookup key = normalised course name (lowercase letters and digits only), as before.
+  var GPS_INDEX_URL = 'gps/index.json';
+  // Used only when the index can't be loaded (first open offline): the courses of v43.
+  var GPS_INDEX_FALLBACK = { version: 1, courses: {
+    'golf-amsteldijk': { name: 'Golf Amsteldijk', aliases: ['Amsteldijk'], gps: 'golf-amsteldijk.json', v: '20261030a', map: 'golf-amsteldijk-map.json', mapV: '20261107a' }
+  } };
+  var GPS_FILES = {}, MAP_FILES = {};
+  var IDX = { state: 'idle', waiters: [] };
+
+  function applyIndex(j) {
+    var g = {}, m = {}, cs = (j && j.courses) || {};
+    Object.keys(cs).forEach(function (slug) {
+      var c = cs[slug]; if (!c || !c.gps) return;
+      var keys = [c.name].concat(c.aliases || []).map(normName).filter(Boolean);
+      keys.forEach(function (k) {
+        g[k] = 'gps/' + c.gps + '?v=' + encodeURIComponent(c.v || '1');
+        if (c.map) m[k] = 'gps/' + c.map + '?v=' + encodeURIComponent(c.mapV || c.v || '1');
+      });
+    });
+    GPS_FILES = g; MAP_FILES = m;
+  }
+
+  function withIndex(cb) {
+    if (IDX.state === 'ready') return cb();
+    IDX.waiters.push(cb);
+    if (IDX.state === 'loading') return;
+    IDX.state = 'loading';
+    fetch(GPS_INDEX_URL, { cache: 'no-cache' })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (j) { applyIndex(j); })
+      .catch(function (e) { console.warn('GPS index', e); applyIndex(GPS_INDEX_FALLBACK); })
+      .then(function () {
+        IDX.state = 'ready';
+        var w = IDX.waiters; IDX.waiters = [];
+        w.forEach(function (f) { try { f(); } catch (e) { console.warn('GPS index waiter', e); } });
+      });
+  }
 
   var MAX_ACC = 20;        // m; worse readings are ignored
   var WINDOW_MS = 8000;    // average the readings of the last 8 s
@@ -189,12 +220,19 @@
   function normName(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
 
   function loadGeo(key) {
-    var file = GPS_FILES[key];
-    if (!file) { S.geoState = 'nodata'; S.geo = null; return; }
     S.geoState = 'loading'; S.geo = null;
-    fetch(file).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-      .then(function (g) { if (S.key !== key) return; S.geo = g; S.geoState = 'ready'; render(); })
-      .catch(function (e) { console.warn('GPS data', e); if (S.key !== key) return; S.geoState = 'error'; render(); });
+    withIndex(function () {
+      if (S.key !== key) return;
+      var file = GPS_FILES[key];
+      if (!file) { S.geoState = 'nodata'; S.geo = null; render(); return; }
+      fetch(file).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function (g) {
+          if (S.key !== key) return; S.geo = g; S.geoState = 'ready'; render();
+          // v44: a Pro player gets the hole map stored now too, so it also opens offline on the course.
+          if (MAP_FILES[key] && isPro()) fetch(MAP_FILES[key]).catch(function () {});
+        })
+        .catch(function (e) { console.warn('GPS data', e); if (S.key !== key) return; S.geoState = 'error'; render(); });
+    });
   }
 
   // Course hole index of the round → hole data. Uses _geoLoops (the loops being played, set by
