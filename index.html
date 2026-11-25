@@ -193,9 +193,15 @@ form.req .muted{font-size:15px;margin-bottom:22px}
 .err{color:var(--red);font-size:14px;margin-top:6px;display:none}
 .field.bad input{border-color:var(--red)}
 .field.bad .err{display:block}
-.sent{display:none;margin-top:16px;padding:14px 16px;background:#e9f3ec;border-radius:10px;font-size:15px}
+.sent{display:none;padding:8px 0}
 .sent.show{display:block}
-.sent button{font:600 14px/1 var(--body);background:none;border:0;color:var(--fairway);text-decoration:underline;cursor:pointer;padding:0}
+.sent:focus{outline:none}
+.sent h3{margin-bottom:10px;color:var(--fairway)}
+.sent p{font-size:16px}
+.link-btn{font:600 15px/1 var(--body);background:none;border:0;color:var(--fairway);text-decoration:underline;cursor:pointer;padding:8px 0}
+.form-err{display:none;margin:14px 0 0;color:var(--red);font-size:15px}
+.form-err.show{display:block}
+.btn:disabled{opacity:.6;cursor:wait}
 
 /* install */
 .install{background:var(--pine);color:#fff}
@@ -423,7 +429,11 @@ footer a:hover{text-decoration:underline}
       <p>Is your home course not in the list yet? Tell us where you play and we will add it. You can also add a course yourself in the app, under Choose Course.</p>
     </div>
 
-    <form class="req" id="courseForm" novalidate>
+    <form class="req" id="courseForm" name="course-request" method="POST" action="/?course=sent#courses" data-netlify="true" netlify-honeypot="bot-field" novalidate>
+      <input type="hidden" name="form-name" value="course-request">
+      <input type="hidden" name="subject" id="subject" value="Parmate course request">
+      <p hidden><label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+      <div id="formFields">
       <h3>Ask for your course</h3>
       <p class="muted">Send us the course you play and we will put it on the list.</p>
       <div class="field" id="f-course">
@@ -444,8 +454,14 @@ footer a:hover{text-decoration:underline}
         <label for="email">Your email <span>(optional, so we can tell you when it is in)</span></label>
         <input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com">
       </div>
-      <button class="btn btn-green" type="submit">Send course request</button>
-      <div class="sent" id="sent" role="status">Your email app should open with the request ready to send. Nothing opened? Email <strong>mycourses@therookiegolfer.com</strong> <button type="button" id="copyMail">Copy address</button></div>
+      <button class="btn btn-green" type="submit" id="sendBtn">Send course request</button>
+      <p class="form-err" id="formErr" role="alert">Your request did not go through. Check your connection and try again, or email it to <a href="mailto:mycourses@therookiegolfer.com">mycourses@therookiegolfer.com</a>.</p>
+      </div>
+      <div class="sent" id="sent" role="status" tabindex="-1">
+        <h3>Thanks, we have your course</h3>
+        <p>We will add <strong id="sentCourse">it</strong> to the list. If you left your email, we will let you know when it is in the app.</p>
+        <button type="button" class="link-btn" id="another">Ask for another course</button>
+      </div>
     </form>
   </div>
 </section>
@@ -590,25 +606,33 @@ document.getElementById('yr').textContent = new Date().getFullYear();
   build();
 })();
 
-/* Course request: opens the visitor's email app with everything filled in */
+/* Course request: sent straight from the page with Netlify Forms (form "course-request").
+   Netlify emails each request to the address set under Forms > Form notifications. */
 (function(){
-  var TO = 'mycourses@therookiegolfer.com';
-  var f = document.getElementById('courseForm'), sent = document.getElementById('sent');
+  var f = document.getElementById('courseForm'), fields = document.getElementById('formFields');
+  var sent = document.getElementById('sent'), err = document.getElementById('formErr'), btn = document.getElementById('sendBtn');
   function need(id){ var el=document.getElementById(id), wrap=document.getElementById('f-'+id); var bad=!el.value.trim(); wrap.classList.toggle('bad',bad); return !bad; }
+  function showSent(course){
+    document.getElementById('sentCourse').textContent = course || 'your course';
+    fields.hidden = true; sent.classList.add('show'); sent.focus();
+  }
+  if (/[?&]course=sent/.test(location.search)) showSent('');   /* fallback when scripts were off */
   f.addEventListener('submit', function(e){
     e.preventDefault();
+    err.classList.remove('show');
     var a = need('course'), b = need('place');
     if (!a || !b){ (a?document.getElementById('place'):document.getElementById('course')).focus(); return; }
-    var c = f.course.value.trim(), p = f.place.value.trim(), l = f.loops.value.trim(), m = f.email.value.trim();
-    var body = 'Hi Parmate,\n\nPlease add this course to the app:\n\nCourse: ' + c + '\nTown and country: ' + p
-      + (l ? '\nLoops or tees I play: ' + l : '')
-      + (m ? '\nLet me know when it is in: ' + m : '')
-      + '\n\nThanks!';
-    window.location.href = 'mailto:' + TO + '?subject=' + encodeURIComponent('Course request: ' + c) + '&body=' + encodeURIComponent(body);
-    sent.classList.add('show');
+    var course = f.course.value.trim();
+    document.getElementById('subject').value = 'Course request: ' + course + ' (' + f.place.value.trim() + ')';
+    btn.disabled = true; btn.textContent = 'Sending...';
+    fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                 body: new URLSearchParams(new FormData(f)).toString() })
+      .then(function(r){ if (!r.ok) throw new Error(r.status); f.reset(); showSent(course); })
+      .catch(function(){ err.classList.add('show'); })
+      .then(function(){ btn.disabled = false; btn.textContent = 'Send course request'; });
   });
-  document.getElementById('copyMail').addEventListener('click', function(){
-    var btn=this; try { navigator.clipboard.writeText(TO).then(function(){ btn.textContent='Copied'; }); } catch(e){}
+  document.getElementById('another').addEventListener('click', function(){
+    sent.classList.remove('show'); fields.hidden = false; document.getElementById('course').focus();
   });
 })();
 </script>
