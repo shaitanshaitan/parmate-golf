@@ -1,6 +1,8 @@
 # ─── Parmate · Netlify Configuration ───
 # One repo, two apps:
-#   parmate.golf       → admin app (index.html)
+#   parmate.golf              → public website (index.html + assets/)
+#   parmate.golf/organizers/  → organiser / admin tool, parked and not linked from the site
+#                               (moves to organizations.parmate.golf later)
 #   play.parmate.golf  → player app (player/index.html)
 
 [build]
@@ -37,6 +39,32 @@
   to     = "/player/manifest.json"
   status = 200
   force  = true
+
+# ── Pro is only bought inside the player app (play.parmate.golf). Mollie's redirectUrl is
+#    <site>/?upgrade=complete, and <site> is parmate.golf, now the website. Send the player
+#    straight back to the app.
+[[redirects]]
+  from   = "/"
+  to     = "https://play.parmate.golf/?upgrade=:upgrade"
+  query  = {upgrade = ":upgrade"}
+  status = 302
+  force  = true
+
+# ── Old admin entry points → organiser tool ──
+[[redirects]]
+  from   = "/admin"
+  to     = "/organizers/"
+  status = 301
+
+[[redirects]]
+  from   = "/organisers/*"
+  to     = "/organizers/:splat"
+  status = 301
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
 
 # ── Headers for PWA files ──
 [[headers]]
