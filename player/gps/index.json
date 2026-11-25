@@ -57,9 +57,9 @@
         "Hoge Dijk"
       ],
       "gps": "golfcentrum-de-hoge-dijk.json",
-      "v": "bf6f91b9",
+      "v": "299d034b",
       "map": "golfcentrum-de-hoge-dijk-map.json",
-      "mapV": "7c5088fa"
+      "mapV": "efed4451"
     },
     "golfclub-bergvliet": {
       "name": "Golfclub Bergvliet",
@@ -72,6 +72,18 @@
       "v": "f95bb3c5",
       "map": "golfclub-bergvliet-map.json",
       "mapV": "afc07112"
+    },
+    "golfpark-wilnis": {
+      "name": "Golfpark Wilnis",
+      "aliases": [
+        "Wilnis",
+        "Golfbaan Wilnis",
+        "Golfclub Wilnis"
+      ],
+      "gps": "golfpark-wilnis.json",
+      "v": "64e47204",
+      "map": "golfpark-wilnis-map.json",
+      "mapV": "c476c48b"
     },
     "heemskerkse-golfclub": {
       "name": "Heemskerkse Golfclub",
