@@ -2,6 +2,17 @@
   "version": 1,
   "updated": "2026-11-25",
   "courses": {
+    "bernardus-golf": {
+      "name": "Bernardus Golf",
+      "aliases": [
+        "Bernardus",
+        "Bernardus Golf Cromvoirt"
+      ],
+      "gps": "bernardus-golf.json",
+      "v": "7a7f7ff2",
+      "map": "bernardus-golf-map.json",
+      "mapV": "c42db007"
+    },
     "de-hooge-rotterdamsche": {
       "name": "Golfbaan De Hooge Rotterdamsche",
       "aliases": [
@@ -35,6 +46,17 @@
       "v": "f24d2849",
       "map": "golf-amsteldijk-map.json",
       "mapV": "fb936498"
+    },
+    "golfbaan-dirkshorn": {
+      "name": "Golfbaan Dirkshorn",
+      "aliases": [
+        "Dirkshorn",
+        "Golfclub Dirkshorn"
+      ],
+      "gps": "golfbaan-dirkshorn.json",
+      "v": "a327a78f",
+      "map": "golfbaan-dirkshorn-map.json",
+      "mapV": "0706d10d"
     },
     "golfbaan-waterland-amsterdam": {
       "name": "Golfbaan Waterland-Amsterdam",
@@ -96,6 +118,17 @@
       "v": "62f1b978",
       "map": "heemskerkse-golfclub-map.json",
       "mapV": "62d606c6"
+    },
+    "the-dutch": {
+      "name": "The Dutch",
+      "aliases": [
+        "The Dutch Spijk",
+        "Golfclub The Dutch"
+      ],
+      "gps": "the-dutch.json",
+      "v": "b125ee90",
+      "map": "the-dutch-map.json",
+      "mapV": "eb0a2553"
     }
   }
 }
