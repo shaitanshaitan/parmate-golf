@@ -14,6 +14,18 @@
       "map": "de-hooge-rotterdamsche-map.json",
       "mapV": "57e8b114"
     },
+    "de-zaanse": {
+      "name": "De Zaanse",
+      "aliases": [
+        "Zaanse Golf Club",
+        "Zaanse",
+        "De Zaanse Golfclub"
+      ],
+      "gps": "de-zaanse.json",
+      "v": "9605b47f",
+      "map": "de-zaanse-map.json",
+      "mapV": "07427397"
+    },
     "golf-amsteldijk": {
       "name": "Golf Amsteldijk",
       "aliases": [
@@ -23,6 +35,19 @@
       "v": "f24d2849",
       "map": "golf-amsteldijk-map.json",
       "mapV": "fb936498"
+    },
+    "golfbaan-waterland-amsterdam": {
+      "name": "Golfbaan Waterland-Amsterdam",
+      "aliases": [
+        "Waterland",
+        "Golfbaan Waterland Amsterdam",
+        "Golf Waterland",
+        "Waterland Amsterdam"
+      ],
+      "gps": "golfbaan-waterland-amsterdam.json",
+      "v": "ea1490b8",
+      "map": "golfbaan-waterland-amsterdam-map.json",
+      "mapV": "d1bc80c4"
     },
     "golfcentrum-de-hoge-dijk": {
       "name": "Golfcentrum De Hoge Dijk",
@@ -35,6 +60,30 @@
       "v": "bf6f91b9",
       "map": "golfcentrum-de-hoge-dijk-map.json",
       "mapV": "7c5088fa"
+    },
+    "golfclub-bergvliet": {
+      "name": "Golfclub Bergvliet",
+      "aliases": [
+        "Bergvliet",
+        "Landgoed Bergvliet",
+        "Golfclub Landgoed Bergvliet"
+      ],
+      "gps": "golfclub-bergvliet.json",
+      "v": "f95bb3c5",
+      "map": "golfclub-bergvliet-map.json",
+      "mapV": "afc07112"
+    },
+    "heemskerkse-golfclub": {
+      "name": "Heemskerkse Golfclub",
+      "aliases": [
+        "Heemskerkse",
+        "Heemskerkse Golf Club",
+        "Heemskerk"
+      ],
+      "gps": "heemskerkse-golfclub.json",
+      "v": "62f1b978",
+      "map": "heemskerkse-golfclub-map.json",
+      "mapV": "62d606c6"
     }
   }
 }
