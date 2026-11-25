@@ -2,6 +2,18 @@
   "version": 1,
   "updated": "2026-11-25",
   "courses": {
+    "de-hooge-rotterdamsche": {
+      "name": "Golfbaan De Hooge Rotterdamsche",
+      "aliases": [
+        "De Hooge Rotterdamsche",
+        "Hooge Rotterdamsche",
+        "Golfclub De Hooge Rotterdamsche"
+      ],
+      "gps": "de-hooge-rotterdamsche.json",
+      "v": "998ab6b8",
+      "map": "de-hooge-rotterdamsche-map.json",
+      "mapV": "57e8b114"
+    },
     "golf-amsteldijk": {
       "name": "Golf Amsteldijk",
       "aliases": [
