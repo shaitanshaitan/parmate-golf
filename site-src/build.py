@@ -26,12 +26,15 @@ HOME_PATH = {'en': '/', 'nl': '/nl/'}
 SWITCH = {'en': dict(lang='nl', short='NL', label='Nederlands'), 'nl': dict(lang='en', short='EN', label='English')}
 MONTHS_NL = ['januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli', 'augustus', 'september', 'oktober', 'november', 'december']
 
+INSTAGRAM = 'https://www.instagram.com/play.parmate.golf/'
+
 ORG = {
     "@type": "Organization", "@id": SITE + "/#org", "name": "The Ninth Tee", "url": SITE + "/",
     "logo": SITE + "/assets/crown-180.png", "email": "info@theninthtee.eu",
     "address": {"@type": "PostalAddress", "addressLocality": "Amsterdam", "addressCountry": "NL"},
     "identifier": {"@type": "PropertyValue", "propertyID": "KvK", "value": "98566903"},
     "brand": {"@id": SITE + "/#app"},
+    "sameAs": [INSTAGRAM],
 }
 APP = {
     "@type": "SoftwareApplication", "@id": SITE + "/#app", "name": "Parmate",
@@ -44,6 +47,7 @@ APP = {
     "areaServed": {"@type": "Country", "name": "Netherlands"},
     "inLanguage": ["en", "nl"], "publisher": {"@id": SITE + "/#org"},
     "image": SITE + "/assets/og-image.jpg",
+    "sameAs": [INSTAGRAM],
     "screenshot": [SITE + "/assets/screens/trresult.webp", SITE + "/assets/screens/trscore.webp"],
 }
 PERSON = {"@type": "Person", "@id": SITE + "/#founder", "name": "Robbie", "jobTitle": "Founder of Parmate", "worksFor": {"@id": SITE + "/#org"}}
@@ -312,7 +316,7 @@ def main():
          '- Match play: 100% of course handicap; the lowest playing handicap plays off zero and the other side receives the difference on holes by stroke index.',
          '- Price: free to use; optional Parmate Pro extras (such as the hole map) are bought inside the app.',
          '- Get it: open https://play.parmate.golf/ on a phone and add it to the home screen (Android tested; iPhone should work). No app store listing.',
-         '- Contact: info@theninthtee.eu. Course requests: mycourses@parmate.golf.', '',
+         '- Contact: info@theninthtee.eu. Course requests: mycourses@parmate.golf. Instagram: ' + INSTAGRAM, '',
          '## Guides (English)']
     for g, gp in zip(GUIDES, gpaths):
         L.append(f"- [{g['en']['h1']}]({SITE}{gp['en']}): {g['en']['description']}")
