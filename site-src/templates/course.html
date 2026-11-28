@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% from "forms.html" import newsletter %}
+{% block main %}
+<article class="article">
+  <header class="art-head">
+    <div class="wrap narrow">
+      <nav class="crumbs" aria-label="{{ t.crumbs }}"><a href="{{ t.home }}">Parmate</a> <span aria-hidden="true">/</span> <a href="{{ t.courses_path }}">{{ t.nav_courses }}</a></nav>
+      <h1>{{ c.h1 }}</h1>
+      <p class="lede">{{ c.lede }}</p>
+    </div>
+  </header>
+  <div class="wrap narrow art-body">
+    <dl class="facts">
+      <div><dt>{{ t.c_club }}</dt><dd>{{ c.name }}</dd></div>
+      <div><dt>{{ t.c_town }}</dt><dd>{{ c.city }}, {{ t.c_country }}</dd></div>
+      <div><dt>{{ t.c_loops }}</dt><dd>{{ c.loops|length }}</dd></div>
+      <div><dt>{{ t.c_gps }}</dt><dd>{% if c.gps %}{{ t.c_gps_yes }}{% else %}{{ t.c_gps_no }}{% endif %}</dd></div>
+    </dl>
+    <h2>{{ t.c_loops_title }}</h2>
+    <div class="table-wrap">
+    <table class="data">
+      <thead><tr><th scope="col">{{ t.c_loop }}</th><th scope="col">{{ t.c_holes }}</th><th scope="col">Par</th><th scope="col">{{ t.c_men }}</th><th scope="col">{{ t.c_women }}</th></tr></thead>
+      <tbody>{% for l in c.loops %}<tr><th scope="row">{{ l.name }}</th><td>{{ l.holes }}</td><td>{{ l.par }}</td><td>{{ l.men }}</td><td>{{ l.women or '–' }}</td></tr>{% endfor %}</tbody>
+    </table>
+    </div>
+    <h2>{{ t.c_what_title }}</h2>
+    <ul class="ticks">{% for li in c.what %}<li>{{ li }}</li>{% endfor %}</ul>
+    <p>{{ t.c_how }} <a href="{{ t.guide1_path }}">{{ t.c_how_link }}</a></p>
+    <div class="cta-box">
+      <h2>{{ c.cta_title }}</h2>
+      <p>{{ t.c_cta_text }}</p>
+      <p class="hero-ctas"><a class="btn btn-gold" href="https://play.parmate.golf/">{{ t.open }}</a></p>
+    </div>
+    <p class="muted small">{{ t.c_source }} <a href="mailto:support@theninthtee.eu">support@theninthtee.eu</a>.</p>
+    <nav class="more" aria-labelledby="cmore">
+      <h2 id="cmore">{{ t.c_more }}</h2>
+      <ul class="course-list compact">{% for o in others %}<li><a href="{{ o.path }}"><strong>{{ o.name }}</strong><span class="town">{{ o.city }}</span></a></li>{% endfor %}</ul>
+      <p><a href="{{ t.courses_path }}">{{ t.c_all }}</a></p>
+    </nav>
+  </div>
+</article>
+{{ newsletter(t) }}
+{% endblock %}

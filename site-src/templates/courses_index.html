@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% from "forms.html" import course_form, newsletter %}
+{% block main %}
+<section class="art-head">
+  <div class="wrap narrow">
+    <nav class="crumbs" aria-label="{{ t.crumbs }}"><a href="{{ t.home }}">Parmate</a></nav>
+    <h1>{{ t.ci_h1 }}</h1>
+    <p class="lede">{{ t.ci_lede }}</p>
+    <p class="nl-inline"><span class="flag-nl" aria-hidden="true"></span>{{ t.nlbox_text }}</p>
+  </div>
+</section>
+<div class="wrap narrow art-body">
+  <p class="muted">{{ t.ci_updated }} <time datetime="{{ updated }}">{{ updated_label }}</time>.</p>
+  <ul class="course-list">{% for c in courses %}
+    <li><a href="{{ c.path }}"><strong>{{ c.name }}</strong><span class="town">{{ c.city }}</span><span class="tags">{{ c.loops_label }}{% if c.gps %}<span class="tag-gps">{{ t.gps_badge }}</span>{% endif %}</span></a></li>{% endfor %}
+  </ul>
+  <div class="courses-req">
+    <div>
+      <h2>{{ t.ci_missing }}</h2>
+      <p>{{ t.where_p2 }}</p>
+    </div>
+    {{ course_form(t) }}
+  </div>
+</div>
+{{ newsletter(t) }}
+{% endblock %}

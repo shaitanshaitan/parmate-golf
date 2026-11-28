@@ -1,0 +1,72 @@
+{% macro course_form(t) -%}
+<form class="req" name="course-request" method="POST" action="{{ t.home }}?sent=course-request#courses" data-netlify="true" netlify-honeypot="bot-field" novalidate>
+  <input type="hidden" name="form-name" value="course-request">
+  <input type="hidden" name="subject" value="Parmate course request" data-prefix="Course request: ">
+  <input type="hidden" name="language" value="{{ t.lang }}">
+  <p hidden><label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+  <div class="form-fields">
+    <h3>{{ t.cf_title }}</h3>
+    <p class="muted">{{ t.cf_lede }}</p>
+    <div class="field">
+      <label for="cf-course">{{ t.cf_course }}</label>
+      <input id="cf-course" name="course" autocomplete="off" placeholder="{{ t.cf_course_ph }}" data-required>
+      <div class="err">{{ t.cf_course_err }}</div>
+    </div>
+    <div class="field">
+      <label for="cf-place">{{ t.cf_place }}</label>
+      <input id="cf-place" name="place" autocomplete="off" placeholder="{{ t.cf_place_ph }}" data-required>
+      <div class="err">{{ t.cf_place_err }}</div>
+    </div>
+    <div class="field">
+      <label for="cf-loops">{{ t.cf_loops }} <span>{{ t.optional }}</span></label>
+      <textarea id="cf-loops" name="loops" placeholder="{{ t.cf_loops_ph }}"></textarea>
+    </div>
+    <div class="field">
+      <label for="cf-email">{{ t.cf_email }} <span>{{ t.cf_email_note }}</span></label>
+      <input id="cf-email" name="email" type="email" autocomplete="email" placeholder="{{ t.email_ph }}">
+    </div>
+    <button class="btn btn-green" type="submit">{{ t.cf_send }}</button>
+    <p class="form-err" role="alert">{{ t.cf_fail }} <a href="mailto:mycourses@parmate.golf">mycourses@parmate.golf</a>.</p>
+  </div>
+  <div class="sent" role="status" tabindex="-1">
+    <h3>{{ t.cf_thanks }}</h3>
+    <p>{{ t.cf_thanks_1 }} <strong data-echo="course">{{ t.cf_your_course }}</strong> {{ t.cf_thanks_2 }}</p>
+    <button type="button" class="link-btn again">{{ t.cf_again }}</button>
+  </div>
+</form>
+{%- endmacro %}
+
+{% macro newsletter(t, id='newsletter') -%}
+<section class="news" id="{{ id }}" aria-labelledby="{{ id }}-title">
+  <div class="wrap">
+    <div class="news-copy">
+      <h2 id="{{ id }}-title">{{ t.nl_title }}</h2>
+      <p>{{ t.nl_lede }}</p>
+    </div>
+    <form class="news-form" name="newsletter" method="POST" action="{{ t.home }}?sent=newsletter#{{ id }}" data-netlify="true" netlify-honeypot="bot-field" novalidate>
+      <input type="hidden" name="form-name" value="newsletter">
+      <input type="hidden" name="language" value="{{ t.lang }}">
+      <p hidden><label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+      <div class="form-fields">
+        <div class="field">
+          <label for="{{ id }}-email">{{ t.nl_email }}</label>
+          <div class="news-row">
+            <input id="{{ id }}-email" name="email" type="email" autocomplete="email" placeholder="{{ t.email_ph }}" data-required>
+            <button class="btn btn-gold" type="submit">{{ t.nl_send }}</button>
+          </div>
+          <div class="err">{{ t.nl_email_err }}</div>
+        </div>
+        <div class="field check">
+          <label><input type="checkbox" name="consent" value="yes" data-required> {{ t.nl_consent }} <a href="{{ t.privacy_path }}">{{ t.f_privacy }}</a>.</label>
+          <div class="err">{{ t.nl_consent_err }}</div>
+        </div>
+        <p class="form-err" role="alert">{{ t.nl_fail }}</p>
+      </div>
+      <div class="sent" role="status" tabindex="-1">
+        <h3>{{ t.nl_thanks }}</h3>
+        <p>{{ t.nl_thanks_p }}</p>
+      </div>
+    </form>
+  </div>
+</section>
+{%- endmacro %}

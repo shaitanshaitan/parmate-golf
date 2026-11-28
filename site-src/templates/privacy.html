@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block main %}
+<article class="article">
+  <header class="art-head">
+    <div class="wrap narrow">
+      <nav class="crumbs" aria-label="{{ t.crumbs }}"><a href="{{ t.home }}">Parmate</a></nav>
+      <h1>{{ p.h1 }}</h1>
+      <p class="lede">{{ p.lede }}</p>
+      <p class="byline">{{ t.updated }} <time datetime="{{ p.updated }}">{{ p.updated_label }}</time></p>
+    </div>
+  </header>
+  <div class="wrap narrow art-body">
+    {{ p.body|safe }}
+  </div>
+</article>
+{% endblock %}

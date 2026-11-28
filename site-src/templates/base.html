@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ page.title }}</title>
+<meta name="description" content="{{ page.description }}">
+<meta name="theme-color" content="#0e2e1c">
+<link rel="canonical" href="{{ site }}{{ page.path }}">
+{%- for alt in page.alternates %}
+<link rel="alternate" hreflang="{{ alt.lang }}" href="{{ site }}{{ alt.path }}">
+{%- endfor %}
+{%- if page.alternates %}
+<link rel="alternate" hreflang="x-default" href="{{ site }}{{ page.xdefault }}">
+{%- endif %}
+<meta property="og:type" content="{{ page.og_type or 'website' }}">
+<meta property="og:site_name" content="Parmate">
+<meta property="og:locale" content="{{ 'nl_NL' if lang == 'nl' else 'en_GB' }}">
+<meta property="og:title" content="{{ page.og_title or page.title }}">
+<meta property="og:description" content="{{ page.description }}">
+<meta property="og:url" content="{{ site }}{{ page.path }}">
+<meta property="og:image" content="{{ site }}/assets/og-image.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/crown-32.png">
+<link rel="apple-touch-icon" href="/assets/crown-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css?v={{ version }}">
+{%- for block in page.jsonld %}
+<script type="application/ld+json">{{ block | tojson }}</script>
+{%- endfor %}
+<script src="/assets/site.js?v={{ version }}" defer></script>
+</head>
+<body class="{{ page.body_class or '' }}">
+<a class="skip" href="#main">{{ t.skip }}</a>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="{{ t.home }}"><img src="/assets/crown-180.png" alt="" width="30" height="30">Parmate</a>
+    <ul>
+      <li><a href="{{ t.home }}#how">{{ t.nav_how }}</a></li>
+      <li><a href="{{ t.guides_path }}">{{ t.nav_guides }}</a></li>
+      <li><a href="{{ t.courses_path }}">{{ t.nav_courses }}</a></li>
+      <li><a href="{{ t.home }}#faq">FAQ</a></li>
+    </ul>
+    {%- if page.switch %}
+    <a class="lang" href="{{ page.switch.path }}" hreflang="{{ page.switch.lang }}" lang="{{ page.switch.lang }}" aria-label="{{ page.switch.label }}">{{ page.switch.short }}</a>
+    {%- endif %}
+    <a class="btn btn-gold" href="{{ t.home }}#install">{{ t.get_app }}</a>
+  </div>
+</header>
+
+<main id="main">
+{% block main %}{% endblock %}
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a class="brand" href="{{ t.home }}" style="color:#fff;margin-bottom:14px"><img src="/assets/crown-180.png" alt="" width="30" height="30">Parmate</a>
+      <p style="max-width:26em;margin-top:14px">{{ t.footer_blurb }}</p>
+    </div>
+    <div>
+      <h4>Parmate</h4>
+      <ul>
+        <li><a href="https://play.parmate.golf/">{{ t.f_open }}</a></li>
+        <li><a href="{{ t.guides_path }}">{{ t.nav_guides }}</a></li>
+        <li><a href="{{ t.courses_path }}">{{ t.f_courses }}</a></li>
+        <li><a href="{{ t.home }}#newsletter">{{ t.f_news }}</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>{{ t.f_contact }}</h4>
+      <ul>
+        <li><a href="mailto:info@theninthtee.eu">info@theninthtee.eu</a></li>
+        <li><a href="mailto:support@theninthtee.eu">support@theninthtee.eu</a></li>
+        <li><a href="{{ t.privacy_path }}">{{ t.f_site_privacy }}</a></li>
+        <li><a href="https://play.parmate.golf/privacy.html">{{ t.f_app_privacy }}</a></li>
+        {%- if page.switch %}
+        <li><a href="{{ page.switch.path }}" hreflang="{{ page.switch.lang }}" lang="{{ page.switch.lang }}">{{ page.switch.label }}</a></li>
+        {%- endif %}
+      </ul>
+    </div>
+    <p class="legal">© <span id="yr">{{ year }}</span> The Ninth Tee, Amsterdam. KvK 98566903. {{ t.f_photos }}</p>
+  </div>
+</footer>
+</body>
+</html>
