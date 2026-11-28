@@ -1,6 +1,6 @@
 # Website privacy notice (forms and newsletter on parmate.golf). The app has its own policy.
 # Legal text: Robbie reviews both languages; the Dutch must match the English.
-UPDATED = '2026-11-28'
+UPDATED = '2026-11-28'  # MailerLite added 28 Nov 2026
 PRIVACY = {
 'en': dict(
   title='Website privacy notice | Parmate',
@@ -16,7 +16,7 @@ PRIVACY = {
 </ul>
 <p>The legal basis is your consent (newsletter) and our legitimate interest in answering your request (course form).</p>
 <h2>Who processes it</h2>
-<p>The forms are handled by Netlify, Inc., which hosts this website and stores the form entries for us as our processor. Course requests are also emailed to our own mailbox. We do not sell your data or share it with advertisers.</p>
+<p>The forms are handled by Netlify, Inc., which hosts this website and stores the form entries for us as our processor. Course requests are also emailed to our own mailbox. Newsletter addresses are passed on to MailerLite (UAB MailerLite, Lithuania, EU), which sends the newsletter for us as our processor. We do not sell your data or share it with advertisers.</p>
 <h2>How long we keep it</h2>
 <p>Newsletter addresses are kept until you unsubscribe. Course requests are kept until the course is handled, and at most 12 months.</p>
 <h2>Unsubscribe and your rights</h2>
@@ -39,7 +39,7 @@ PRIVACY = {
 </ul>
 <p>De grondslag is je toestemming (nieuwsbrief) en ons gerechtvaardigd belang om je aanvraag te beantwoorden (baanaanvraag).</p>
 <h2>Wie de gegevens verwerkt</h2>
-<p>De formulieren worden verwerkt door Netlify, Inc., dat deze website host en de inzendingen als onze verwerker voor ons bewaart. Baanaanvragen worden ook naar onze eigen mailbox gestuurd. We verkopen je gegevens niet en delen ze niet met adverteerders.</p>
+<p>De formulieren worden verwerkt door Netlify, Inc., dat deze website host en de inzendingen als onze verwerker voor ons bewaart. Baanaanvragen worden ook naar onze eigen mailbox gestuurd. E-mailadressen voor de nieuwsbrief gaan door naar MailerLite (UAB MailerLite, Litouwen, EU), dat de nieuwsbrief als onze verwerker voor ons verstuurt. We verkopen je gegevens niet en delen ze niet met adverteerders.</p>
 <h2>Hoe lang we ze bewaren</h2>
 <p>E-mailadressen voor de nieuwsbrief bewaren we tot je je afmeldt. Baanaanvragen bewaren we tot de baan is afgehandeld, en maximaal 12 maanden.</p>
 <h2>Afmelden en je rechten</h2>
