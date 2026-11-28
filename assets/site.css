@@ -110,7 +110,10 @@ section{scroll-margin-top:72px}
 .calc .sec-head p{color:rgba(255,255,255,.82)}
 .card{background:var(--paper);color:var(--ink);border-radius:6px;box-shadow:0 26px 60px -24px rgba(0,0,0,.6);overflow:hidden;max-width:980px}
 .card-top{display:flex;justify-content:space-between;align-items:center;gap:16px;background:var(--tee);color:var(--pine);padding:14px 22px;font:800 18px/1.1 var(--display);font-stretch:112%}
-.card-top .size{display:flex;gap:6px}
+.card-top{flex-wrap:wrap;row-gap:10px}
+.card-top .size{display:flex;gap:6px;align-items:center}
+.card-top .size-label{font:600 14px/1 var(--body);margin-right:4px}
+.card-top button{min-width:40px;min-height:40px}
 .card-top button{font:700 14px/1 var(--body);border:2px solid var(--pine);background:transparent;color:var(--pine);border-radius:999px;padding:8px 14px;cursor:pointer}
 .card-top button[aria-pressed="true"]{background:var(--pine);color:#fff}
 .tee-row{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:2px solid var(--ink)}
@@ -321,3 +324,12 @@ table.data tbody th{font-weight:600}
 .calc .calc-note a{color:var(--flag)}
 .nav .btn{white-space:nowrap}
 @media (max-width:480px){.nav .wrap{gap:12px}.nav .btn{padding:10px 14px;font-size:14px}.brand{font-size:21px}.nav .lang{padding:8px 10px}}
+@media (max-width:400px){
+  .card-top{padding:12px 14px}
+  .tee-row label{padding:8px 10px}
+  .tee-row input{font-size:22px}
+  .grid th{font-size:12px;padding:8px 6px}
+  .grid td{font-size:15px;padding:8px 6px}
+  .grid input{width:3.4em;font-size:16px;padding:5px 6px}
+  .card-foot{padding:16px 14px}
+}
