@@ -22,7 +22,9 @@
     var ALLOW = {2:[.35,.15],3:[.30,.20,.10],4:[.25,.20,.15,.10]};
     var DEF = [8.2,14.5,21.3,28.0], NAMES = ['Jan','Robbie','Sanne','Mo'];
     var size = 2, idx = DEF.slice(), out = document.getElementById('thcp');
-    var num = function(id){ var v = parseFloat(document.getElementById(id).value); return isNaN(v) ? null : v; };
+    var parse = function(x){ var v = parseFloat(String(x).replace(',', '.')); return isNaN(v) ? null : v; };
+    var num = function(id){ return parse(document.getElementById(id).value); };
+    var show = function(n){ return NL ? String(n).replace('.', ',') : String(n); };
     var fmt = function(n){ return (Math.round(n*10)/10).toFixed(NL ? 1 : 1).replace('.', NL ? ',' : '.'); };
     var calc = function(){
       var cr=num('cr'), sl=num('sl'), par=num('par'), ps=[];
@@ -44,12 +46,12 @@
       var h = '', lab = NL ? 'Handicap index van ' : 'Handicap index ';
       for (var i=0;i<size;i++){
         h += '<tr><td class="who">'+NAMES[i]+'</td>'
-           + '<td><input type="number" step="0.1" min="-10" max="54" inputmode="decimal" data-i="'+i+'" value="'+idx[i]+'" aria-label="'+lab+NAMES[i]+'"></td>'
+           + '<td><input type="text" inputmode="decimal" data-i="'+i+'" value="'+(idx[i]==null?'':show(idx[i]))+'" aria-label="'+lab+NAMES[i]+'"></td>'
            + '<td class="hide-s" data-ch="'+i+'"></td><td data-pc="'+i+'"></td><td data-ct="'+i+'"></td></tr>';
       }
       rows.innerHTML = h;
       rows.querySelectorAll('input').forEach(function(inp){
-        inp.addEventListener('input', function(){ var v=parseFloat(inp.value); idx[+inp.dataset.i] = isNaN(v)?null:v; calc(); });
+        inp.addEventListener('input', function(){ idx[+inp.dataset.i] = parse(inp.value); calc(); });
       });
       calc();
     };

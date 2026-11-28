@@ -121,15 +121,16 @@
       <div class="card-top">
         <span>Teamhandicap</span>
         <div class="size" role="group" aria-label="Aantal spelers">
-          <button type="button" data-size="2" aria-pressed="true">2 spelers</button>
+          <span class="size-label" aria-hidden="true">Spelers</span>
+          <button type="button" data-size="2" aria-pressed="true" aria-label="2 spelers">2</button>
           <button type="button" data-size="3" aria-pressed="false">3</button>
           <button type="button" data-size="4" aria-pressed="false">4</button>
         </div>
       </div>
       <div class="tee-row">
-        <label>Course rating<input id="cr" type="number" step="0.1" inputmode="decimal" value="70.2" aria-label="Course rating"></label>
-        <label>Slope<input id="sl" type="number" step="1" inputmode="numeric" value="122" aria-label="Slope rating"></label>
-        <label>Par<input id="par" type="number" step="1" inputmode="numeric" value="71" aria-label="Par"></label>
+        <label>Course rating<input id="cr" type="text" inputmode="decimal" value="70,2" aria-label="Course rating"></label>
+        <label>Slope<input id="sl" type="text" inputmode="numeric" value="122" aria-label="Slope rating"></label>
+        <label>Par<input id="par" type="text" inputmode="numeric" value="71" aria-label="Par"></label>
       </div>
       <table class="grid">
         <thead><tr><th scope="col">Speler</th><th scope="col">Handicap index</th><th scope="col" class="hide-s">Baanhandicap</th><th scope="col">Verdeling</th><th scope="col">Telt voor</th></tr></thead>
