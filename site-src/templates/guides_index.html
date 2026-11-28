@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% from "forms.html" import newsletter %}
+{% block main %}
+<section class="art-head">
+  <div class="wrap narrow">
+    <nav class="crumbs" aria-label="{{ t.crumbs }}"><a href="{{ t.home }}">Parmate</a></nav>
+    <h1>{{ t.gi_h1 }}</h1>
+    <p class="lede">{{ t.gi_lede }}</p>
+  </div>
+</section>
+<div class="wrap narrow art-body">
+  <ul class="guide-list big">{% for g in guides %}<li><a href="{{ g.path }}"><strong>{{ g.h1 }}</strong><span>{{ g.lede }}</span></a></li>{% endfor %}</ul>
+</div>
+{{ newsletter(t) }}
+{% endblock %}

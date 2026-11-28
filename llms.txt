@@ -1,0 +1,51 @@
+# Parmate
+
+> Parmate is a free golf web app (play.parmate.golf) that works out WHS correct scramble team handicaps for teams of 2, 3 or 4 players, keeps score hole by hole and runs team matches and 1vs1 match play (net or gross). It covers golf courses in the Netherlands, with more countries planned. Made in Amsterdam by The Ninth Tee (KvK 98566903). Available in English and Dutch.
+
+Key facts:
+- Team handicap method: course handicap = handicap index x slope / 113 + (course rating - par), per player and tee, unrounded; players sorted low to high; WHS scramble allowances 35/15 (2 players), 30/20/10 (3), 25/20/15/10 (4); total rounded once.
+- Example: index 8.2 and 14.5 on a tee with course rating 70.2, slope 122, par 71 gives a team handicap of 5.
+- Match play: 100% of course handicap; the lowest playing handicap plays off zero and the other side receives the difference on holes by stroke index.
+- Price: free to use; optional Parmate Pro extras (such as the hole map) are bought inside the app.
+- Get it: open https://play.parmate.golf/ on a phone and add it to the home screen (Android tested; iPhone should work). No app store listing.
+- Contact: info@theninthtee.eu. Course requests: mycourses@parmate.golf.
+
+## Guides (English)
+- [How to calculate a scramble team handicap](https://parmate.golf/guides/scramble-team-handicap/): Step by step: how to work out a WHS scramble team handicap for 2, 3 or 4 players, with the formula, the allowances and worked examples.
+- [Scramble handicap allowances explained](https://parmate.golf/guides/scramble-handicap-allowances/): The WHS handicap allowances for a scramble: 35/15 for two players, 30/20/10 for three and 25/20/15/10 for four. What they mean and why they work.
+- [Course handicap explained](https://parmate.golf/guides/course-handicap/): How to calculate your WHS course handicap from your handicap index, slope rating, course rating and par, for 18 and 9 holes, with worked examples.
+- [Match play handicap strokes explained](https://parmate.golf/guides/match-play-handicap-strokes/): How handicap strokes work in a WHS match play: 100% allowance in singles, the lowest handicap plays off zero, strokes by stroke index, and team matches.
+
+## Gidsen (Nederlands)
+- [Zo bereken je de teamhandicap voor een scramble](https://parmate.golf/nl/gidsen/teamhandicap-scramble-berekenen/): Stap voor stap: zo bereken je de WHS teamhandicap voor een scramble met 2, 3 of 4 spelers, met de formule, de verdeling en rekenvoorbeelden.
+- [De verdeling bij een scramble uitgelegd](https://parmate.golf/nl/gidsen/verdeling-scramble-handicap/): De WHS verdeling voor een scramble: 35/15 voor twee spelers, 30/20/10 voor drie en 25/20/15/10 voor vier. Wat het betekent en waarom het werkt.
+- [Zo bereken je je baanhandicap](https://parmate.golf/nl/gidsen/baanhandicap-berekenen/): Zo bereken je je WHS baanhandicap (course handicap) uit je handicap index, slope rating, course rating en par, voor 18 en 9 holes, met rekenvoorbeelden.
+- [Handicapslagen in matchplay uitgelegd](https://parmate.golf/nl/gidsen/matchplay-handicapslagen/): Zo werken handicapslagen in WHS matchplay: 100% bij singles, de laagste handicap speelt van nul, slagen volgens stroke index, en teammatches.
+
+## Courses
+- [All golf courses in Parmate](https://parmate.golf/courses/): 19 Dutch courses with loops, tees and green distance availability.
+- [Bernardus Golf](https://parmate.golf/courses/bernardus-golf/), Cromvoirt
+- [De Zaanse](https://parmate.golf/courses/de-zaanse/), Wijdewormer
+- [Golf & Countryclub Liemeer](https://parmate.golf/courses/golf-countryclub-liemeer/), Nieuwveen
+- [Golf Amsteldijk](https://parmate.golf/courses/golf-amsteldijk/), Amstelveen
+- [Golfbaan Bentwoud](https://parmate.golf/courses/golfbaan-bentwoud/), Benthuizen
+- [Golfbaan De Hooge Rotterdamsche](https://parmate.golf/courses/golfbaan-de-hooge-rotterdamsche/), Bergschenhoek
+- [Golfbaan Dirkshorn](https://parmate.golf/courses/golfbaan-dirkshorn/), Dirkshorn
+- [Golfbaan Het Rijk van Nunspeet](https://parmate.golf/courses/golfbaan-het-rijk-van-nunspeet/), Nunspeet
+- [Golfbaan Spaarnwoude](https://parmate.golf/courses/golfbaan-spaarnwoude/), Velzen-Zuid
+- [Golfbaan Waterland-Amsterdam](https://parmate.golf/courses/golfbaan-waterland-amsterdam/), Amsterdam
+- [Golfcentrum De Hoge Dijk](https://parmate.golf/courses/golfcentrum-de-hoge-dijk/), Amsterdam-Zuidoost
+- [Golfclub Bergvliet](https://parmate.golf/courses/golfclub-bergvliet/), Oosterhout
+- [Golfclub Bergvliet Par-3](https://parmate.golf/courses/golfclub-bergvliet-par-3/), Oosterhout
+- [Golfpark De Purmer](https://parmate.golf/courses/golfpark-de-purmer/), Purmerend
+- [Golfpark Wilnis](https://parmate.golf/courses/golfpark-wilnis/), Wilnis
+- [Golfvereniging Regthuys](https://parmate.golf/courses/golfvereniging-regthuys/), Winkel
+- [Heemskerkse Golfclub](https://parmate.golf/courses/heemskerkse-golfclub/), Heemskerk
+- [Prise d'Eau Golf](https://parmate.golf/courses/prise-d-eau-golf/), Tilburg
+- [The Dutch](https://parmate.golf/courses/the-dutch/), Spijk
+
+## Pages
+- [Home (English)](https://parmate.golf/)
+- [Home (Nederlands)](https://parmate.golf/nl/)
+- [The app](https://play.parmate.golf/)
+- [Privacy policy](https://play.parmate.golf/privacy.html)

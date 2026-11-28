@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% from "forms.html" import course_form, newsletter %}
+{% block main %}
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero-photo" data-photo="hero"></div>
+  <div class="wrap">
+    <div>
+      <h1 id="hero-title">{{ t.h1 }}</h1>
+      <p class="lede">{{ t.h_lede }}</p>
+      <div class="hero-ctas">
+        <a class="btn btn-gold" href="https://play.parmate.golf/">{{ t.open }}</a>
+        <a class="btn btn-line" href="#install">{{ t.how_install }}</a>
+      </div>
+      <p class="nl-note"><span class="flag-nl" aria-hidden="true"></span><span>{{ t.h_note }} <a href="#courses">{{ t.h_note_link }}</a></span></p>
+    </div>
+    <div class="hero-phone">
+      <div class="phone"><img src="/assets/screens/home.webp" width="390" height="844" alt="{{ t.alt_home }}" fetchpriority="high"></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec why" id="why" aria-labelledby="why-title">
+  <div class="wrap">
+    <div class="why-story">
+      <h2 id="why-title">{{ t.why_title }}</h2>
+      {% for p in t.why_ps %}<p{% if loop.first %} style="margin-top:28px"{% endif %}>{{ p }}</p>
+      {% endfor %}<p class="sig"><img src="/assets/crown-180.png" alt="">{{ t.why_sig }}</p>
+    </div>
+    <figure class="why-photo" data-photo="why" style="margin:0" role="img" aria-label="{{ t.alt_why }}">
+      <figcaption>{{ t.photo }} <a href="https://unsplash.com/@willdwind" rel="noopener">Willdwind</a> {{ t.on_unsplash }}</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="sec" id="how" aria-labelledby="how-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="how-title">{{ t.how_title }}</h2>
+      <p class="lede muted">{{ t.how_lede }}</p>
+    </div>
+    <ol class="steps">
+      {% for s in t.steps %}<li>
+        <div class="phone"><img src="/assets/screens/{{ s.img }}.webp" width="390" height="844" alt="{{ s.alt }}"></div>
+        <h3>{{ s.title }}</h3>
+        <p>{{ s.text }}</p>
+      </li>
+      {% endfor %}
+    </ol>
+  </div>
+</section>
+
+<section class="sec calc" id="calc" aria-labelledby="calc-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="calc-title">{{ t.calc_title }}</h2>
+      <p class="lede">{{ t.calc_lede }}</p>
+    </div>
+    <div class="card">
+      <div class="card-top">
+        <span>{{ t.team_hcp }}</span>
+        <div class="size" role="group" aria-label="{{ t.team_size }}">
+          <button type="button" data-size="2" aria-pressed="true">{{ t.two_players }}</button>
+          <button type="button" data-size="3" aria-pressed="false">3</button>
+          <button type="button" data-size="4" aria-pressed="false">4</button>
+        </div>
+      </div>
+      <div class="tee-row">
+        <label>Course rating<input id="cr" type="number" step="0.1" inputmode="decimal" value="70.2" aria-label="Course rating"></label>
+        <label>Slope<input id="sl" type="number" step="1" inputmode="numeric" value="122" aria-label="Slope rating"></label>
+        <label>Par<input id="par" type="number" step="1" inputmode="numeric" value="71" aria-label="Par"></label>
+      </div>
+      <table class="grid">
+        <thead><tr><th scope="col">{{ t.th_player }}</th><th scope="col">{{ t.th_index }}</th><th scope="col" class="hide-s">{{ t.th_ch }}</th><th scope="col">{{ t.th_allow }}</th><th scope="col">{{ t.th_counts }}</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <div class="card-foot">
+        <p class="formula">{{ t.formula }}</p>
+        <div class="team-hcp"><span>{{ t.team_hcp }}</span><output id="thcp" aria-live="polite">5</output></div>
+      </div>
+    </div>
+    <p class="calc-note">{{ t.calc_example }}</p>
+    <p class="calc-note">{{ t.calc_note }} <a href="{{ t.guide1_path }}">{{ t.calc_guide }}</a></p>
+  </div>
+</section>
+
+<section class="sec modes" id="modes" aria-labelledby="modes-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="modes-title">{{ t.modes_title }}</h2>
+      <p class="lede muted">{{ t.modes_lede }}</p>
+    </div>
+    <div class="mode-list">
+      {% for m in t.modes %}<div class="mode"><span class="tag">{{ m.tag }}</span><h3>{{ m.name }}</h3><p>{{ m.text }}</p></div>
+      {% endfor %}
+    </div>
+    <div class="gallery" aria-label="{{ t.gallery_label }}">
+      {% for g in t.gallery %}<figure{% if g.share %} class="share"{% endif %}>{% if g.share %}<img src="/assets/screens/{{ g.img }}.webp" width="540" height="960" alt="{{ g.alt }}">{% else %}<div class="phone"><img src="/assets/screens/{{ g.img }}.webp" width="390" height="844" alt="{{ g.alt }}"></div>{% endif %}<figcaption>{{ g.cap }}</figcaption></figure>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="wrap" aria-label="{{ t.people_label }}" style="padding-bottom:120px;background:var(--chalk)">
+  <div class="people">
+    <figure data-photo="p1" role="img" aria-label="{{ t.alt_p1 }}"><figcaption>{{ t.photo }} <a href="https://unsplash.com/@willhaddock" rel="noopener">Will Haddock</a> {{ t.on_unsplash }}</figcaption></figure>
+    <figure data-photo="p2" role="img" aria-label="{{ t.alt_p2 }}"><figcaption>{{ t.photo }} <a href="https://unsplash.com/@ovethmartinez" rel="noopener">Oveth Martinez</a> {{ t.on_unsplash }}</figcaption></figure>
+  </div>
+</section>
+
+<section class="sec courses" id="courses" aria-labelledby="courses-title">
+  <div class="wrap">
+    <div>
+      <h2 id="courses-title">{{ t.where_title }}</h2>
+      <div class="nl-box">
+        <span class="flag-nl" aria-hidden="true"></span>
+        <div>
+          <strong>{{ t.nlbox_title }}</strong>
+          <p>{{ t.nlbox_text }}</p>
+        </div>
+      </div>
+      <p>{{ t.where_p1 }}</p>
+      <p>{{ t.where_p2 }} <a href="{{ t.courses_path }}">{{ t.where_list }}</a></p>
+    </div>
+    {{ course_form(t) }}
+  </div>
+</section>
+
+<section class="sec install" id="install" aria-labelledby="install-title">
+  <div class="wrap">
+    <div>
+      <h2 id="install-title">{{ t.inst_title }}</h2>
+      <p class="lede" style="margin-top:20px">{{ t.inst_lede }}</p>
+      <div class="os">
+        <div>
+          <h3>Android</h3>
+          <ol>{% for li in t.android %}<li>{{ li|safe }}</li>{% endfor %}</ol>
+        </div>
+        <div>
+          <h3>iPhone</h3>
+          <ol>{% for li in t.iphone %}<li>{{ li|safe }}</li>{% endfor %}</ol>
+          <p class="fine">{{ t.iphone_note }}</p>
+        </div>
+      </div>
+      <div class="hero-ctas" style="margin-bottom:28px">
+        <a class="btn btn-gold" href="https://play.parmate.golf/">{{ t.open }}</a>
+      </div>
+      <div class="qr">
+        <img src="/assets/qr-play.svg" alt="{{ t.alt_qr }}" width="120" height="120">
+        <p>{{ t.qr_text }}</p>
+      </div>
+    </div>
+    <div class="install-phone"><div class="phone"><img src="/assets/screens/trfull.webp" width="390" height="844" alt="{{ t.alt_full }}"></div></div>
+  </div>
+</section>
+
+{{ newsletter(t) }}
+
+<section class="sec faq" id="faq" aria-labelledby="faq-title">
+  <div class="wrap">
+    <h2 id="faq-title" style="margin-bottom:28px">{{ t.faq_title }}</h2>
+    {% for q in t.faq %}<details><summary>{{ q.q }}</summary><p>{{ q.a_html|safe }}</p></details>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

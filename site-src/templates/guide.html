@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% from "forms.html" import newsletter %}
+{% block main %}
+<article class="article">
+  <header class="art-head">
+    <div class="wrap narrow">
+      <nav class="crumbs" aria-label="{{ t.crumbs }}"><a href="{{ t.home }}">Parmate</a> <span aria-hidden="true">/</span> <a href="{{ t.guides_path }}">{{ t.nav_guides }}</a></nav>
+      <h1>{{ g.h1 }}</h1>
+      <p class="lede">{{ g.lede }}</p>
+      <p class="byline">{{ t.by }} Robbie, {{ t.founder }} <span class="sep" aria-hidden="true">|</span> {{ t.updated }} <time datetime="{{ g.updated }}">{{ g.updated_label }}</time></p>
+    </div>
+  </header>
+  <div class="wrap narrow art-body">
+    <aside class="answer" aria-label="{{ t.short_answer }}">
+      <h2>{{ t.short_answer }}</h2>
+      {{ g.answer|safe }}
+    </aside>
+    {{ g.body|safe }}
+    <div class="cta-box">
+      <h2>{{ t.cta_title }}</h2>
+      <p>{{ t.cta_text }}</p>
+      <p class="hero-ctas"><a class="btn btn-gold" href="https://play.parmate.golf/">{{ t.open }}</a> <a class="btn btn-green" href="{{ t.home }}#calc">{{ t.try_calc }}</a></p>
+    </div>
+    {% if g.faq %}
+    <section class="art-faq" aria-labelledby="gfaq">
+      <h2 id="gfaq">{{ t.faq_short }}</h2>
+      {% for q in g.faq %}<details><summary>{{ q.q }}</summary><p>{{ q.a_html|safe }}</p></details>
+      {% endfor %}
+    </section>
+    {% endif %}
+    <section class="sources" aria-labelledby="gsrc">
+      <h2 id="gsrc">{{ t.sources }}</h2>
+      <ul>{% for s in g.sources %}<li><a href="{{ s.url }}" rel="noopener">{{ s.name }}</a></li>{% endfor %}</ul>
+    </section>
+    <nav class="more" aria-labelledby="gmore">
+      <h2 id="gmore">{{ t.more_guides }}</h2>
+      <ul class="guide-list">{% for o in others %}<li><a href="{{ o.path }}"><strong>{{ o.h1 }}</strong><span>{{ o.lede }}</span></a></li>{% endfor %}</ul>
+    </nav>
+  </div>
+</article>
+{{ newsletter(t) }}
+{% endblock %}

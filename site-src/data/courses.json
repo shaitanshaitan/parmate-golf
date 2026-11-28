@@ -1,0 +1,1255 @@
+{
+ "updated": "2026-11-28",
+ "courses": [
+  {
+   "slug": "bernardus-golf",
+   "name": "Bernardus Golf",
+   "city": "Cromvoirt",
+   "country": "NL",
+   "gps": true,
+   "loops": [
+    {
+     "name": "1e 9-holes",
+     "holes": 9,
+     "par": 36,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ]
+    },
+    {
+     "name": "2e 9-holes",
+     "holes": 9,
+     "par": 36,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ]
+    },
+    {
+     "name": "18-holes",
+     "holes": 18,
+     "par": 72,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "de-zaanse",
+   "name": "De Zaanse",
+   "city": "Wijdewormer",
+   "country": "NL",
+   "gps": true,
+   "loops": [
+    {
+     "name": "1e 9-holes",
+     "holes": 9,
+     "par": 36,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "2e 9-holes",
+     "holes": 9,
+     "par": 35,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "18-holes",
+     "holes": 18,
+     "par": 71,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "golf-countryclub-liemeer",
+   "name": "Golf & Countryclub Liemeer",
+   "city": "Nieuwveen",
+   "country": "NL",
+   "gps": false,
+   "loops": [
+    {
+     "name": "1e 9-holes Torenbaan",
+     "holes": 9,
+     "par": 36,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "2e 9-holes Torenbaan",
+     "holes": 9,
+     "par": 36,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "9-holes Bovenlandenbaan",
+     "holes": 9,
+     "par": 30,
+     "tees": [
+      "Medal",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Forward"
+     ]
+    },
+    {
+     "name": "18-holes Torenbaan",
+     "holes": 18,
+     "par": 72,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "18-holes Bovenlandenbaan",
+     "holes": 18,
+     "par": 60,
+     "tees": [
+      "Medal",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Forward"
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "golf-amsteldijk",
+   "name": "Golf Amsteldijk",
+   "city": "Amstelveen",
+   "country": "Netherlands",
+   "gps": true,
+   "loops": [
+    {
+     "name": "9-holes",
+     "holes": 9,
+     "par": 34,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Forward"
+     ]
+    },
+    {
+     "name": "18-holes",
+     "holes": 18,
+     "par": 68,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Forward"
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "golfbaan-bentwoud",
+   "name": "Golfbaan Bentwoud",
+   "city": "Benthuizen",
+   "country": "NL",
+   "gps": false,
+   "loops": [
+    {
+     "name": "Oostwoud",
+     "holes": 9,
+     "par": 35,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "Oostwoud-Zuidwoud",
+     "holes": 18,
+     "par": 71,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "Westwoud-Oostwoud",
+     "holes": 18,
+     "par": 70,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "golfbaan-de-hooge-rotterdamsche",
+   "name": "Golfbaan De Hooge Rotterdamsche",
+   "city": "Bergschenhoek",
+   "country": "NL",
+   "gps": true,
+   "loops": [
+    {
+     "name": "1e 9-holes",
+     "holes": 9,
+     "par": 36,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "2e 9-holes",
+     "holes": 9,
+     "par": 35,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "18-holes",
+     "holes": 18,
+     "par": 71,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "golfbaan-dirkshorn",
+   "name": "Golfbaan Dirkshorn",
+   "city": "Dirkshorn",
+   "country": "Netherlands",
+   "gps": true,
+   "loops": [
+    {
+     "name": "Front 9-holes",
+     "holes": 9,
+     "par": 36,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "Back 9-holes",
+     "holes": 9,
+     "par": 36,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "18-holes",
+     "holes": 18,
+     "par": 72,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "golfbaan-het-rijk-van-nunspeet",
+   "name": "Golfbaan Het Rijk van Nunspeet",
+   "city": "Nunspeet",
+   "country": "Netherlands",
+   "gps": false,
+   "loops": [
+    {
+     "name": "Noord",
+     "holes": 9,
+     "par": 36,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "Oost",
+     "holes": 9,
+     "par": 36,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "Zuid",
+     "holes": 9,
+     "par": 36,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "Noord-Oost",
+     "holes": 18,
+     "par": 72,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "Oost-Zuid",
+     "holes": 18,
+     "par": 72,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "Zuid-Noord",
+     "holes": 18,
+     "par": 72,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "golfbaan-spaarnwoude",
+   "name": "Golfbaan Spaarnwoude",
+   "city": "Velzen-Zuid",
+   "country": "Netherlands",
+   "gps": false,
+   "loops": [
+    {
+     "name": "E-holes",
+     "holes": 9,
+     "par": 35,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "D-holes",
+     "holes": 9,
+     "par": 36,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "C-holes",
+     "holes": 9,
+     "par": 37,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "E + D holes",
+     "holes": 18,
+     "par": 71,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "E + C holes",
+     "holes": 18,
+     "par": 72,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "C + D holes",
+     "holes": 18,
+     "par": 73,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "golfbaan-waterland-amsterdam",
+   "name": "Golfbaan Waterland-Amsterdam",
+   "city": "Amsterdam",
+   "country": "Netherlands",
+   "gps": true,
+   "loops": [
+    {
+     "name": "1ste 9-holes",
+     "holes": 9,
+     "par": 35,
+     "tees": [
+      "Medal",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Forward"
+     ]
+    },
+    {
+     "name": "2de 9-holes",
+     "holes": 9,
+     "par": 36,
+     "tees": [
+      "Medal",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Forward"
+     ]
+    },
+    {
+     "name": "18-holes",
+     "holes": 18,
+     "par": 71,
+     "tees": [
+      "Medal",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Forward"
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "golfcentrum-de-hoge-dijk",
+   "name": "Golfcentrum De Hoge Dijk",
+   "city": "Amsterdam-Zuidoost",
+   "country": "Netherlands",
+   "gps": true,
+   "loops": [
+    {
+     "name": "Abcoudebaan 9-holes",
+     "holes": 9,
+     "par": 31,
+     "tees": [
+      "Medal",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Forward"
+     ]
+    },
+    {
+     "name": "Bullewijk 9-holes",
+     "holes": 9,
+     "par": 35,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "Holendrecht 9-holes",
+     "holes": 9,
+     "par": 36,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "Abcoudebaan-Bullewijk 18-holes",
+     "holes": 18,
+     "par": 66,
+     "tees": [
+      "Medal",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Forward"
+     ]
+    },
+    {
+     "name": "Abcoudebaan-Holendrecht 18-holes",
+     "holes": 18,
+     "par": 67,
+     "tees": [
+      "Medal",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Forward"
+     ]
+    },
+    {
+     "name": "Bullewijk-Holendrecht 18-holes",
+     "holes": 18,
+     "par": 71,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "golfclub-bergvliet",
+   "name": "Golfclub Bergvliet",
+   "city": "Oosterhout",
+   "country": "NL",
+   "gps": true,
+   "loops": [
+    {
+     "name": "18-holes",
+     "holes": 18,
+     "par": 71,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "golfclub-bergvliet-par-3",
+   "name": "Golfclub Bergvliet Par-3",
+   "city": "Oosterhout",
+   "country": "NL",
+   "gps": false,
+   "loops": [
+    {
+     "name": "9-holes par-3",
+     "holes": 9,
+     "par": 27,
+     "tees": [
+      "Medal"
+     ],
+     "women": [
+      "Forward"
+     ]
+    },
+    {
+     "name": "18-holes par-3",
+     "holes": 18,
+     "par": 54,
+     "tees": [
+      "Medal"
+     ],
+     "women": [
+      "Forward"
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "golfpark-de-purmer",
+   "name": "Golfpark De Purmer",
+   "city": "Purmerend",
+   "country": "NL",
+   "gps": false,
+   "loops": [
+    {
+     "name": "Geel",
+     "holes": 9,
+     "par": 36,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "Rood",
+     "holes": 9,
+     "par": 35,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "Wit",
+     "holes": 9,
+     "par": 36,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "Geel-Rood",
+     "holes": 18,
+     "par": 71,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "Geel-Wit",
+     "holes": 18,
+     "par": 72,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "Wit-Rood",
+     "holes": 18,
+     "par": 71,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "golfpark-wilnis",
+   "name": "Golfpark Wilnis",
+   "city": "Wilnis",
+   "country": "NL",
+   "gps": true,
+   "loops": [
+    {
+     "name": "1e 9-holes",
+     "holes": 9,
+     "par": 36,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "2e 9-holes",
+     "holes": 9,
+     "par": 36,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "18-holes",
+     "holes": 18,
+     "par": 72,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "golfvereniging-regthuys",
+   "name": "Golfvereniging Regthuys",
+   "city": "Winkel",
+   "country": "NL",
+   "gps": false,
+   "loops": [
+    {
+     "name": "9-holes Tulpenlus",
+     "holes": 9,
+     "par": 35,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Forward"
+     ]
+    },
+    {
+     "name": "9-holes Dijklus",
+     "holes": 9,
+     "par": 36,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Forward"
+     ]
+    },
+    {
+     "name": "18-holes Tulp-Dijklus",
+     "holes": 18,
+     "par": 71,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Forward"
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "heemskerkse-golfclub",
+   "name": "Heemskerkse Golfclub",
+   "city": "Heemskerk",
+   "country": "NL",
+   "gps": true,
+   "loops": [
+    {
+     "name": "1e 9-holes (Polderlus)",
+     "holes": 9,
+     "par": 36,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "2e 9-holes (Parklus)",
+     "holes": 9,
+     "par": 36,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "18-holes",
+     "holes": 18,
+     "par": 72,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "prise-d-eau-golf",
+   "name": "Prise d'Eau Golf",
+   "city": "Tilburg",
+   "country": "NL",
+   "gps": false,
+   "loops": [
+    {
+     "name": "De Blaak",
+     "holes": 9,
+     "par": 36,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "De Leij",
+     "holes": 9,
+     "par": 36,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "De Sijsten",
+     "holes": 9,
+     "par": 36,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "De Blaak - De Sijsten",
+     "holes": 18,
+     "par": 72,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "De Leij - De Blaak",
+     "holes": 18,
+     "par": 72,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "De Sijsten - De Leij",
+     "holes": 18,
+     "par": 72,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "the-dutch",
+   "name": "The Dutch",
+   "city": "Spijk",
+   "country": "NL",
+   "gps": true,
+   "loops": [
+    {
+     "name": "1e 9-holes",
+     "holes": 9,
+     "par": 35,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "2e 9-holes",
+     "holes": 9,
+     "par": 36,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    },
+    {
+     "name": "18-holes",
+     "holes": 18,
+     "par": 71,
+     "tees": [
+      "Champion",
+      "Medal",
+      "Senior",
+      "Forward"
+     ],
+     "women": [
+      "Medal",
+      "Blue",
+      "Forward"
+     ]
+    }
+   ]
+  }
+ ]
+}
