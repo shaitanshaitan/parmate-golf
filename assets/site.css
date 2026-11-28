@@ -53,7 +53,15 @@ p{margin:0 0 1em}
 .nav ul a{text-decoration:none;font-weight:500;font-size:15px;opacity:.86}
 .nav ul a:hover{opacity:1}
 .nav .btn{padding:11px 18px;font-size:15px}
-@media (max-width:860px){.nav ul{display:none}.nav .btn{margin-left:auto}}
+@media (max-width:860px){
+  .nav .wrap{flex-wrap:wrap;height:auto;row-gap:0;padding-top:10px}
+  .nav .btn{margin-left:auto}
+  .nav ul{order:3;width:100%;margin:0;gap:4px;overflow-x:auto;scrollbar-width:none;padding:6px 0 8px;border-top:1px solid rgba(255,255,255,.12);margin-top:10px}
+  .nav ul::-webkit-scrollbar{display:none}
+  .nav ul a{display:inline-block;white-space:nowrap;padding:8px 10px;font-size:15px;opacity:.92}
+  .nav ul li:first-child a{padding-left:0}
+  section,.art-head{scroll-margin-top:120px}
+}
 
 /* hero */
 .hero{position:relative;color:#fff;background:var(--pine);overflow:hidden}
