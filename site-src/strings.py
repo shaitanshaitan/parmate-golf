@@ -5,7 +5,7 @@
 COMMON = {
     'en': dict(
         lang='en', home='/', guides_path='/guides/', courses_path='/courses/',
-        guide1_path='/guides/scramble-team-handicap/',
+        guide1_path='/guides/scramble-team-handicap/', privacy_path='/privacy/', f_site_privacy='Website privacy', f_app_privacy='App privacy policy',
         skip='Skip to content', nav_how='How it works', nav_guides='Guides', nav_courses='Courses',
         get_app='Get the app', open='Open Parmate', how_install='How to install',
         footer_blurb='Scramble and match play golf: WHS team handicaps, scoring and matches. Made in Amsterdam by The Ninth Tee.',
@@ -57,7 +57,7 @@ COMMON = {
     ),
     'nl': dict(
         lang='nl', home='/nl/', guides_path='/nl/gidsen/', courses_path='/nl/banen/',
-        guide1_path='/nl/gidsen/teamhandicap-scramble-berekenen/',
+        guide1_path='/nl/gidsen/teamhandicap-scramble-berekenen/', privacy_path='/nl/privacy/', f_site_privacy='Privacy website', f_app_privacy='Privacybeleid app',
         skip='Naar de inhoud', nav_how='Zo werkt het', nav_guides='Gidsen', nav_courses='Banen',
         get_app='Download', open='Open Parmate', how_install='Zo installeer je de app',
         footer_blurb='Scramble en matchplay: WHS teamhandicaps, scores en matches. Gemaakt in Amsterdam door The Ninth Tee.',

@@ -16,6 +16,7 @@ ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 from strings import COMMON, HOME          # noqa: E402
 from guides import GUIDES, ALLOW_TABLE, SRC, UPDATED, UPDATED_LABEL  # noqa: E402
+from privacy import PRIVACY  # noqa: E402
 
 SITE = 'https://parmate.golf'
 LANGS = ['en', 'nl']
@@ -262,6 +263,13 @@ def main():
         title = COMMON[lang]['ci_h1'] + (' | Scramble and match play with Parmate' if lang == 'en' else ' | Scramble en matchplay met Parmate')
         page = pageinfo(lang, ci, title, COMMON[lang]['ci_lede'], ld)
         write(ci[lang], render('courses_index.html', lang, page, courses=items, updated=cdata['updated'], updated_label=date_label(cdata['updated'], lang)))
+
+    # website privacy notice
+    pp = {'en': '/privacy/', 'nl': '/nl/privacy/'}
+    for lang in LANGS:
+        P = dict(PRIVACY[lang]); P['updated'] = UPDATED; P['updated_label'] = UPDATED_LABEL[lang]
+        page = pageinfo(lang, pp, P['title'], P['description'], graph({"@type": "WebPage", "name": P['h1'], "url": SITE + pp[lang], "inLanguage": lang}))
+        write(pp[lang], render('privacy.html', lang, page, p=P))
 
     # 404 (not in sitemap)
     p404 = dict(title='Page not found | Parmate', description='This page does not exist.', path='/404.html', xdefault='/404.html',

@@ -260,4 +260,14 @@
     <xhtml:link rel="alternate" hreflang="nl" href="https://parmate.golf/nl/banen/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://parmate.golf/courses/"/>
   </url>
+  <url><loc>https://parmate.golf/privacy/</loc><lastmod>2026-11-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://parmate.golf/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="nl" href="https://parmate.golf/nl/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://parmate.golf/privacy/"/>
+  </url>
+  <url><loc>https://parmate.golf/nl/privacy/</loc><lastmod>2026-11-28</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://parmate.golf/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="nl" href="https://parmate.golf/nl/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://parmate.golf/privacy/"/>
+  </url>
 </urlset>

@@ -75,7 +75,8 @@
       <ul>
         <li><a href="mailto:info@theninthtee.eu">info@theninthtee.eu</a></li>
         <li><a href="mailto:support@theninthtee.eu">support@theninthtee.eu</a></li>
-        <li><a href="https://play.parmate.golf/privacy.html">{{ t.f_privacy }}</a></li>
+        <li><a href="{{ t.privacy_path }}">{{ t.f_site_privacy }}</a></li>
+        <li><a href="https://play.parmate.golf/privacy.html">{{ t.f_app_privacy }}</a></li>
         {%- if page.switch %}
         <li><a href="{{ page.switch.path }}" hreflang="{{ page.switch.lang }}" lang="{{ page.switch.lang }}">{{ page.switch.label }}</a></li>
         {%- endif %}
